@@ -18,7 +18,7 @@
 #include "sw.h"
 
 
-typedef enum {
+enum gamekey {
 	KEY_UNKNOWN,
 	KEY_PULLUP,
 	KEY_PULLDOWN,
@@ -32,7 +32,7 @@ typedef enum {
 	KEY_DECEL,
 	KEY_SOUND,
 	NUM_KEYS,
-} sopkey_t;
+};
 
 // which keys are currently down
 // this is actually a simple bitfield

@@ -566,7 +566,7 @@ static SDL_Keysym InputBufferPop(void)
 	return result;
 }
 
-static sopkey_t TranslateScancode(int sdl_scancode)
+static enum gamekey TranslateScancode(int sdl_scancode)
 {
 	int i;
 
@@ -634,7 +634,7 @@ static void CtrlKeyPress(SDL_Keycode k)
 
 static void KeyDown(SDL_KeyboardEvent *event)
 {
-	sopkey_t translated;
+	enum gamekey translated;
 
 	if (CtrlDown()) {
 		CtrlKeyPress(event->keysym.sym);
@@ -665,7 +665,7 @@ static void KeyDown(SDL_KeyboardEvent *event)
 
 static void KeyUp(SDL_KeyboardEvent *event)
 {
-	sopkey_t translated = TranslateScancode(event->keysym.scancode);
+	enum gamekey translated = TranslateScancode(event->keysym.scancode);
 	if (translated != KEY_UNKNOWN) {
 		keysdown[translated] &= ~1;
 	}
