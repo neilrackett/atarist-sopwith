@@ -107,6 +107,6 @@ void Vid_ClearBuf(void);
 
 char *Vid_GetPrefPath(void);
 
-void error_exit(char *s, ...);
+void ErrorExit(char *s, ...);
 
 #endif

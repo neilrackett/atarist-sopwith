@@ -238,8 +238,8 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 
 	// Query renderer and limit to maximum texture dimensions of hardware:
 	if (SDL_GetRendererInfo(renderer, &rinfo) != 0) {
-		error_exit("CreateUpscaledTexture: SDL_GetRendererInfo() "
-		           "call failed: %s", SDL_GetError());
+		ErrorExit("CreateUpscaledTexture: SDL_GetRendererInfo() "
+		          "call failed: %s", SDL_GetError());
 	}
 
 	while (*w_upscale * SCR_WDTH > rinfo.max_texture_width) {
@@ -251,10 +251,10 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 
 	if ((*w_upscale < 1 && rinfo.max_texture_width > 0)
 	 || (*h_upscale < 1 && rinfo.max_texture_height > 0)) {
-		error_exit("CreateUpscaledTexture: Can't create a "
-		           "texture big enough for the whole screen! "
-		           "Maximum texture size %dx%d",
-		           rinfo.max_texture_width, rinfo.max_texture_height);
+		ErrorExit("CreateUpscaledTexture: Can't create a "
+		          "texture big enough for the whole screen! "
+		          "Maximum texture size %dx%d",
+		          rinfo.max_texture_width, rinfo.max_texture_height);
 	}
 
 	// We limit the amount of texture memory used for the intermediate buffer,
@@ -263,10 +263,10 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 	// huge textures, so the user can use this to reduce the maximum texture
 	// size if desired.
 	if (max_scaling_buffer_pixels < SCR_WDTH * SCR_HGHT) {
-		error_exit("CreateUpscaledTexture: max_scaling_buffer_"
-		           "pixels too small to create a texture buffer:"
-		           " %d < %d", max_scaling_buffer_pixels,
-		           SCR_WDTH * SCR_HGHT);
+		ErrorExit("CreateUpscaledTexture: max_scaling_buffer_"
+		          "pixels too small to create a texture buffer:"
+		          " %d < %d", max_scaling_buffer_pixels,
+		          SCR_WDTH * SCR_HGHT);
 	}
 
 	while (*w_upscale * *h_upscale * SCR_WDTH * SCR_HGHT
@@ -298,7 +298,7 @@ static void CreateUpscaledTexture(int force)
 	// real world pixels, which are not necessarily equivalent to the
 	// screen's window size (because of highdpi).
 	if (SDL_GetRendererOutputSize(renderer, &w, &h) != 0) {
-		error_exit("failed to get renderer size: %s", SDL_GetError());
+		ErrorExit("failed to get renderer size: %s", SDL_GetError());
 	}
 
 	// When the screen or window dimensions do not match the aspect ratio
@@ -388,8 +388,8 @@ static void Vid_SetMode(void)
 	int bpp;
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		error_exit("Unable to initialize video subsystem: %s",
-		           SDL_GetError());
+		ErrorExit("Unable to initialize video subsystem: %s",
+		          SDL_GetError());
 	}
 	srand(time(NULL));
 
@@ -405,7 +405,7 @@ static void Vid_SetMode(void)
 	                          SDL_WINDOWPOS_CENTERED, w, h, flags);
 
 	if (window == NULL) {
-		error_exit("Failed to open SDL window: %s", SDL_GetError());
+		ErrorExit("Failed to open SDL window: %s", SDL_GetError());
 	}
 
 	SDL_StopTextInput();
@@ -783,7 +783,7 @@ int isatty(int fd)
 }
 #endif
 
-void error_exit(char *s, ...)
+void ErrorExit(char *s, ...)
 {
 	static char buf[128];
 	va_list args;

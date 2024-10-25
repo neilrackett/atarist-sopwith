@@ -1112,7 +1112,7 @@ void swinit(int argc, char *argv[])
 			asynmode = ASYN_LISTEN;
 		} else if (!strcasecmp(argv[i], "-j")) {
 			if (i + 1 >= argc) {
-				error_exit("insufficient arguments to -j");
+				ErrorExit("insufficient arguments to -j");
 			}
 			a = true;
 			asynmode = ASYN_CONNECT;
@@ -1120,7 +1120,7 @@ void swinit(int argc, char *argv[])
 			snprintf(asynhost, sizeof(asynhost), "%s", argv[i]);
 		} else if (!strcmp(argv[i], "-p")) {
 			if (i + 1 >= argc) {
-				error_exit("insufficient arguments to -p");
+				ErrorExit("insufficient arguments to -p");
 			}
 			++i;
 			asynport = atoi(argv[i]);

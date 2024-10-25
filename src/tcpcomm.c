@@ -62,7 +62,7 @@ static void comminit(void)
 		WSADATA wsaData;
 
 		if (WSAStartup(winsock11, &wsaData) != 0) {
-			error_exit("Error initializing winsock.");
+			ErrorExit("Error initializing winsock.");
 		}
 	}
 #endif
@@ -126,16 +126,16 @@ void commconnect(char *host)
 	if (!hent) {
 		// TODO: Handle this more softly than exiting the whole
 		// program; let the user type the address again?
-		error_exit("commconnect: cant resolve '%s': %s", host,
-		           strerror(errno));
+		ErrorExit("commconnect: cant resolve '%s': %s", host,
+		          strerror(errno));
 	}
 	// create socket
 
 	tcp_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (tcp_sock < 0) {
-		error_exit("commconnect: can't create socket: %s",
-		           strerror(errno));
+		ErrorExit("commconnect: can't create socket: %s",
+		          strerror(errno));
 	}
 
 	// connect
@@ -145,8 +145,8 @@ void commconnect(char *host)
 	in.sin_port = htons(port);
 
 	if (connect(tcp_sock, (struct sockaddr *) &in, sizeof(in)) < 0) {
-		error_exit("commconnect: cant connect to '%s': %s",
-		           host, strerror(errno));
+		ErrorExit("commconnect: cant connect to '%s': %s",
+		          host, strerror(errno));
 	}
 	fprintf(stderr, "commconnect: connected to '%s'!\n", host);
 #endif    /* #ifdef TCPIP */
@@ -167,8 +167,8 @@ void commlisten(void)
 	server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (server_sock < 0) {
-		error_exit("commconnect: can't create socket: %s",
-		           strerror(errno));
+		ErrorExit("commconnect: can't create socket: %s",
+		          strerror(errno));
 	}
 	// bind to port
 
@@ -178,8 +178,8 @@ void commlisten(void)
 	in.sin_port = htons(asynport);
 
 	if (bind(server_sock, (struct sockaddr *) &in, sizeof(in)) < 0) {
-		error_exit("commlisten: cant bind to port %d: %s",
-		           asynport, strerror(errno));
+		ErrorExit("commlisten: cant bind to port %d: %s",
+		          asynport, strerror(errno));
 	}
 
 	atexit(commterm);
@@ -187,8 +187,8 @@ void commlisten(void)
 	// listen for connections
 
 	if (listen(server_sock, 1)) {
-		error_exit("commlisten: cant listen on port %i: %s",
-		           asynport, strerror(errno));
+		ErrorExit("commlisten: cant listen on port %i: %s",
+		          asynport, strerror(errno));
 	}
 
 	fprintf(stderr,
@@ -198,7 +198,7 @@ void commlisten(void)
 
 	for (;;) {
 		if (ctlbreak()) {
-			error_exit("commlisten: user aborted connect");
+			ErrorExit("commlisten: user aborted connect");
 		}
 
 		if (!PollSocket(server_sock)) {
@@ -213,8 +213,8 @@ void commlisten(void)
 			break;
 		}
 
-		error_exit("commlisten: error accepting connection: %s",
-		           strerror(errno));
+		ErrorExit("commlisten: error accepting connection: %s",
+		          strerror(errno));
 	}
 
 	fprintf(stderr, "commlisten: accepted connection from %s\n",
@@ -244,8 +244,7 @@ int commin(void)
 	bytes = recv(tcp_sock, (char *) &c, 1, 0);
 
 	if (bytes < 1) {
-		error_exit("commin: %s reading from socket",
-		           strerror(errno));
+		ErrorExit("commin: %s reading from socket", strerror(errno));
 		return 0;
 	}
 
@@ -265,8 +264,7 @@ void commout(unsigned char i)
 	}
 
 	if (!send(tcp_sock, (char *) &i, 1, 0)) {
-		error_exit("commout: %s writing to socket",
-		           strerror(errno));
+		ErrorExit("commout: %s writing to socket", strerror(errno));
 	}
 #endif   /* #ifdef TCPIP */
 }

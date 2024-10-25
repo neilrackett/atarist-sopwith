@@ -400,7 +400,7 @@ void LoadCustomLevel(const char *filename)
 
 	fs = fopen(filename, "r");
 	if (fs == NULL) {
-		error_exit("Failed to open file: %s", filename);
+		ErrorExit("Failed to open file: %s", filename);
 	}
 	obj = yocton_read_from(fs);
 	assert(obj != NULL);
@@ -426,8 +426,8 @@ void LoadCustomLevel(const char *filename)
 	}
 
 	if (yocton_have_error(obj, &lineno, &error_msg)) {
-		error_exit("Error in %s at line %d:\n%s", filename, lineno,
-		           error_msg);
+		ErrorExit("Error in %s at line %d:\n%s", filename, lineno,
+		          error_msg);
 	}
 
 	yocton_free(obj);
