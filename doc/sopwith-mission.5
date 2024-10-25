@@ -335,6 +335,12 @@ will be played in this octave.
 .IP \(bu
 Append a '.' character to play a dotted note. A dotted note plays for 50%
 longer than a normal note.
+.PP
+The original DOS version of Sopwith interpreted notes as being in the A minor
+scale, but this is believed to have been a mistake and notes are now assumed
+to be in the more common C major scale. This does, however, mean that tunes
+from DOS .exe hacks will play differently; any A or B notes will need to be
+shifted down one octave to convert to the C major scale.
 .SH SEE ALSO
 \fBsopwith\fR(6),
 .
