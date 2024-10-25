@@ -47,7 +47,9 @@ enum gamekey {
 extern int keysdown[NUM_KEYS];
 extern int keybindings[NUM_KEYS];
 
-extern bool vid_fullscreen;         // fullscreen
+extern bool vid_fullscreen;
+extern unsigned char *vid_vram;
+extern unsigned int vid_pitch;
 
 // init/shutdown
 

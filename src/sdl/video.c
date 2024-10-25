@@ -69,8 +69,6 @@ static const struct palette video_palettes[] = {
 		 {0xff, 0x00, 0x00}, {0xff, 0xff, 0xff}}},
 };
 
-extern unsigned char *vid_vram;
-extern unsigned int vid_pitch;
 extern bool isNetworkGame(void);
 
 int keybindings[NUM_KEYS] = {

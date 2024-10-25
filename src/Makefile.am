@@ -44,7 +44,6 @@ COMMON_SOURCES =                   \
         tcpcomm.c    tcpcomm.h     \
         timer.h                    \
         video.c      video.h       \
-        vid_vga.c                  \
         yocton.c     yocton.h
 
 fixincludes:
