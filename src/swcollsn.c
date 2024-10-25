@@ -144,10 +144,9 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 }
 
 
-static OBJECTS *
-get_score_obj(OBJECTS *ob, int *reverse)
-/* Determine the object that receives a score if 'ob' is destriyed, and whether the score
-** should be subtracted rather than added (iff reverse nonzero) */
+/* Determine the object that receives a score if 'ob' is destriyed, and whether
+ * the score should be subtracted rather than added (iff reverse nonzero) */
+static OBJECTS *GetScoreObject(OBJECTS *ob, int *reverse)
 {
 	OBJECTS *retval;
 	*reverse = 0;
@@ -168,7 +167,7 @@ static void scoretarg(OBJECTS *obp, int score)
 	OBJECTS *ob;
 	int reverse_score;
 
-	ob = get_score_obj(obp, &reverse_score);
+	ob = GetScoreObject(obp, &reverse_score);
 	if (reverse_score) {
 		ob->ob_score.score -= score;
 	} else {
@@ -224,11 +223,9 @@ static void crater(OBJECTS * ob)
 
 /* Determine whether the parameter is a shot and hasn't moved very much yet;
 ** Used to avoid having planes hitting themselves */
-
-static int
-is_young_shot(OBJECTS *ob)
+static bool IsYoungShot(OBJECTS *ob)
 {
-	return (ob && ob->ob_type == SHOT && ob->ob_life >= BULLIFE - 1);
+	return ob && ob->ob_type == SHOT && ob->ob_life >= BULLIFE - 1;
 }
 
 static void swkill(OBJECTS * ob1, OBJECTS * ob2)
@@ -261,7 +258,7 @@ static void swkill(OBJECTS * ob1, OBJECTS * ob2)
 		/* cr 2005-04-28: Don't stop the shot if it just
 		 * launched from its presumed originator */
 
-		if (!(obt && obt->ob_type == PLANE && is_young_shot(ob))) {
+		if (!(obt && obt->ob_type == PLANE && IsYoungShot(ob))) {
 			ob->ob_life = 1;
 		}
 		return;
@@ -314,7 +311,7 @@ static void swkill(OBJECTS * ob1, OBJECTS * ob2)
 
 		/* cr 2005-04-28: Avoid having planes hit themselves */
 
-		if (is_young_shot(obt)) {
+		if (IsYoungShot(obt)) {
 			return;	
 		}
 
@@ -530,7 +527,7 @@ static void tstcrash(OBJECTS *obp)
 static int ComputeValour(OBJECTS *ob)
 {
 	int reverse;
-	OBJECTS *so = get_score_obj(ob, &reverse);
+	OBJECTS *so = GetScoreObject(ob, &reverse);
 	int x_home;
 	int distance;
 	int valour = 0;
@@ -572,7 +569,7 @@ static int ComputeValour(OBJECTS *ob)
 static void BlastTarget(OBJECTS *ob, obtype_t type)
 {
 	int reverse;
-	OBJECTS *so = get_score_obj(ob, &reverse);
+	OBJECTS *so = GetScoreObject(ob, &reverse);
 
 	if (reverse) {
 		return;
@@ -592,7 +589,7 @@ void scorepln(OBJECTS * ob, obtype_t type)
 
 	if (type == BOMB || type == SHOT || type == MISSILE || type == PLANE) {
 		int reverse;
-		OBJECTS *scobj = get_score_obj(ob, &reverse);
+		OBJECTS *scobj = GetScoreObject(ob, &reverse);
 		if (!reverse) {
 			if (had_taken_off) {
 				if (type != PLANE) {
