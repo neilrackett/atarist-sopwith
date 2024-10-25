@@ -560,7 +560,7 @@ static int ComputeValour(OBJECTS *ob)
 		valour++;
 	}
 
-	if (plane_is_wounded(so->ob_state)) {
+	if (PlaneIsWounded(so->ob_state)) {
 		valour = (valour + 1) * 3;
 	} else {
 		valour *= 2;

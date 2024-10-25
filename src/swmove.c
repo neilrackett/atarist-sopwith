@@ -245,7 +245,7 @@ static void interpret(OBJECTS *ob, int key)
 
 	state = ob->ob_state;
 
-	if (plane_is_killed(state) && state != FALLING) {
+	if (PlaneIsKilled(state) && state != FALLING) {
 		return;
 	}
 
@@ -276,7 +276,7 @@ static void interpret(OBJECTS *ob, int key)
 		}
 	}
 
-	if (!plane_is_wounded(state) || (countmove & 1) != 0) {
+	if (!PlaneIsWounded(state) || (countmove & 1) != 0) {
 		if (key & K_FLAPU) {
 			++ob->ob_flaps;
 			ob->ob_home = false;
@@ -499,7 +499,7 @@ static bool movepln(OBJECTS *ob)
 		}
 
 		if (ob->ob_life <= 0 && !ob->ob_athome
-		 && !plane_is_killed(state)) {
+		 && !PlaneIsKilled(state)) {
 			hitpln(ob);
 			scorepln(ob, GROUND);
 			return movepln(ob);
@@ -641,7 +641,7 @@ static bool movepln(OBJECTS *ob)
 
 	if (!compplane
 	 && consoleplayer->ob_endsts == PLAYING
-	 && !plane_is_killed(ob->ob_state)) {
+	 && !PlaneIsKilled(ob->ob_state)) {
 		nearpln(ob);
 	}
 
@@ -660,8 +660,7 @@ static bool movepln(OBJECTS *ob)
 	}
 
 	if (y < MAX_Y && y >= 0) {
-		if (ob->ob_state == FALLING
-		 || plane_is_wounded(ob->ob_state)) {
+		if (ob->ob_state == FALLING || PlaneIsWounded(ob->ob_state)) {
 			initsmok(ob);
 		}
 		return plyrplane || ob->ob_state < FINISHED;
@@ -851,7 +850,7 @@ static void TargetEnemyPlanes(OBJECTS *ob)
 		    (playmode != PLAYMODE_ASYNCH && obp != planes[0])) {
 			continue;
 		}
-		if (plane_is_killed(obp->ob_state)) {
+		if (PlaneIsKilled(obp->ob_state)) {
 			continue;
 		}
 		r = range(ob->ob_x, ob->ob_y, obp->ob_x, obp->ob_y);
@@ -987,7 +986,7 @@ bool movesmok(OBJECTS * obp)
 
 	if (ob->ob_life <= 0
 	 || (planestate != FALLING && planestate != CRASHED
-	  && !plane_is_wounded(planestate))) {
+	  && !PlaneIsWounded(planestate))) {
 		deallobj(ob);
 		return false;
 	}

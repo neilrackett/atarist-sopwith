@@ -168,7 +168,7 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 
 	correction = false;
 
-	if (plane_is_stalled(ob->ob_state)
+	if (PlaneIsStalled(ob->ob_state)
 	 && ob->ob_angle != (3 * ANGLES / 4)) {
 		ob->ob_flaps = -1;
 		ob->ob_accel = MAX_THROTTLE;
