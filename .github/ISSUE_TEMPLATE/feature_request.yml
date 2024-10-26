@@ -10,5 +10,6 @@ body:
     id: description
     attributes:
       description: What's your idea?
+      label: Description
     validations:
       required: true

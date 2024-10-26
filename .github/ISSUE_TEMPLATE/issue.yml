@@ -13,7 +13,7 @@ body:
       description: What version of SDL Sopwith has the bug?
     validations:
       required: true
-  - type: input
+  - type: dropdown
     id: platform
     attributes:
       label: What platform/OS are you using?
