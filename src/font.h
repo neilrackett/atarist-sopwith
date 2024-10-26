@@ -18,11 +18,13 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
+#include <stdint.h>
+
 /* ---- 8x8 font definition ---- */
 
 #define GFX_FONTDATAMAX (8*256)
 
-static unsigned char font_data[GFX_FONTDATAMAX] = {
+static uint8_t font_data[GFX_FONTDATAMAX] = {
 
 	/* 0 0x00 '^@' */
 	0x00, /* 00000000 */

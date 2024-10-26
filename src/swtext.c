@@ -32,7 +32,7 @@ static int cur_color;		// text color
 
 static inline void drawchar(int x, int y, int c)
 {
-	unsigned char *p;
+	uint8_t *p;
 	int x2, y2;
 
 	if (c < 0 || c >= 256) {

@@ -945,7 +945,7 @@ symset_t symbol_ribbon[6];               // swribbonsym
 
 // special symbol for single pixel (bullets etc)
 
-static unsigned char pixel_data[] = { 3 };
+static uint8_t pixel_data[] = { 3 };
 
 sopsym_t symbol_pixel = {
 	pixel_data,

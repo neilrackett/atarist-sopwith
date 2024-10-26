@@ -118,7 +118,7 @@ static SDL_Surface *SurfaceFromSopsym(sopsym_t *sym)
 		0, sym->w * ICON_SCALE, sym->h * ICON_SCALE, 32,
 		0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
 
-	unsigned char *src;
+	uint8_t *src;
 	uint32_t *dst;
 	int x, y, sx, sy;
 

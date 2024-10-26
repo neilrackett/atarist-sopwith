@@ -15,13 +15,15 @@
 #ifndef __SWSYMBOL_H__
 #define __SWSYMBOL_H__
 
+#include <stdint.h>
+
 typedef struct sopsym_s sopsym_t;
 typedef struct symset_s symset_t;
 
 #include "sw.h"
 
 struct sopsym_s {
-	unsigned char *data;
+	uint8_t *data;
 	int w, h;
 };
 

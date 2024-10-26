@@ -41,7 +41,7 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 	int x, y;
 	int x1, y1, x2, y2;
 	int w, h;
-	unsigned char *data1, *data2;
+	uint8_t *data1, *data2;
 
 	if ((ob1->ob_type == PLANE && ob1->ob_state >= FINISHED)
 	 || (ob2->ob_type == PLANE && ob2->ob_state >= FINISHED)
@@ -116,7 +116,7 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 	data2 = ob2->ob_newsym->data + ob2->ob_newsym->w * y2 + x2;
 
 	for (y=0; y<h; ++y) {
-		unsigned char *d1 = data1, *d2 = data2;
+		uint8_t *d1 = data1, *d2 = data2;
 
 		for (x=0; x<w; ++x) {
 			if (*d1 && *d2) {

@@ -15,6 +15,8 @@
 #ifndef __VIDEO_H__
 #define __VIDEO_H__
 
+#include <stdint.h>
+
 #include "sw.h"
 
 enum gamekey {
@@ -47,7 +49,7 @@ extern int keysdown[NUM_KEYS];
 extern int keybindings[NUM_KEYS];
 
 extern bool vid_fullscreen;
-extern unsigned char *vid_vram;
+extern uint8_t *vid_vram;
 extern unsigned int vid_pitch;
 
 // init/shutdown

@@ -35,7 +35,7 @@ static const uint8_t color_mappings[][4] = {
 	{ 0, 2, 2, 3 },  // All-magenta                   - OWNER_PLAYER8
 };
 
-unsigned char *vid_vram;
+uint8_t *vid_vram;
 unsigned int vid_pitch;
 
 int keysdown[NUM_KEYS];
@@ -106,7 +106,7 @@ int Vid_GetGameKeys(void)
 void Vid_DispGround(GRNDTYPE *gptr)
 {
 	GRNDTYPE *g = gptr;
-	unsigned char *sptr;
+	uint8_t *sptr;
 	int x, y;
 	int gc, gl;
 
@@ -144,7 +144,7 @@ void Vid_DispGround(GRNDTYPE *gptr)
 void Vid_DispGround_Solid(GRNDTYPE * gptr)
 {
 	GRNDTYPE *g = gptr;
-	unsigned char *sptr;
+	uint8_t *sptr;
 	int x, y;
 	int gc;
 
@@ -165,16 +165,14 @@ void Vid_DispGround_Solid(GRNDTYPE * gptr)
 
 void Vid_PlotPixel(int x, int y, int clr)
 {
-	unsigned char *sptr
-		= vid_vram + (SCR_HGHT-1 - y) * vid_pitch + x;
+	uint8_t *sptr = vid_vram + (SCR_HGHT-1 - y) * vid_pitch + x;
 
 	*sptr = clr & 3;
 }
 
 void Vid_XorPixel(int x, int y, int clr)
 {
-	unsigned char *sptr
-		= vid_vram + (SCR_HGHT-1 - y) * vid_pitch + x;
+	uint8_t *sptr = vid_vram + (SCR_HGHT-1 - y) * vid_pitch + x;
 
 	*sptr ^= clr & 3;
 }
@@ -192,8 +190,8 @@ int Vid_FuselageColor(ob_owner_t clr)
 
 void Vid_DispSymbol(int x, int y, sopsym_t *symbol, ob_owner_t clr)
 {
-	unsigned char *sptr = vid_vram + (SCR_HGHT-1 - y) * vid_pitch + x;
-	unsigned char *data = symbol->data;
+	uint8_t *sptr = vid_vram + (SCR_HGHT-1 - y) * vid_pitch + x;
+	const uint8_t *data = symbol->data;
 	int x1, y1;
 	int w = symbol->w, h = symbol->h;
 	int wrap = x - SCR_WDTH + w;
@@ -218,7 +216,7 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, ob_owner_t clr)
 	assert(clr < arrlen(color_mappings));
 	color_mapping = color_mappings[clr];
 	for (y1=0; y1<h; ++y1) {
-		unsigned char *sptr2 = sptr;
+		uint8_t *sptr2 = sptr;
 		for (x1=0; x1<w; ++x1, ++sptr2) {
 			int i = *data++;
 
@@ -235,10 +233,11 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, ob_owner_t clr)
 
 void Vid_Box(int x, int y, int w, int h, int c)
 {
-	unsigned char *p = vid_vram + (SCR_HGHT-1-y) * vid_pitch + x;
+	uint8_t *p = vid_vram + (SCR_HGHT-1-y) * vid_pitch + x;
 
-	for (; h >= 0; --h, p += vid_pitch)
+	for (; h >= 0; --h, p += vid_pitch) {
 		memset(p, c, w);
+	}
 }
 
 //
