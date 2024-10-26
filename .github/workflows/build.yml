@@ -99,9 +99,10 @@ jobs:
           VERSION=${VERSION/#sdl-sopwith-/}
         else
           VERSION=$(git rev-parse --short HEAD)
-          VERSION=git-$VERSION${{ matrix.config.suffix }}
+          VERSION=git-$VERSION
         fi
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "SUFFIXED_VERSION=$VERSION${{ matrix.config.suffix }}" >> $GITHUB_OUTPUT
         # Patch the version in configure.ac:
         sed -i.old "s/\(AC_INIT([^,]*, \)\[[^]]*\], /\1[$VERSION], /" \
             configure.ac
@@ -151,18 +152,18 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: "pkg/win32/staging"
-        name: sdl-sopwith-${{steps.version.outputs.VERSION}}
+        name: sdl-sopwith-${{steps.version.outputs.SUFFIXED_VERSION}}
 
     - name: Build package (macOS)
       if: runner.os == 'macOS'
       run: |
         cd pkg/macos
-        make PACKAGE_VERSION=${{steps.version.outputs.VERSION}} \
+        make PACKAGE_VERSION=${{steps.version.outputs.SUFFIXED_VERSION}} \
              PACKAGE_STRING="Sopwith build ${{steps.version.outputs.VERSION}}"
 
     - name: Upload build (macOS)
       if: runner.os == 'macOS'
       uses: actions/upload-artifact@v4
       with:
-        path: "pkg/macos/sdl-sopwith-${{steps.version.outputs.VERSION}}.dmg"
-        name: sdl-sopwith-${{steps.version.outputs.VERSION}}
+        path: "pkg/macos/sdl-sopwith-${{steps.version.outputs.SUFFIXED_VERSION}}.dmg"
+        name: sdl-sopwith-${{steps.version.outputs.SUFFIXED_VERSION}}
