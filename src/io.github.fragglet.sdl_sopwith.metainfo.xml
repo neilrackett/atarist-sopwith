@@ -40,6 +40,19 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2.6.0" date="2024-10-26">
+      <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.6.0</url>
+      <description>
+        <p>The autopilot logic has been improved to avoid crashing the plane into the ground at low altitudes. This fixes a bug that made landing the plane almost impossible at higher game levels where the plane flies much faster (thanks to harlankoehn for the bug report).</p>
+        <p>A palette was added to simulate the Atari version of the game (according to the source code, anyway; it's not clear the Atari version was ever completed).</p>
+        <p>Planes are now shown on the menu, to give a feel for what the game will look like when choosing a palette.</p>
+        <p>The manual page was improved, including to add "bugs" and "examples" sections.</p>
+        <p>A minor tweak was made to one of the plane sprites to fix a one-pixel hole in the plane.</p>
+        <p>Signatures have been fixed for macOS executables; this fixes Sopwith when packaged for ARM machines.</p>
+        <p>There is now a `-v` option that shows the program version number.</p>
+        <p>An AppStream metainfo file was added to allow a Flatpak package (thanks Will Thompson)</p>
+      </description>
+    </release>
     <release version="2.5.0" date="2024-04-19">
       <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.5.0</url>
       <description>

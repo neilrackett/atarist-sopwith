@@ -1,4 +1,4 @@
-# v2.6.0
+# v2.6.0 (2024-10-26)
 
 * The autopilot logic has been improved to avoid crashing the plane into the
   ground at low altitudes. This fixes a bug that made landing the plane almost
