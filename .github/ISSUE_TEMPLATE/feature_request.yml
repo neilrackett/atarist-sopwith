@@ -9,7 +9,10 @@ body:
   - type: textarea
     id: description
     attributes:
-      description: What's your idea?
-      label: Description
+      label: What's your idea?
+      description: |
+        Make sure to take a look at the
+        [project philosophy](../../PHILOSOPHY.md) so you understand what
+        features are in scope for this project.
     validations:
       required: true

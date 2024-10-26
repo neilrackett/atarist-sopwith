@@ -23,10 +23,15 @@ body:
         - Web
         - Linux/BSD/other Unix
         - Other (please write below)
+    validations:
+      required: true
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
+      description: |
+        Try to give as much detail as you can. If possible, describe how to
+        reproduce the bug.
     validations:
       required: true
   - type: textarea
