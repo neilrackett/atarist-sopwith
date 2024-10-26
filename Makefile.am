@@ -6,7 +6,8 @@ DOC_FILES=            \
         COPYING.md    \
         FAQ.md        \
         NEWS.md       \
-        README.md
+        README.md     \
+        PHILOSOPHY.md
 
 EXTRA_DIST = $(AUX_DIST_GEN) $(DOC_FILES) \
              embuild.sh \
