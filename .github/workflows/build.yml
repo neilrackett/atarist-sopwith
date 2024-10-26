@@ -99,7 +99,7 @@ jobs:
           VERSION=${VERSION/#sdl-sopwith-/}
         else
           VERSION=$(git rev-parse --short HEAD)
-          VERSION=$VERSION${{ matrix.config.suffix }}
+          VERSION=git-$VERSION${{ matrix.config.suffix }}
         fi
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         # Patch the version in configure.ac:
