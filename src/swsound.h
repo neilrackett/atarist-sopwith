@@ -34,5 +34,4 @@ extern unsigned freq;
 extern unsigned  modulo;
 extern char *expltune;
 
-
 #endif

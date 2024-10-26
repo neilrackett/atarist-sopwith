@@ -69,7 +69,6 @@ void swmove(void)
 	}
 }
 
-
 static void nearpln(OBJECTS *ob)
 {
 	OBJECTS *obt, *obc;
@@ -98,9 +97,6 @@ static void nearpln(OBJECTS *ob)
 	}
 }
 
-
-
-
 static void topup(int *counter, int max)
 {
 	if (*counter == max) {
@@ -118,7 +114,6 @@ static void topup(int *counter, int max)
 	}
 }
 
-
 static void refuel(OBJECTS *ob)
 {
 	// sdh 26/10/2001: top up stuff, if anything happens update
@@ -130,8 +125,6 @@ static void refuel(OBJECTS *ob)
 	topup(&ob->ob_missiles, MAXMISSILES);
 	topup(&ob->ob_bursts, MAXBURSTS);
 }
-
-
 
 static int symangle(OBJECTS * ob)
 {
@@ -389,7 +382,6 @@ bool movecomp(OBJECTS *ob)
 		break;
 	}
 
-
 	rc = movepln(ob);
 
 	return rc;
@@ -408,8 +400,6 @@ static bool stallpln(OBJECTS *ob)
 
 	return true;
 }
-
-
 
 static bool movepln(OBJECTS *ob)
 {
@@ -669,8 +659,6 @@ static bool movepln(OBJECTS *ob)
 	return false;
 }
 
-
-
 static void adjustfall(OBJECTS *ob)
 {
 	--ob->ob_life;
@@ -688,7 +676,6 @@ static void adjustfall(OBJECTS *ob)
 		ob->ob_life = BOMBLIFE;
 	}
 }
-
 
 bool moveshot(OBJECTS *ob)
 {
@@ -712,8 +699,6 @@ bool moveshot(OBJECTS *ob)
 	ob->ob_newsym = &symbol_pixel;
 	return true;
 }
-
-
 
 bool movebomb(OBJECTS *ob)
 {
@@ -750,8 +735,6 @@ bool movebomb(OBJECTS *ob)
 
 	return true;
 }
-
-
 
 bool movemiss(OBJECTS *ob)
 {
@@ -809,8 +792,6 @@ bool movemiss(OBJECTS *ob)
 
 	return true;
 }
-
-
 
 bool moveburst(OBJECTS *ob)
 {
@@ -920,8 +901,6 @@ bool movetarg(OBJECTS *ob)
 	return true;
 }
 
-
-
 bool moveexpl(OBJECTS * obp)
 {
 	OBJECTS *ob;
@@ -971,8 +950,6 @@ bool moveexpl(OBJECTS * obp)
 	return y < MAX_Y;
 }
 
-
-
 bool movesmok(OBJECTS * obp)
 {
 	OBJECTS *ob;
@@ -994,8 +971,6 @@ bool movesmok(OBJECTS * obp)
 
 	return true;
 }
-
-
 
 bool moveflck(OBJECTS * obp)
 {
@@ -1027,7 +1002,6 @@ bool moveflck(OBJECTS * obp)
 	ob->ob_newsym = &symbol_flock[ob->ob_orient].sym[0];
 	return true;
 }
-
 
 static bool checkwall(OBJECTS *obp, int direction)
 {
@@ -1090,18 +1064,12 @@ bool movebird(OBJECTS * obp)
 	return true;
 }
 
-
-
-
 bool moveox(OBJECTS * ob)
 {
 	int transform = ob->ob_original_ob->transform;
 	ob->ob_newsym = &symbol_ox[ob->ob_state != STANDING].sym[transform];
 	return true;
 }
-
-
-
 
 bool crashpln(OBJECTS *ob)
 {
@@ -1123,8 +1091,6 @@ bool crashpln(OBJECTS *ob)
 
 	return true;
 }
-
-
 
 bool hitpln(OBJECTS * obp)
 {

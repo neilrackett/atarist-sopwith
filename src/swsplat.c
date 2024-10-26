@@ -79,7 +79,6 @@ static void AddSplat(struct splat *splat)
 	}
 }
 
-
 void swsplatbird(void)
 {
 	struct splat splat;

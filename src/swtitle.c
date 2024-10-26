@@ -112,7 +112,6 @@ void swtitlf(void)
 	swsound();
 }
 
-
 //
 // menus
 //

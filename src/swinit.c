@@ -82,7 +82,6 @@ static void initobjs(void)
 	objfree = NULL;
 }
 
-
 void initgrnd(void)
 {
 	free(ground);
@@ -104,7 +103,6 @@ void initdisp(bool reset)
 		swtitlf();
 	}
 }
-
 
 //
 // object creation
@@ -299,8 +297,6 @@ OBJECTS *initpln(OBJECTS * obp)
 	return ob;
 }
 
-
-
 // player
 
 void initplyr(OBJECTS * obp)
@@ -346,7 +342,6 @@ void initcomp(OBJECTS * obp)
 		deletex(ob);
 	}
 }
-
 
 static int isrange(int x, int y, int ax, int ay)
 {
@@ -524,7 +519,6 @@ void initmiss(OBJECTS *obo)
 	insertx(ob, obo);
 
 }
-
 
 // starburst
 

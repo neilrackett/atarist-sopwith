@@ -60,7 +60,6 @@ static inline void drawchar(int x, int y, int c)
 	}
 }
 
-
 void swputc(char c)
 {
 	if (isprint(c)) {

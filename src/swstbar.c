@@ -200,7 +200,6 @@ static void dispmap(void)
 	}
 }
 
-
 void dispstatusbar(void)
 {
 	dispmap();

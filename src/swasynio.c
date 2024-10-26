@@ -268,8 +268,6 @@ void init1asy(void)
 #endif
 }
 
-
-
 void init2asy(void)
 {
 	initplyr(NULL);

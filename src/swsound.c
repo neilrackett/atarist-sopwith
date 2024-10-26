@@ -107,14 +107,11 @@ static unsigned titltone;	/*  Current title tone              */
 static int titlticks;		/*  Ticks until note change         */
 static int titloctv;		/*  Octave                          */
 
-
-
 static char *tune;		/* Tune player statics              */
 static int place;
 static unsigned tunefreq;
 static int tunedura;
 static int octavefactor;
-
 
 // random number generator
 
@@ -127,8 +124,6 @@ static int seed[50] = {
 	0x499E, 0x3BC1, 0x5243, 0x2017, 0x9510, 0x9865, 0x65F6, 0x6B56,
 	0x36B9, 0x5026
 };
-
-
 
 static unsigned int swrand(unsigned int modulo)
 {
@@ -144,7 +139,6 @@ static unsigned int swrand(unsigned int modulo)
 
 	return result;
 }
-
 
 static TONETAB *allocton(void)
 {
@@ -169,8 +163,6 @@ static TONETAB *allocton(void)
 	return frsttone;
 }
 
-
-
 static void deallton(TONETAB * ttp)
 {
 	TONETAB *tt = ttp;
@@ -192,8 +184,6 @@ static void deallton(TONETAB * ttp)
 	freetone = tt;
 }
 
-
-
 void initsndt(void)
 {
 	TONETAB *tt;
@@ -206,7 +196,6 @@ void initsndt(void)
 	frsttone = NULL;
 	freetone = tonetab;
 }
-
 
 void stopsound(OBJECTS * ob)
 {
@@ -224,8 +213,6 @@ void stopsound(OBJECTS * ob)
 	ob->ob_sound = NULL;
 }
 
-
-
 static void soundoff(void)
 {
 	if (lastfreq) {
@@ -235,7 +222,6 @@ static void soundoff(void)
 		lastfreq = 0;
 	}
 }
-
 
 static void tone(unsigned int freq)
 {
@@ -251,7 +237,6 @@ static void tone(unsigned int freq)
 
 	lastfreq = freq;
 }
-
 
 // music note generation
 
@@ -372,7 +357,6 @@ static void playnote(void)
 #endif
 }
 
-
 static void adjcont(void)
 {
 	TONETAB *tt = lastobj->ob_sound;
@@ -381,9 +365,6 @@ static void adjcont(void)
 		tone(tt->tt_tone + tt->tt_chng * soundticks);
 	}
 }
-
-
-
 
 static void adjshot(void)
 {
@@ -397,7 +378,6 @@ static void adjshot(void)
 	}
 }
 
-
 static void explnote(void)
 {
 	place = explplace;
@@ -410,7 +390,6 @@ static void explnote(void)
 	exploctv = octavefactor;
 }
 
-
 static void adjexpl(void)
 {
 	--explticks;
@@ -421,7 +400,6 @@ static void adjexpl(void)
 
 	explnote();
 }
-
 
 static void titlnote(void)
 {
@@ -437,7 +415,6 @@ static void titlnote(void)
 	tone(titltone);
 }
 
-
 static void adjtitl(void)
 {
 	--titlticks;
@@ -447,7 +424,6 @@ static void adjtitl(void)
 	}
 	titlnote();
 }
-
 
 static void soundadj(void)
 {
@@ -466,8 +442,6 @@ static void soundadj(void)
 		adjtitl();
 	}
 }
-
-
 
 void swsound(void)
 {
@@ -543,7 +517,6 @@ void swsound(void)
 	soundtype = soundparm = 32767;
 }
 
-
 void sound(int type, int parm, OBJECTS * ob)
 {
 	// if we are already playing the title music, ignore
@@ -565,8 +538,6 @@ void sound(int type, int parm, OBJECTS * ob)
 		soundobj = ob;
 	}
 }
-
-
 
 void initsound(OBJECTS *ob, int type)
 {
@@ -602,8 +573,6 @@ void initsound(OBJECTS *ob, int type)
 		return;
 	}
 }
-
-
 
 // sdh:
 // in original sopwith this was done with interrupts

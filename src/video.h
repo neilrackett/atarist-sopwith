@@ -17,7 +17,6 @@
 
 #include "sw.h"
 
-
 enum gamekey {
 	KEY_UNKNOWN,
 	KEY_PULLUP,

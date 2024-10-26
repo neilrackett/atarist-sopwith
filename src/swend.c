@@ -48,10 +48,6 @@ void swend(char *msg, bool update)
 	}
 }
 
-
-
-
-
 void endgame(int targclr)
 {
 	int winclr;
@@ -82,8 +78,6 @@ void endgame(int targclr)
 	}
 }
 
-
-
 void winner(OBJECTS *ob)
 {
 	ob->ob_endsts = WINNER;
@@ -97,7 +91,6 @@ void winner(OBJECTS *ob)
 		endcount = 72;
 	}
 }
-
 
 void loser(OBJECTS * ob)
 {

@@ -199,7 +199,6 @@ static const char *swwinsym[] = {  /*  Win plane pixel array  */
 	"                                \n",
 };
 
-
 static const char *swbmbsym[] = {
 
 	"                \n"

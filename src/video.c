@@ -125,7 +125,6 @@ void Vid_DispGround(GRNDTYPE *gptr)
 	}
 }
 
-
 // sdh 28/10/2001: solid ground function
 void Vid_DispGround_Solid(GRNDTYPE * gptr)
 {

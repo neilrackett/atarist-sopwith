@@ -214,7 +214,6 @@ static GRNDTYPE original_ground[] = { /* Original ground height by pixel */
 /* 2992 */  199,199,199,199,199,199,199,199
 };
 
-
 static original_ob_t original_targets[] = {
 	// Left side of map -
 	{TARGET,  191, 1, 0, 0, OWNER_PLAYER3},

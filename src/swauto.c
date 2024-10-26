@@ -142,7 +142,6 @@ static bool tstcrash2(OBJECTS *ob, int x, int y, int alt, int dy)
 		obt = obt->ob_xprev;
 	}
 
-
 	for (; obt->ob_xnext != NULL; obt = obt->ob_xnext) {
 		if (!IsTarget(obt) || obt->ob_x < xl) {
 			continue;
@@ -247,7 +246,6 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 		copyobj(&obs, ob);
 	}
 
-
 	if (obt) {
 		i = shoot(obt);
 
@@ -318,8 +316,6 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 	return 0;
 }
 
-
-
 int gohome(OBJECTS *ob)
 {
 	if (ob->ob_athome) {
@@ -349,9 +345,6 @@ int gohome(OBJECTS *ob)
 	}
 }
 
-
-
-
 static void cruise(OBJECTS *ob)
 {
 	int orgx;
@@ -377,7 +370,6 @@ static void attack(OBJECTS *obp, OBJECTS *ob)
 	}
 }
 
-
 void swauto(OBJECTS *ob)
 {
 	if (ob->ob_target != NULL) {
@@ -388,7 +380,6 @@ void swauto(OBJECTS *ob)
 
 	ob->ob_target = NULL;
 }
-
 
 int range(int x, int y, int ax, int ay)
 {

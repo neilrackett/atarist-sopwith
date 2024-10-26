@@ -34,7 +34,6 @@ static OBJECTS *collsno[MAX_PLYR];
 static int collptr;
 static int collxadj, collyadj;
 
-
 //#define COLL_DEBUG
 
 static void colltest(OBJECTS * ob1, OBJECTS * ob2)
@@ -143,7 +142,6 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 	}
 }
 
-
 /* Determine the object that receives a score if 'ob' is destriyed, and whether
  * the score should be subtracted rather than added (iff reverse nonzero) */
 static OBJECTS *GetScoreObject(OBJECTS *ob, int *reverse)
@@ -175,7 +173,6 @@ static void scoretarg(OBJECTS *obp, int score)
 	}
 }
 
-
 static bool scorepenalty(obtype_t ttype, OBJECTS * ob, int score)
 {
 	OBJECTS *obt;
@@ -193,9 +190,6 @@ static bool scorepenalty(obtype_t ttype, OBJECTS * ob, int score)
 	}
 	return false;
 }
-
-
-
 
 static int crtdepth[8] = { 1, 2, 2, 3, 3, 2, 2, 1 };
 
@@ -437,7 +431,6 @@ static void swkill(OBJECTS * ob1, OBJECTS * ob2)
 		return;
 	}
 }
-
 
 void swcollsn(void)
 {

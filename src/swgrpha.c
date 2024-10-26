@@ -38,7 +38,6 @@ void swground(void)
 	dispgrnd();
 }
 
-
 // sdh 14/2/2003: find the color of an object
 // always draw bullets white
 
@@ -166,7 +165,6 @@ void swdisp(void)
 	// directly into vram any more
 	Vid_Update();
 }
-
 
 void colorscreen(int color)
 {
