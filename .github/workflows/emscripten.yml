@@ -12,7 +12,7 @@ jobs:
     - name: Install Emscripten
       run: |
         sudo apt update
-        sudo apt -q install emscripten
+        sudo apt -q install emscripten pandoc
     - name: Find Git version
       id: version
       run: |
