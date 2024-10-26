@@ -17,7 +17,7 @@
 extern char *vidram;
 
 extern void swdisp(void);
-extern void swground(void);
+extern void swground(GRNDTYPE *gptr, int x);
 extern void swputsym(int x, int y, OBJECTS *ob);
 //extern char    fill[];
 

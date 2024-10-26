@@ -35,6 +35,8 @@
 void swtitln(void)
 {
 	const char *version_string;
+	GRNDTYPE *orground = original_level.gm_ground;
+
 	int i, h;
 
 	sound(S_TITLE, 0, NULL);
@@ -79,20 +81,15 @@ void swtitln(void)
 	swcolor(3);
 	swputs(" GPL");
 
-	// We might be playing a custom level, but we need to swap back to
-	// the original level to render the title screen properly.
-	currgame = &original_level;
-	initgrnd();
-	displx = 507-X_OFFSET;
-	swground();
+	swground(orground, 507 - X_OFFSET);
 
 	Vid_DispSymbol(40+X_OFFSET, 180, &symbol_plane[0].sym[0],
 	               OWNER_PLAYER1);
 	Vid_DispSymbol(130+X_OFFSET, 80, &symbol_plane[1].sym[6],
 	               OWNER_PLAYER2);
-	Vid_DispSymbol(23+X_OFFSET, ground[530] + 16,
+	Vid_DispSymbol(23+X_OFFSET, orground[530] + 16,
 	               &symbol_targets[3].sym[0], OWNER_PLAYER2);
-	Vid_DispSymbol(213+X_OFFSET, ground[720] + 16, &symbol_ox[0].sym[0],
+	Vid_DispSymbol(213+X_OFFSET, orground[720] + 16, &symbol_ox[0].sym[0],
 	               OWNER_PLAYER1);
 	Vid_DispSymbol(270+X_OFFSET, 160, &symbol_plane_hit[0].sym[0],
 	               OWNER_PLAYER2);
@@ -137,12 +134,15 @@ void clrprmpt(void)
 
 static bool gethost(void)
 {
+	static char addrbuf[50];
+
 	clrprmpt();
 
 	swputs("Enter Remote Hostname/IP:\n");
-	swgets(asynhost, sizeof(asynhost) - 3);
+	swgets(addrbuf, sizeof(addrbuf) - 3);
+	asynhost = addrbuf;
 
-	return strcmp(asynhost, "") != 0;
+	return strcmp(addrbuf, "") != 0;
 }
 
 // network menu

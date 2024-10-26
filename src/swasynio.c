@@ -28,7 +28,7 @@
 
 int asynport = DEFAULT_PORT;
 enum asyn_mode asynmode;
-char asynhost[128];
+char *asynhost;
 
 #define SYNC_IM_PLAYER0 '?'
 #define SYNC_IM_PLAYER1 '!'

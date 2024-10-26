@@ -1111,7 +1111,7 @@ void swinit(int argc, char *argv[])
 			a = true;
 			asynmode = ASYN_CONNECT;
 			++i;
-			snprintf(asynhost, sizeof(asynhost), "%s", argv[i]);
+			asynhost = argv[i];
 		} else if (!strcmp(argv[i], "-p")) {
 			if (i + 1 >= argc) {
 				ErrorExit("insufficient arguments to -p");

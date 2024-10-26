@@ -24,18 +24,13 @@
 #include "swstbar.h"
 #include "swtext.h"
 
-static void dispgrnd(void)
+void swground(GRNDTYPE *gptr, int x)
 {
 	if (conf_solidground) {
-		Vid_DispGround_Solid(ground + displx);
+		Vid_DispGround_Solid(gptr + x);
 	} else {
-		Vid_DispGround(ground + displx);
+		Vid_DispGround(gptr + x);
 	}
-}
-
-void swground(void)
-{
-	dispgrnd();
 }
 
 // sdh 14/2/2003: find the color of an object
@@ -159,7 +154,7 @@ void swdisp(void)
 		}
 	}
 
-	dispgrnd();
+	swground(ground, displx);
 
 	// need to update the screen as we arent writing
 	// directly into vram any more

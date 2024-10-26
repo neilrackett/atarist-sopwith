@@ -18,7 +18,7 @@ enum asyn_mode {
 };
 
 extern enum asyn_mode asynmode;
-extern char asynhost[128];
+extern char *asynhost;
 extern int asynport;
 
 extern void asynput(int movekey);
