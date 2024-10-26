@@ -1,0 +1,14 @@
+name: Feature request
+description: Suggest a new feature to add to Sopwith.
+labels: ["feature-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a feature request.
+  - type: textarea
+    id: description
+    attributes:
+      description: What's your idea?
+    validations:
+      required: true
