@@ -11,8 +11,7 @@ body:
     attributes:
       label: What's your idea?
       description: >
-        Make sure to take a look at the
-        [project philosophy](../../PHILOSOPHY.md) so you understand what
-        features are in scope for this project.
+        Make sure to take a look at the [project philosophy](../PHILOSOPHY.md)
+        so you understand what features are in scope for this project.
     validations:
       required: true
