@@ -10,7 +10,7 @@ body:
     id: description
     attributes:
       label: What's your idea?
-      description: |
+      description: >
         Make sure to take a look at the
         [project philosophy](../../PHILOSOPHY.md) so you understand what
         features are in scope for this project.
