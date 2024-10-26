@@ -33,7 +33,7 @@
 
 #define CONFIG_FILE_NAME "sopwith.cfg"
 
-static char *GetConfigFilename(void)
+static const char *GetConfigFilename(void)
 {
 	static char *result = NULL;
 	char *pref_path;
@@ -91,7 +91,7 @@ static void Chomp(char *s)
 	}
 }
 
-static const struct conf_option *ConfOptionByName(char *name)
+static const struct conf_option *ConfOptionByName(const char *name)
 {
 	int i;
 
@@ -104,7 +104,7 @@ static const struct conf_option *ConfOptionByName(char *name)
 	return NULL;
 }
 
-static void ParseConfigLine(char *config_file, int lineno, char *line)
+static void ParseConfigLine(const char *config_file, int lineno, char *line)
 {
 	char *name, *value, *p;
 	int key;
@@ -179,7 +179,7 @@ static void ParseConfigLine(char *config_file, int lineno, char *line)
 
 void swloadconf(void)
 {
-	char *config_file = GetConfigFilename();
+	const char *config_file = GetConfigFilename();
 	FILE *fs;
 	char inbuf[128];
 	int lineno = 0;
@@ -216,7 +216,7 @@ void swloadconf(void)
 
 void swsaveconf(void)
 {
-	char *config_file = GetConfigFilename();
+	const char *config_file = GetConfigFilename();
 	FILE *fs;
 	int i;
 
@@ -264,7 +264,7 @@ struct menuitem {
 
 static const char menukeys[] = "1234567890ABCDEFGHIJKL";
 
-static void ChangeKeyBinding(struct menuitem *item)
+static void ChangeKeyBinding(const struct menuitem *item)
 {
 	const struct conf_option *opt;
 	int key;
@@ -305,7 +305,7 @@ static void ChangeKeyBinding(struct menuitem *item)
 	*opt->value.i = key;
 }
 
-static void DrawMenu(char *title, struct menuitem *menu)
+static void DrawMenu(const char *title, const struct menuitem *menu)
 {
 	int i, y, keynum, said_key = 0;
 	int title_len = strlen(title), x = 19 - title_len / 2;
@@ -391,7 +391,8 @@ static void DrawMenu(char *title, struct menuitem *menu)
 	Vid_Update();
 }
 
-static struct menuitem *MenuItemForKey(struct menuitem *menu, int key)
+static const struct menuitem *MenuItemForKey(const struct menuitem *menu,
+                                             int key)
 {
 	int i, keynum;
 
@@ -416,9 +417,9 @@ static struct menuitem *MenuItemForKey(struct menuitem *menu, int key)
 // Present the given menu to the user. Returns zero if escape was pushed
 // to exit the menu, or if a >jump item was chosen, it returns the key
 // binding associated with it.
-static int RunMenu(char *title, struct menuitem *menu)
+static int RunMenu(const char *title, const struct menuitem *menu)
 {
-	struct menuitem *pressed;
+	const struct menuitem *pressed;
 	const struct conf_option *opt;
 	int key;
 
@@ -474,7 +475,7 @@ static int RunMenu(char *title, struct menuitem *menu)
 	}
 }
 
-static struct menuitem keys_menu[] = {
+static const struct menuitem keys_menu[] = {
 	{"key_accelerate", "Accelerate"},
 	{"key_decelerate", "Decelerate"},
 	{"key_pullup",     "Pull up"},
@@ -486,7 +487,7 @@ static struct menuitem keys_menu[] = {
 	{NULL},
 };
 
-static struct menuitem options_menu[] = {
+static const struct menuitem options_menu[] = {
 #ifndef NO_FULLSCREEN
 	{"vid_fullscreen",      "Run fullscreen"},
 #endif

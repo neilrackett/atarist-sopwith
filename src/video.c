@@ -13,12 +13,27 @@
 
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 
 #include "video.h"
 
 // this should be in a header somewhere
 #define SBAR_HGHT 19
 #define VRAMSIZE (SCR_HGHT * vid_pitch)
+
+static const uint8_t color_mappings[][4] = {
+	{ 0, 3, 3, 3 },  // All-white                     - OWNER_NONE?
+	{ 0, 1, 2, 3 },  // Cyan fuselage, magenta wings  - OWNER_PLAYER1
+	{ 0, 2, 1, 3 },  // Magenta fuselage, cyan wings  - OWNER_PLAYER2
+	// New colors:
+	{ 0, 1, 3, 2 },  // Cyan fuselage, white wings    - OWNER_PLAYER3
+	{ 0, 2, 3, 1 },  // Magenta fuselage, white wings - OWNER_PLAYER4
+	{ 0, 3, 1, 2 },  // White fuselage, cyan wings    - OWNER_PLAYER5
+	{ 0, 3, 2, 1 },  // White fuselage, magenta wings - OWNER_PLAYER6
+	// Now we're getting into boring territory...
+	{ 0, 1, 1, 3 },  // All-cyan                      - OWNER_PLAYER7
+	{ 0, 2, 2, 3 },  // All-magenta                   - OWNER_PLAYER8
+};
 
 unsigned char *vid_vram;
 unsigned int vid_pitch;
@@ -164,20 +179,6 @@ void Vid_XorPixel(int x, int y, int clr)
 	*sptr ^= clr & 3;
 }
 
-static unsigned char color_mappings[][4] = {
-	{ 0, 3, 3, 3 },  // All-white                     - OWNER_NONE?
-	{ 0, 1, 2, 3 },  // Cyan fuselage, magenta wings  - OWNER_PLAYER1
-	{ 0, 2, 1, 3 },  // Magenta fuselage, cyan wings  - OWNER_PLAYER2
-	// New colors:
-	{ 0, 1, 3, 2 },  // Cyan fuselage, white wings    - OWNER_PLAYER3
-	{ 0, 2, 3, 1 },  // Magenta fuselage, white wings - OWNER_PLAYER4
-	{ 0, 3, 1, 2 },  // White fuselage, cyan wings    - OWNER_PLAYER5
-	{ 0, 3, 2, 1 },  // White fuselage, magenta wings - OWNER_PLAYER6
-	// Now we're getting into boring territory...
-	{ 0, 1, 1, 3 },  // All-cyan                      - OWNER_PLAYER7
-	{ 0, 2, 2, 3 },  // All-magenta                   - OWNER_PLAYER8
-};
-
 // Given a player number (ob_owner_t), returns the color of the fuselage
 // when that plane is drawn to the screen. This is used by the map to get
 // the color of objects when they're drawn there.
@@ -196,7 +197,7 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, ob_owner_t clr)
 	int x1, y1;
 	int w = symbol->w, h = symbol->h;
 	int wrap = x - SCR_WDTH + w;
-	unsigned char *color_mapping;
+	const uint8_t *color_mapping;
 
 	if (w == 1 && h == 1) {
 		Vid_XorPixel(x, y, clr);

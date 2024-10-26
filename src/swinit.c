@@ -43,7 +43,7 @@ static bool have_savescore = false;
 static score_t savescore;		/* save players score on restart  */
 int starting_level = 0;
 
-static char helptxt[] =
+static const char *helptxt =
 "\n"
 PACKAGE_STRING "\n"
 "Copyright (C) 1984, 1985, 1987 BMB Compuscience\n"
@@ -835,10 +835,10 @@ static OBJECTS *initflock(const original_ob_t *orig_ob)
 void initbird(OBJECTS *obo, int i)
 {
 	OBJECTS *ob;
-	static int ibx[] = { 8, 3, 0, 6, 7, 14, 10, 12 };
-	static int iby[] = { 16, 1, 8, 3, 12, 10, 7, 14 };
-	static int ibdx[] = { -2, 2, -3, 3, -1, 1, 0, 0 };
-	static int ibdy[] = { -1, -2, -1, -2, -1, -2, -1, -2 };
+	static const int ibx[] = { 8, 3, 0, 6, 7, 14, 10, 12 };
+	static const int iby[] = { 16, 1, 8, 3, 12, 10, 7, 14 };
+	static const int ibdx[] = { -2, 2, -3, 3, -1, 1, 0, 0 };
+	static const int ibdy[] = { -1, -2, -1, -2, -1, -2, -1, -2 };
 
 	ob = allocobj();
 	if (!ob) {

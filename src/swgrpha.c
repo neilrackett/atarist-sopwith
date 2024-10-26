@@ -59,7 +59,7 @@ static void PrintHelp(void)
 {
 	char buf[64];
 	int i;
-	struct {
+	const struct {
 		char *name; int key;
 	} items[] = {
 		{ "Accelerate",  KEY_ACCEL },

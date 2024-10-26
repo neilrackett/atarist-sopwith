@@ -162,7 +162,7 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 	int r, rmin, i, n=0;
 	int x, y, dx, dy, nx, ny;
 	int nangle, nspeed;
-	static int cflaps[3] = { 0, -1, 1 };
+	static const int cflaps[3] = { 0, -1, 1 };
 	static int crange[3], ccrash[3], calt[3];
 
 	correction = false;

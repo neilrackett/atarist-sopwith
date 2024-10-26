@@ -191,7 +191,7 @@ static bool scorepenalty(obtype_t ttype, OBJECTS * ob, int score)
 	return false;
 }
 
-static int crtdepth[8] = { 1, 2, 2, 3, 3, 2, 2, 1 };
+static const int crtdepth[8] = { 1, 2, 2, 3, 3, 2, 2, 1 };
 
 static void crater(OBJECTS * ob)
 {

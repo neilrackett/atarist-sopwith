@@ -407,7 +407,7 @@ static bool movepln(OBJECTS *ob)
 	obstate_t state, newstate;
 	int x, y, stalled;
 
-	static signed int gravity[] = {
+	static const signed int gravity[] = {
 		0, -1, -2, -3, -4, -3, -2, -1,
 		0, 1, 2, 3, 4, 3, 2, 1
 	};
