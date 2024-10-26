@@ -10,7 +10,9 @@ body:
     id: contact
     attributes:
       label: Version
-      description: What version of SDL Sopwith has the bug?
+      description: >
+        What version of SDL Sopwith has the bug?
+        The version is shown on the title screen.
     validations:
       required: true
   - type: dropdown
@@ -29,7 +31,7 @@ body:
     id: what-happened
     attributes:
       label: What happened?
-      description: |
+      description: >
         Try to give as much detail as you can. If possible, describe how to
         reproduce the bug.
     validations:
