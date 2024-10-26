@@ -1,3 +1,34 @@
+# v2.6.0
+
+* The autopilot logic has been improved to avoid crashing the plane into the
+  ground at low altitudes. This fixes a bug that made landing the plane almost
+  impossible at higher game levels where the plane flies much faster (thanks
+  to harlankoehn for the bug report).
+* A palette was added to simulate the Atari version of the game (according to
+  the source code, anyway; it's not clear the Atari version was ever
+  completed).
+* Planes are now shown on the menu, to give a feel for what the game will look
+  like when choosing a palette.
+* The manual page was improved, including to add "bugs" and "examples"
+  sections.
+* A minor tweak was made to one of the plane sprites to fix a one-pixel hole
+  in the plane.
+* Signatures have been fixed for macOS executables; this fixes Sopwith when
+  packaged for ARM machines.
+* There is now a `-v` option that shows the program version number.
+* An AppStream metainfo file was added to allow a Flatpak package (thanks Will
+  Thompson)
+
+Some nice new features for modders:
+* There's a new manpage that documents the format of Sopwith mission files.
+* Four new target types (truck, tanker truck, flag and tent) have been added
+  for use in fan-made levels. There are also ten slots for custom user-defined
+  target types, if you want to create your own completely new ground targets.
+* It is now possible to replace symbols (sprites) inside custom map files.
+  An example file is included that changes the biplanes into triplanes, so it's
+  finally possible now to face off against "The Red Baron" in his triplane!
+* It's now possible to replace the title screen music in custom map files too.
+
 # v2.5.0 (2024-04-18)
 
 * There is still no editor for making custom levels, but a Python
