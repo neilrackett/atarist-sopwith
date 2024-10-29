@@ -28,6 +28,7 @@ extern bool moveexpl(OBJECTS *obp);
 extern bool movesmok(OBJECTS *obp);
 extern bool moveflck(OBJECTS *obp);
 extern bool movebird(OBJECTS *obp);
+extern bool moveballoon(OBJECTS *ob);
 extern bool moveox(OBJECTS *ob);
 extern bool crashpln(OBJECTS *obp);
 extern bool hitpln(OBJECTS *obp);

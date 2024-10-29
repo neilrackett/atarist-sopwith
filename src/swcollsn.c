@@ -270,6 +270,22 @@ static void swkill(OBJECTS * ob1, OBJECTS * ob2)
 		}
 		return;
 
+	case BALLOON:
+		if (ob->ob_state != FLYING) {
+			return;
+		}
+		if (ttype != PLANE && ttype != SHOT && ttype != BOMB) {
+			return;
+		}
+
+		ob->ob_state = FINISHED;
+		ob->ob_onmap = false;
+		ob->ob_life = -1;
+		initexpl(ob, 0);
+
+		scoretarg(ob, 100);
+		return;
+
 	case TARGET:
 		if (ob->ob_state != STANDING) {
 			return;

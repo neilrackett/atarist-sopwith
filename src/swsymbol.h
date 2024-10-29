@@ -53,6 +53,7 @@ extern symset_t symbol_plane_hit[2];            // swhitsym
 extern symset_t symbol_plane_win[4];            // swwinsym
 extern symset_t symbol_medal[3];                // swmedalsym
 extern symset_t symbol_ribbon[6];               // swribbonsym
+extern symset_t symbol_balloon[6];              // swballoonsym
 
 extern sopsym_t symbol_pixel;
 

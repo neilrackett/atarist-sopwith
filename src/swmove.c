@@ -1003,6 +1003,46 @@ bool moveflck(OBJECTS * obp)
 	return true;
 }
 
+bool moveballoon(OBJECTS *ob)
+{
+	const original_ob_t *orig = ob->ob_original_ob;
+	int x, y, dx, dy, f;
+	int step;
+
+	// TODO: Occasionally fire at enemy planes
+
+	if (ob->ob_life == -1) {
+		// TODO: Explosion animation?
+		deallobj(ob);
+		return false;
+	}
+
+	// If we have two balloons next to each other, we don't want them to
+	// move perfectly synchronized. So we use the X coordinate as a kind
+	// of random element.
+	step = countmove + orig->x;
+
+	// We adjust the momentum on each frame in both x and y dimensions,
+	// which makes the balloon "float" around in a randomish way. However,
+	// since we step through each entry in the sine table, all movements
+	// cancel out and we never drift out of the same area of the map.
+	dx = SIN(step / 7) * 128;
+	dy = SIN(step / 3) * 128;
+	ob->ob_dx =  dx >> 16;
+	ob->ob_ldx = dx & 0xffff;
+	ob->ob_dy = dy >> 16;
+	ob->ob_ldy = dy & 0xffff;
+	movexy(ob, &x, &y);
+
+	// Which way are we drifting?
+	f = orig->orient * 3
+	  + (dx >= 20000 ? 2 :
+	     dx <= -20000 ? 0 : 1);
+
+	ob->ob_newsym = &symbol_balloon[f].sym[orig->transform];
+	return true;
+}
+
 static bool checkwall(OBJECTS *obp, int direction)
 {
 	int check_x, cnt;

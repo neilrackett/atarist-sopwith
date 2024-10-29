@@ -862,6 +862,35 @@ void initbird(OBJECTS *obo, int i)
 	insertx(ob, &topobj);
 }
 
+static OBJECTS *initballoon(const original_ob_t *orig_ob)
+{
+	OBJECTS *ob;
+
+	ob = allocobj();
+	if (!ob) {
+		return NULL;
+	}
+
+	ob->ob_type = BALLOON;
+	ob->ob_state = FLYING;
+	ob->ob_life = 1;
+	ob->ob_x = orig_ob->x;
+	ob->ob_y = MAX_Y - 16 + SIN(orig_ob->x) / 32;
+	ob->ob_dx = 0;
+	ob->ob_dy = 0;
+	ob->ob_orient = 0;
+	ob->ob_owner = ob;
+	ob->ob_newsym = &symbol_balloon[0].sym[0];
+	ob->ob_drawf = NULL;
+	ob->ob_movef = moveballoon;
+	ob->ob_clr = orig_ob->owner;
+	ob->ob_onmap = true;
+
+	// TODO: Add new object as a target
+
+	return ob;
+}
+
 // oxen
 
 static OBJECTS *initox(const original_ob_t *orig_ob)
@@ -911,6 +940,9 @@ static void inittargets(void)
 				break;
 			case FLOCK:
 				ob = initflock(orig_ob);
+				break;
+			case BALLOON:
+				ob = initballoon(orig_ob);
 				break;
 			default:
 				continue;

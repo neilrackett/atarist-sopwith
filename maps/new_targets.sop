@@ -62,6 +62,12 @@ level {
 		owner: PLAYER1
 	}
 	object {
+		type: BALLOON
+		x: 410
+		orient: 0
+		owner: PLAYER1
+	}
+	object {
 		type: TARGET
 		x: 420
 		orient: 7
@@ -71,6 +77,12 @@ level {
 		type: TARGET
 		x: 440
 		orient: 7
+		owner: PLAYER1
+	}
+	object {
+		type: BALLOON
+		x: 500
+		orient: 1
 		owner: PLAYER1
 	}
 	object {
@@ -151,6 +163,12 @@ level {
 		owner: PLAYER2
 	}
 	object {
+		type: BALLOON
+		x: 1450
+		orient: 0
+		owner: PLAYER2
+	}
+	object {
 		type: TARGET
 		x: 1455
 		orient: 6
@@ -180,6 +198,12 @@ level {
 		x: 1560
 		orient: 5
 		transform: 6
+		owner: PLAYER2
+	}
+	object {
+		type: BALLOON
+		x: 1600
+		orient: 1
 		owner: PLAYER2
 	}
 	object {  // Custom target type

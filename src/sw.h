@@ -167,6 +167,7 @@ typedef enum {
 	OX,
 	MISSILE,
 	STARBURST,
+	BALLOON,
 	DUMMYTYPE = 99,
 } obtype_t;
 

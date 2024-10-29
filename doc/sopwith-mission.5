@@ -161,6 +161,11 @@ target, see \fBTARGET TYPES\fR below. The value of the \fBowner\fR property
 specifies the plane to whom the target belongs. When one player destroys all
 targets owned by all enemy planes, the game advances to the next level.
 .TP
+\fBBALLOON\fR
+Observation balloon. The value of the \fBorient\fR property defines the type
+of balloon; 0 = spherical balloon, 1 = Caquot-style. The value of the
+\fBowner\fR property specifies the plane to whom the balloon belongs.
+.TP
 \fBOX\fR
 An Ox (type of cattle). The Ox does nothing except act as an obstacle, and does
 not need to be killed to advance to the next level. Does not appear in novice
@@ -231,6 +236,11 @@ from \fBTARGET TYPES\fR below.
 Destroyed ground target. Each frame a different target type; the values are
 those from \fBTARGET TYPES\fR below. The number of pixels in the symbol control
 the size of the explosion when the target is destroyed.
+.TP
+\fBswballoonsym\fR (16x16)
+Observation balloon. Each type of balloon has three animation frames: drifting
+left, centered, and drifting right. Spherical balloon starts at frame 0 and
+Caquot-style balloon begins at frame 3.
 .TP
 \fBswoxsym\fR (16x16)
 Ox. There is one frame.
