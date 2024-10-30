@@ -14,6 +14,7 @@
 
 #include "sw.h"
 
+extern bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2);
 extern void swcollsn(void);
 extern void scorepln(OBJECTS *ob, obtype_t type);
 

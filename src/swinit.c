@@ -23,6 +23,7 @@
 
 #include "sw.h"
 #include "swasynio.h"
+#include "swcollsn.h"
 #include "swconf.h"
 #include "swdisp.h"
 #include "swgrpha.h"
@@ -364,8 +365,46 @@ static int isrange(int x, int y, int ax, int ay)
 	return (7 * dx + 4 * dy) / 8;
 }
 
-// bullet
+// When targets fire at the player, it is sometimes possible that the bullet's
+// first position is inside the target that fired it. This usually doesn't
+// happen because there is space at the top of the target symbols, but in the
+// DOS Network/Author's Edition versions, hangars can actually blow themselves
+// up by shooting their own flag. When spawning a bullet we therefore perform a
+// check to make sure this isn't going to happen. If we detect a collision, we
+// adjust the bullet spawn position very slightly to avoid it.
+static void AdjustBullet(OBJECTS *bullet, OBJECTS *src)
+{
+	OBJECTS next_bullet, next_src;
+	int x, y;
 
+	copyobj(&next_src, src);
+	movexy(&next_src, &x, &y);
+
+	// We keep adjusting until we don't detect a collision.
+	for (;;) {
+		// Where will the bullet be on the next frame?
+		copyobj(&next_bullet, bullet);
+		movexy(&next_bullet, &x, &y);
+
+		if (!CollisionTest(&next_bullet, &next_src)) {
+			return;
+		}
+
+		if (bullet->ob_dx < 0) {
+			bullet->ob_x -= 2;
+		} else {
+			bullet->ob_x += 2;
+		}
+
+		if (bullet->ob_dy < 0) {
+			bullet->ob_y -= 2;
+		} else {
+			bullet->ob_y += 2;
+		}
+	}
+}
+
+// bullet
 void initshot(OBJECTS *obo, OBJECTS * targ)
 {
 	OBJECTS *ob;
@@ -420,6 +459,8 @@ void initshot(OBJECTS *obo, OBJECTS * targ)
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveshot;
 	ob->ob_speed = 0;
+
+	AdjustBullet(ob, obo);
 
 	insertx(ob, obo);
 

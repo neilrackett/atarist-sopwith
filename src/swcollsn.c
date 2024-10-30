@@ -36,7 +36,7 @@ static int collxadj, collyadj;
 
 //#define COLL_DEBUG
 
-static void colltest(OBJECTS * ob1, OBJECTS * ob2)
+bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 {
 	int x, y;
 	int x1, y1, x2, y2;
@@ -46,7 +46,7 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 	if ((ob1->ob_type == PLANE && ob1->ob_state >= FINISHED)
 	 || (ob2->ob_type == PLANE && ob2->ob_state >= FINISHED)
 	 || (ob1->ob_type == EXPLOSION && ob2->ob_type == EXPLOSION)) {
-		return;
+		return false;
 	}
 
 	// (x1, y1) are the coords of the area we are testing in ob1
@@ -74,7 +74,7 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 	// no intersection?
 
 	if (w <= 0) {
-		return;
+		return false;
 	}
 
 	// y:
@@ -98,7 +98,7 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 	// no intersection?
 
 	if (h <= 0) {
-		return;
+		return false;
 	}
 
 #ifdef COLL_DEBUG
@@ -120,18 +120,7 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 
 		for (x=0; x<w; ++x) {
 			if (*d1 && *d2) {
-
-				// a collision
-
-				if (killptr < 2*MAX_OBJS - 1) {
-					killed[killptr] = ob1;
-					killer[killptr] = ob2;
-					++killptr;
-					killed[killptr] = ob2;
-					killer[killptr] = ob1;
-					++killptr;
-				}
-				return;
+				return true;
 			}
 
 			++d1; ++d2;
@@ -140,6 +129,8 @@ static void colltest(OBJECTS * ob1, OBJECTS * ob2)
 		data1 += ob1->ob_newsym->w;
 		data2 += ob2->ob_newsym->w;
 	}
+
+	return false;
 }
 
 /* Determine the object that receives a score if 'ob' is destriyed, and whether
@@ -472,8 +463,15 @@ void swcollsn(void)
 		     obp = obp->ob_xnext) {
 
 			if (obp->ob_y >= ymin
-			    && (obp->ob_y - obp->ob_newsym->h + 1) <= ymax) {
-				colltest(ob, obp);
+			    && (obp->ob_y - obp->ob_newsym->h + 1) <= ymax
+			    && CollisionTest(ob, obp)
+			    && killptr < 2 * MAX_OBJS - 1) {
+				killed[killptr] = ob;
+				killer[killptr] = obp;
+				++killptr;
+				killed[killptr] = obp;
+				killer[killptr] = ob;
+				++killptr;
 			}
 		}
 
