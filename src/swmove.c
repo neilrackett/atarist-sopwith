@@ -818,7 +818,7 @@ bool moveburst(OBJECTS *ob)
 	return y < MAX_Y;
 }
 
-static void TargetEnemyPlanes(OBJECTS *ob)
+static OBJECTS *FindEnemyPlane(OBJECTS *ob)
 {
 	OBJECTS *obp;
 	int r;
@@ -836,11 +836,11 @@ static void TargetEnemyPlanes(OBJECTS *ob)
 		}
 		r = range(ob->ob_x, ob->ob_y, obp->ob_x, obp->ob_y);
 		if (r > 0 && r < targrnge) {
-			initshot(ob, obp);
-			ob->ob_firing = obp;
-			break;
+			return obp;
 		}
 	}
+
+	return NULL;
 }
 
 // This table determines how often targets fire at enemy planes; there is one
@@ -881,7 +881,11 @@ bool movetarg(OBJECTS *ob)
 	 && gamenum > 0
 	 && aggression > 0
 	 && (gamenum > 1 || (countmove % aggression) == (aggression - 1))) {
-		TargetEnemyPlanes(ob);
+		OBJECTS *plane = FindEnemyPlane(ob);
+		if (plane) {
+			initshot(ob, plane);
+			ob->ob_firing = plane;
+		}
 	}
 
 	--ob->ob_hitcount;
@@ -1009,12 +1013,20 @@ bool moveballoon(OBJECTS *ob)
 	int x, y, dx, dy, f;
 	int step;
 
-	// TODO: Occasionally fire at enemy planes
-
 	if (ob->ob_life == -1) {
 		// TODO: Explosion animation?
 		deallobj(ob);
 		return false;
+	}
+
+	// The spotter in the balloon occasionally fires their pistol. But they
+	// don't shoot upwards (bullets never come from the top of the balloon)
+	if (ob->ob_state == FLYING && gamenum > 0 && (countmove % 7) == 0) {
+		OBJECTS *plane = FindEnemyPlane(ob);
+		if (plane && plane->ob_y < ob->ob_y) {
+			initshot(ob, plane);
+			ob->ob_firing = plane;
+		}
 	}
 
 	// If we have two balloons next to each other, we don't want them to

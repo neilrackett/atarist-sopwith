@@ -460,10 +460,15 @@ void initshot(OBJECTS *obo, OBJECTS * targ)
 	ob->ob_movef = moveshot;
 	ob->ob_speed = 0;
 
+	// For observation balloons, we adjust the position very slightly,
+	// so that the bullets appear to be being fired from the basket.
+	if (obo->ob_type == BALLOON) {
+		ob->ob_y -= 4;
+	}
+
 	AdjustBullet(ob, obo);
 
 	insertx(ob, obo);
-
 }
 
 // bomb
