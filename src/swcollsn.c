@@ -22,8 +22,8 @@
 #include "swsound.h"
 #include "swsplat.h"
 
+static int ComputeValour(OBJECTS *ob);
 static void tstcrash(OBJECTS *obp);
-static void BlastTarget(OBJECTS *ob, obtype_t type);
 
 static OBJECTS *killed[MAX_OBJS*2], *killer[MAX_OBJS*2];
 static int killptr;
@@ -133,7 +133,7 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 	return false;
 }
 
-/* Determine the object that receives a score if 'ob' is destriyed, and whether
+/* Determine the object that receives a score if 'ob' is destroyed, and whether
  * the score should be subtracted rather than added (iff reverse nonzero) */
 static OBJECTS *GetScoreObject(OBJECTS *ob, int *reverse)
 {
@@ -145,8 +145,9 @@ static OBJECTS *GetScoreObject(OBJECTS *ob, int *reverse)
 		if (ob->ob_clr == 1) {
 			*reverse = 1;
 		}
-	} else
+	} else {
 		retval = planes[2 - ob->ob_clr];
+	}
 
 	return retval;
 }
@@ -162,6 +163,29 @@ static void scoretarg(OBJECTS *obp, int score)
 	} else {
 		ob->ob_score.score += score;
 	}
+}
+
+static void TargetDestroyed(OBJECTS *ob, obtype_t type)
+{
+	int reverse;
+	OBJECTS *so = GetScoreObject(ob, &reverse);
+
+	if (!reverse
+	 && (type == BOMB || type == SHOT
+	  || type == MISSILE || type == PLANE)) {
+		so->ob_flightscore.killscore += 4;
+		so->ob_flightscore.valour += 3 * ComputeValour (ob);
+	}
+
+	scoretarg(ob, ob->ob_orient == TARGET_OIL_TANK ? 200 : 100);
+
+	--numtarg[ob->ob_clr - 1];
+	if (numtarg[ob->ob_clr - 1] <= 0
+	 && (playmode == PLAYMODE_ASYNCH || ob->ob_clr == 2)) {
+		endgame(ob->ob_clr);
+	}
+	//printf("TargetDestroyed by %d: remaining %d / %d\n", type,
+	//       numtarg[0], numtarg[1]);
 }
 
 static bool scorepenalty(obtype_t ttype, OBJECTS * ob, int score)
@@ -274,7 +298,7 @@ static void swkill(OBJECTS * ob1, OBJECTS * ob2)
 		ob->ob_life = -1;
 		initexpl(ob, 0);
 
-		scoretarg(ob, 100);
+		TargetDestroyed(ob, ttype);
 		return;
 
 	case TARGET:
@@ -296,15 +320,7 @@ static void swkill(OBJECTS * ob1, OBJECTS * ob2)
 		ob->ob_onmap = false;
 		initexpl(ob, 0);
 
-		BlastTarget(ob, ttype);
-		scoretarg(ob, ob->ob_orient == TARGET_OIL_TANK ? 200 : 100);
-
-		--numtarg[ob->ob_clr - 1];
-		if (numtarg[ob->ob_clr - 1] <= 0
-		 && (playmode == PLAYMODE_ASYNCH || ob->ob_clr == 2)) {
-			endgame(ob->ob_clr);
-		}
-
+		TargetDestroyed(ob, ttype);
 		return;
 
 	case PLANE:
@@ -571,21 +587,6 @@ static int ComputeValour(OBJECTS *ob)
 	}
 
 	return valour;
-}
-
-static void BlastTarget(OBJECTS *ob, obtype_t type)
-{
-	int reverse;
-	OBJECTS *so = GetScoreObject(ob, &reverse);
-
-	if (reverse) {
-		return;
-	}
-
-	if (type == BOMB || type == SHOT || type == MISSILE || type == PLANE) {
-		so->ob_flightscore.killscore += 4;
-		so->ob_flightscore.valour += 3 * ComputeValour (ob);
-	}
 }
 
 void scorepln(OBJECTS * ob, obtype_t type)

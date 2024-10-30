@@ -611,8 +611,44 @@ void initburst(OBJECTS *obo)
 
 }
 
-// building/target
+static void AddPlayerTarget(OBJECTS *ob, const original_ob_t *orig_ob)
+{
+	// TODO: For the time being, player 3 is just interpreted as a
+	// special player number that either maps to player 1 or 2
+	// depending on the game mode; other players are just synonyms
+	// for players 1 and 2.
+	// This may change in the future if we support multiplayer with
+	// more than two players.
+	switch (orig_ob->owner) {
+		case OWNER_NONE:
+		case OWNER_PLAYER1:
+		case OWNER_PLAYER5:
+		case OWNER_PLAYER7:
+			ob->ob_owner = planes[0];
+			++numtarg[0];
+			break;
+		case OWNER_PLAYER2:
+		case OWNER_PLAYER4:
+		case OWNER_PLAYER6:
+		case OWNER_PLAYER8:
+			ob->ob_owner = planes[1];
+			++numtarg[1];
+			break;
+		case OWNER_PLAYER3:
+			if (playmode == PLAYMODE_ASYNCH) {
+				ob->ob_owner = planes[0];
+				++numtarg[0];
+			} else {
+				ob->ob_owner = planes[1];
+				++numtarg[1];
+			}
+			break;
+	}
+	//printf("%d : %d / %d targets\n", orig_ob->type,
+	//       numtarg[0], numtarg[1]);
+}
 
+// building/target
 static OBJECTS *inittarget(const original_ob_t *orig_ob)
 {
 	OBJECTS *ob;
@@ -647,38 +683,7 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	ob->ob_type = TARGET;
 	ob->ob_state = STANDING;
 	ob->ob_orient = orig_ob->orient;
-
-	// TODO: For the time being, player 3 is just interpreted as a
-	// special player number that either maps to player 1 or 2
-	// depending on the game mode; other players are just synonyms
-	// for players 1 and 2.
-	// This may change in the future if we support multiplayer with
-	// more than two players.
-	switch (orig_ob->owner) {
-		case OWNER_NONE:
-		case OWNER_PLAYER1:
-		case OWNER_PLAYER5:
-		case OWNER_PLAYER7:
-			ob->ob_owner = planes[0];
-			++numtarg[0];
-			break;
-		case OWNER_PLAYER2:
-		case OWNER_PLAYER4:
-		case OWNER_PLAYER6:
-		case OWNER_PLAYER8:
-			ob->ob_owner = planes[1];
-			++numtarg[1];
-			break;
-		case OWNER_PLAYER3:
-			if (playmode == PLAYMODE_ASYNCH) {
-				ob->ob_owner = planes[0];
-				++numtarg[0];
-			} else {
-				ob->ob_owner = planes[1];
-				++numtarg[1];
-			}
-			break;
-	}
+	AddPlayerTarget(ob, orig_ob);
 	ob->ob_clr = ob->ob_owner->ob_clr;
 	ob->ob_newsym = &symbol_targets[0].sym[0];
 	ob->ob_drawf = disptarg;
@@ -926,8 +931,7 @@ static OBJECTS *initballoon(const original_ob_t *orig_ob)
 	ob->ob_movef = moveballoon;
 	ob->ob_clr = orig_ob->owner;
 	ob->ob_onmap = true;
-
-	// TODO: Add new object as a target
+	AddPlayerTarget(ob, orig_ob);
 
 	return ob;
 }
