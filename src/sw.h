@@ -281,6 +281,7 @@ typedef struct obj {                            /*  Object list             */
 	int            ob_hitcount;
 	int            ob_life;
 	struct obj    *ob_owner;
+	faction_t      ob_faction;
 	struct obj    *ob_target;
 	int            ob_bombing;
 	int            ob_bombs;

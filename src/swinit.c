@@ -308,7 +308,8 @@ void initplyr(OBJECTS * obp)
 	if (!obp) {
 		ob->ob_drawf = dispplyr;
 		ob->ob_movef = moveplyr;
-		ob->ob_clr = ob->ob_original_ob->owner;
+		ob->ob_faction = ob->ob_original_ob->faction;
+		ob->ob_clr = ob->ob_faction;
 		ob->ob_owner = ob;
 		endcount = 0;
 
@@ -334,7 +335,10 @@ void initcomp(OBJECTS * obp)
 	if (!obp) {
 		ob->ob_drawf = dispcomp;
 		ob->ob_movef = movecomp;
-		ob->ob_clr = 2;
+		// TODO: Allow multiple computer-controlled planes belonging
+		// to different factions.
+		ob->ob_faction = FACTION_PLAYER2;
+		ob->ob_clr = FACTION_PLAYER2;
 		ob->ob_owner = planes[1];
 	}
 	if (playmode == PLAYMODE_SINGLE || playmode == PLAYMODE_NOVICE) {
@@ -650,8 +654,7 @@ static void AddPlayerTarget(OBJECTS *ob, const original_ob_t *orig_ob)
 			}
 			break;
 	}
-	//printf("%d : %d / %d targets\n", orig_ob->type,
-	//       numtarg[0], numtarg[1]);
+	ob->ob_faction = ob->ob_owner->ob_faction;
 }
 
 // building/target
@@ -690,7 +693,7 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	ob->ob_state = STANDING;
 	ob->ob_orient = orig_ob->orient;
 	AddPlayerTarget(ob, orig_ob);
-	ob->ob_clr = ob->ob_owner->ob_clr;
+	ob->ob_clr = ob->ob_faction;
 	ob->ob_newsym = &symbol_targets[0].sym[0];
 	ob->ob_drawf = disptarg;
 	ob->ob_movef = movetarg;
@@ -935,7 +938,8 @@ static OBJECTS *initballoon(const original_ob_t *orig_ob)
 	ob->ob_newsym = &symbol_balloon[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveballoon;
-	ob->ob_clr = orig_ob->owner;
+	ob->ob_faction = orig_ob->faction;
+	ob->ob_clr = ob->ob_faction;
 	ob->ob_onmap = true;
 	AddPlayerTarget(ob, orig_ob);
 
@@ -1053,7 +1057,10 @@ void swinitlevel(void)
 		if (currgame->gm_objects[i].type != PLANE) {
 			continue;
 		}
-		pln_index = currgame->gm_objects[i].owner - 1;
+		// TODO: Currently we equate faction with plane number,
+		// which is incorrect - it should be possible to have
+		// multiple planes per faction.
+		pln_index = currgame->gm_objects[i].faction - 1;
 		if (pln_index >= 0 && pln_index < MAX_PLYR * 2) {
 			orig_planes[pln_index] = &currgame->gm_objects[i];
 		}
