@@ -1,38 +1,38 @@
 level {
 	object {
 		orient: 0
-		owner: PLAYER1
+		faction: PLAYER1
 		transform: 6
 		type: OX
 		x: 1028
 	}
 	object {
 		orient: 0
-		owner: PLAYER1
+		faction: PLAYER1
 		transform: 6
 		type: OX
 		x: 1060
 	}
 	object {
 		orient: 0
-		owner: PLAYER1
+		faction: PLAYER1
 		type: OX
 		x: 1092
 	}
 	object {
 		orient: 2
-		owner: PLAYER1
+		faction: PLAYER1
 		type: TARGET
 		x: 1189
 	}
 	object {
 		orient: 0
-		owner: PLAYER1
+		faction: PLAYER1
 		type: TARGET
 		x: 1213
 	}
 	object {
-		owner: PLAYER1
+		faction: PLAYER1
 		territory_l: 489
 		territory_r: 1589
 		type: PLANE
@@ -40,31 +40,31 @@ level {
 	}
 	object {
 		orient: 3
-		owner: PLAYER2
+		faction: PLAYER2
 		type: TARGET
 		x: 2475
 	}
 	object {
 		orient: 3
-		owner: PLAYER2
+		faction: PLAYER2
 		type: TARGET
 		x: 2580
 	}
 	object {
 		orient: 2
-		owner: PLAYER2
+		faction: PLAYER2
 		type: TARGET
 		x: 2843
 	}
 	object {
 		orient: 0
-		owner: PLAYER2
+		faction: PLAYER2
 		type: TARGET
 		x: 2819
 	}
 	object {
 		orient: 1
-		owner: PLAYER2
+		faction: PLAYER2
 		territory_l: 2039
 		territory_r: 4059
 		type: PLANE
@@ -72,19 +72,19 @@ level {
 	}
 	object {
 		orient: 3
-		owner: PLAYER2
+		faction: PLAYER2
 		type: TARGET
 		x: 3375
 	}
 	object {
 		orient: 3
-		owner: PLAYER2
+		faction: PLAYER2
 		type: TARGET
 		x: 3407
 	}
 	object {
 		orient: 3
-		owner: PLAYER2
+		faction: PLAYER2
 		type: TARGET
 		x: 3462
 	}

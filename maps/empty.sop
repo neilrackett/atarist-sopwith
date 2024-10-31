@@ -8,7 +8,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	ground {
 		_: 64 _: 64 _: 64 _: 64 _: 64 _: 64 _: 64 _: 64 _: 64 _: 64

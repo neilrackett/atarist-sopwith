@@ -47,55 +47,55 @@ level {
 		type: TARGET
 		x: 270
 		orient: 8
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: TARGET
 		x: 385
 		orient: 7
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: TARGET
 		x: 405
 		orient: 6
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: BALLOON
 		x: 410
 		orient: 0
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: TARGET
 		x: 420
 		orient: 7
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: TARGET
 		x: 440
 		orient: 7
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: BALLOON
 		x: 500
 		orient: 1
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: TARGET
 		x: 520
 		orient: 4
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: TARGET
 		x: 540
 		orient: 5
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 
 	// Player 1 base:
@@ -103,13 +103,13 @@ level {
 		type: TARGET
 		x: 685
 		orient: 6
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: TARGET
 		x: 704
 		orient: 0
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: PLANE
@@ -117,21 +117,21 @@ level {
 		orient: 0
 		territory_l: 901
 		territory_r: 1835
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: OX
 		x: 824
 		orient: 0
 		transform: 3
-		owner: NONE
+		faction: NONE
 	}
 	object {
 		type: OX
 		x: 834
 		orient: 0
 		transform: 5
-		owner: NONE
+		faction: NONE
 	}
 
 	// Player 2 base:
@@ -141,76 +141,76 @@ level {
 		orient: 1
 		territory_l: 1155
 		territory_r: 2089
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
 		x: 1214
 		orient: 0
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
 		x: 1244
 		orient: 2
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 
 	object {
 		type: TARGET
 		x: 1435
 		orient: 7
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: BALLOON
 		x: 1450
 		orient: 0
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
 		x: 1455
 		orient: 6
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
 		x: 1470
 		orient: 7
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
 		x: 1490
 		orient: 7
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
 		x: 1540
 		orient: 4
 		transform: 6
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
 		x: 1560
 		orient: 5
 		transform: 6
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: BALLOON
 		x: 1600
 		orient: 1
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {  // Custom target type
 		type: TARGET
 		x: 1680
 		orient: 8
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 
 	ground {

@@ -9,7 +9,7 @@ level {
 		orient: 1
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER3
+		faction: PLAYER3
 	}
 	object {
 		type: TARGET
@@ -17,7 +17,7 @@ level {
 		orient: 3
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER3
+		faction: PLAYER3
 	}
 	object {
 		type: FLOCK
@@ -25,7 +25,7 @@ level {
 		orient: 0
 		territory_l: 370
 		territory_r: 2630
-		owner: NONE
+		faction: NONE
 	}
 	object {
 		type: TARGET
@@ -33,7 +33,7 @@ level {
 		orient: 1
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER3
+		faction: PLAYER3
 	}
 	object {
 		type: TARGET
@@ -41,7 +41,7 @@ level {
 		orient: 1
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER3
+		faction: PLAYER3
 	}
 	object {
 		type: PLANE
@@ -49,7 +49,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 1154
-		owner: PLAYER3
+		faction: PLAYER3
 	}
 	object {
 		type: TARGET
@@ -57,7 +57,7 @@ level {
 		orient: 3
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER3
+		faction: PLAYER3
 	}
 	object {
 		type: TARGET
@@ -65,7 +65,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER3
+		faction: PLAYER3
 	}
 	object {
 		type: TARGET
@@ -73,7 +73,7 @@ level {
 		orient: 1
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER3
+		faction: PLAYER3
 	}
 
 	// Player 1 base:
@@ -83,7 +83,7 @@ level {
 		orient: 0
 		territory_l: 370
 		territory_r: 2630
-		owner: NONE
+		faction: NONE
 	}
 	object {
 		type: TARGET
@@ -91,7 +91,7 @@ level {
 		orient: 2
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: TARGET
@@ -99,7 +99,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: PLANE
@@ -107,7 +107,7 @@ level {
 		orient: 0
 		territory_l: 901
 		territory_r: 1835
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 	object {
 		type: PLANE
@@ -115,7 +115,7 @@ level {
 		orient: 0
 		territory_l: 901
 		territory_r: 1835
-		owner: PLAYER5
+		faction: PLAYER5
 	}
 	object {
 		type: PLANE
@@ -123,7 +123,7 @@ level {
 		orient: 0
 		territory_l: 901
 		territory_r: 1835
-		owner: PLAYER6
+		faction: PLAYER6
 	}
 	object {
 		type: OX
@@ -131,7 +131,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 0
-		owner: NONE
+		faction: NONE
 	}
 	object {
 		type: TARGET
@@ -139,7 +139,7 @@ level {
 		orient: 3
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER1
+		faction: PLAYER1
 	}
 
 	// Player 2 base:
@@ -149,7 +149,7 @@ level {
 		orient: 3
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: OX
@@ -157,7 +157,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 0
-		owner: NONE
+		faction: NONE
 	}
 	object {
 		type: FLOCK
@@ -165,7 +165,7 @@ level {
 		orient: 0
 		territory_l: 370
 		territory_r: 2630
-		owner: NONE
+		faction: NONE
 	}
 	object {
 		type: PLANE
@@ -173,7 +173,7 @@ level {
 		orient: 1
 		territory_l: 1155
 		territory_r: 2089
-		owner: PLAYER7
+		faction: PLAYER7
 	}
 	object {
 		type: PLANE
@@ -181,7 +181,7 @@ level {
 		orient: 1
 		territory_l: 1155
 		territory_r: 2089
-		owner: PLAYER8
+		faction: PLAYER8
 	}
 	object {
 		type: PLANE
@@ -189,7 +189,7 @@ level {
 		orient: 1
 		territory_l: 1155
 		territory_r: 2089
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
@@ -197,7 +197,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
@@ -205,7 +205,7 @@ level {
 		orient: 2
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 	object {
 		type: TARGET
@@ -213,7 +213,7 @@ level {
 		orient: 1
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER2
+		faction: PLAYER2
 	}
 
 	// Right side of map:
@@ -223,7 +223,7 @@ level {
 		orient: 1
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER4
+		faction: PLAYER4
 	}
 	object {
 		type: TARGET
@@ -231,7 +231,7 @@ level {
 		orient: 3
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER4
+		faction: PLAYER4
 	}
 	object {
 		type: TARGET
@@ -239,7 +239,7 @@ level {
 		orient: 3
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER4
+		faction: PLAYER4
 	}
 	object {
 		type: PLANE
@@ -247,7 +247,7 @@ level {
 		orient: 1
 		territory_l: 2089
 		territory_r: 9999
-		owner: PLAYER4
+		faction: PLAYER4
 	}
 	object {
 		type: TARGET
@@ -255,7 +255,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER4
+		faction: PLAYER4
 	}
 	object {
 		type: FLOCK
@@ -263,7 +263,7 @@ level {
 		orient: 0
 		territory_l: 370
 		territory_r: 2630
-		owner: NONE
+		faction: NONE
 	}
 	object {
 		type: TARGET
@@ -271,7 +271,7 @@ level {
 		orient: 0
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER4
+		faction: PLAYER4
 	}
 	object {
 		type: TARGET
@@ -279,7 +279,7 @@ level {
 		orient: 1
 		territory_l: 0
 		territory_r: 0
-		owner: PLAYER4
+		faction: PLAYER4
 	}
 
 	ground {

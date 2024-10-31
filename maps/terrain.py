@@ -64,7 +64,7 @@ class Territory(object):
 				o.setdefault("territory_r", end_x)
 
 def EnemyTerritory(**kwargs):
-	kwargs.setdefault("owner", "PLAYER2")
+	kwargs.setdefault("faction", "PLAYER2")
 	return Territory(**kwargs)
 
 def shape_fn(x, center=150):
@@ -200,7 +200,7 @@ def airfield(*, mirror, width=200):
 	hangar(x=x+mult*24)
 	plane(x=x+mult*48)
 
-@defaults(mirror=False, owner="PLAYER1", territory=None)
+@defaults(mirror=False, faction="PLAYER1", territory=None)
 def add_object(mirror, territory, **kwargs):
 	if mirror:
 		if kwargs["type"] == "PLANE":
