@@ -310,7 +310,6 @@ void initplyr(OBJECTS * obp)
 		ob->ob_movef = moveplyr;
 		ob->ob_faction = ob->ob_original_ob->faction;
 		ob->ob_clr = ob->ob_faction;
-		ob->ob_owner = ob;
 		endcount = 0;
 
 		ob->ob_plrnum = num_players;
@@ -338,8 +337,7 @@ void initcomp(OBJECTS * obp)
 		// TODO: Allow multiple computer-controlled planes belonging
 		// to different factions.
 		ob->ob_faction = FACTION_PLAYER2;
-		ob->ob_clr = FACTION_PLAYER2;
-		ob->ob_owner = planes[1];
+		ob->ob_clr = ob->ob_faction;
 	}
 	if (playmode == PLAYMODE_SINGLE || playmode == PLAYMODE_NOVICE) {
 		ob->ob_state = FINISHED;
@@ -631,26 +629,27 @@ static void AddPlayerTarget(OBJECTS *ob, const original_ob_t *orig_ob)
 	switch (orig_ob->faction) {
 		case NUM_FACTIONS:
 		case FACTION_NONE:
+			ob->ob_faction = FACTION_NONE;
+			break;
 		case FACTION_PLAYER1:
 		case FACTION_PLAYER5:
 		case FACTION_PLAYER7:
-			ob->ob_owner = planes[0];
+			ob->ob_faction = FACTION_PLAYER1;
 			break;
 		case FACTION_PLAYER2:
 		case FACTION_PLAYER4:
 		case FACTION_PLAYER6:
 		case FACTION_PLAYER8:
-			ob->ob_owner = planes[1];
+			ob->ob_faction = FACTION_PLAYER2;
 			break;
 		case FACTION_PLAYER3:
 			if (playmode == PLAYMODE_ASYNCH) {
-				ob->ob_owner = planes[0];
+				ob->ob_faction = FACTION_PLAYER1;
 			} else {
-				ob->ob_owner = planes[1];
+				ob->ob_faction = FACTION_PLAYER2;
 			}
 			break;
 	}
-	ob->ob_faction = ob->ob_owner->ob_faction;
 	++numtarg[ob->ob_faction];
 }
 
@@ -868,7 +867,7 @@ static OBJECTS *initflock(const original_ob_t *orig_ob)
 	ob->ob_dy = ob->ob_lx = ob->ob_ly = ob->ob_ldx = ob->ob_ldy = 0;
 	ob->ob_orient = 0;
 	ob->ob_life = FLOCKLIFE;
-	ob->ob_owner = ob;
+	ob->ob_faction = FACTION_NONE;
 	ob->ob_newsym = &symbol_flock[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveflck;
@@ -906,7 +905,7 @@ void initbird(OBJECTS *obo, int i)
 	ob->ob_orient = ob->ob_lx = ob->ob_ly = ob->ob_ldx = ob->ob_ldy =
 	    0;
 	ob->ob_life = BIRDLIFE;
-	ob->ob_owner = obo;
+	ob->ob_faction = obo->ob_faction;
 	ob->ob_newsym = &symbol_bird[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = movebird;
@@ -931,7 +930,6 @@ static OBJECTS *initballoon(const original_ob_t *orig_ob)
 	ob->ob_dx = 0;
 	ob->ob_dy = 0;
 	ob->ob_orient = 0;
-	ob->ob_owner = ob;
 	ob->ob_newsym = &symbol_balloon[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveballoon;
@@ -964,7 +962,7 @@ static OBJECTS *initox(const original_ob_t *orig_ob)
 	ob->ob_y = ground[ob->ob_x] + 16;
 	ob->ob_orient = ob->ob_lx = ob->ob_ly = ob->ob_ldx =
 	    ob->ob_ldy = ob->ob_dx = ob->ob_dy = 0;
-	ob->ob_owner = ob;
+	ob->ob_faction = FACTION_NONE;
 	ob->ob_newsym = &symbol_ox[0].sym[orig_ob->transform];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveox;
