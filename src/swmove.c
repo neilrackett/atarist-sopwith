@@ -72,14 +72,16 @@ void swmove(void)
 static void nearpln(OBJECTS *ob)
 {
 	OBJECTS *obt, *obc;
-	int obx, obclr;
+	int obx;
 
 	obx = ob->ob_x;
-	obclr = ob->ob_owner->ob_clr;
 
 	for (obt = objtop; obt != NULL; obt = obt->ob_next) {
+		// TODO: Planes currently target any plane of a different
+		// faction. In the future it would be nice to support
+		// alliances between factions.
 		if (obt->ob_type != PLANE
-		 || obclr == obt->ob_owner->ob_clr) {
+		 || obt->ob_faction == ob->ob_faction) {
 			continue;
 		}
 
@@ -825,10 +827,16 @@ static OBJECTS *FindEnemyPlane(OBJECTS *ob)
 
 	// TODO: We can do better than scanning the entire object list.
 	for (obp = objtop; obp != NULL; obp = obp->ob_next) {
-		// Only shoot at enemy planes. In single player mode, computer
-		// planes do not get targeted.
-		if (obp->ob_type != PLANE || obp->ob_clr == ob->ob_clr ||
-		    (playmode != PLAYMODE_ASYNCH && obp != planes[0])) {
+		// TODO: Targets consider any plane of a different faction
+		// to be an enemy. In the future we may want to support
+		// alliances between factions.
+		if (obp->ob_type != PLANE
+		 || obp->ob_faction == ob->ob_faction) {
+			continue;
+		}
+		// In single player mode, computer planes do not get targeted.
+		if (playmode != PLAYMODE_ASYNCH
+		 && obp->ob_faction != FACTION_PLAYER1) {
 			continue;
 		}
 		if (PlaneIsKilled(obp->ob_state)) {

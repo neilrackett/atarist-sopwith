@@ -142,11 +142,13 @@ static OBJECTS *GetScoreObject(OBJECTS *ob, int *reverse)
 
 	if (playmode != PLAYMODE_ASYNCH) {
 		retval = planes[0];
-		if (ob->ob_clr == 1) {
+		if (ob->ob_faction == FACTION_PLAYER1) {
 			*reverse = 1;
 		}
 	} else {
-		retval = planes[2 - ob->ob_clr];
+		// TODO: Support more than two factions.
+		retval = planes[ob->ob_faction == FACTION_PLAYER1 ?
+		                FACTION_PLAYER2 : FACTION_PLAYER1];
 	}
 
 	return retval;
