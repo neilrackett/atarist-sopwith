@@ -624,22 +624,23 @@ static void AddPlayerTarget(OBJECTS *ob, const original_ob_t *orig_ob)
 	// for players 1 and 2.
 	// This may change in the future if we support multiplayer with
 	// more than two players.
-	switch (orig_ob->owner) {
-		case OWNER_NONE:
-		case OWNER_PLAYER1:
-		case OWNER_PLAYER5:
-		case OWNER_PLAYER7:
+	switch (orig_ob->faction) {
+		case NUM_FACTIONS:
+		case FACTION_NONE:
+		case FACTION_PLAYER1:
+		case FACTION_PLAYER5:
+		case FACTION_PLAYER7:
 			ob->ob_owner = planes[0];
 			++numtarg[0];
 			break;
-		case OWNER_PLAYER2:
-		case OWNER_PLAYER4:
-		case OWNER_PLAYER6:
-		case OWNER_PLAYER8:
+		case FACTION_PLAYER2:
+		case FACTION_PLAYER4:
+		case FACTION_PLAYER6:
+		case FACTION_PLAYER8:
 			ob->ob_owner = planes[1];
 			++numtarg[1];
 			break;
-		case OWNER_PLAYER3:
+		case FACTION_PLAYER3:
 			if (playmode == PLAYMODE_ASYNCH) {
 				ob->ob_owner = planes[0];
 				++numtarg[0];

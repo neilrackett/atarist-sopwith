@@ -22,17 +22,17 @@
 #define VRAMSIZE (SCR_HGHT * vid_pitch)
 
 static const uint8_t color_mappings[][4] = {
-	{ 0, 3, 3, 3 },  // All-white                     - OWNER_NONE?
-	{ 0, 1, 2, 3 },  // Cyan fuselage, magenta wings  - OWNER_PLAYER1
-	{ 0, 2, 1, 3 },  // Magenta fuselage, cyan wings  - OWNER_PLAYER2
+	{ 0, 3, 3, 3 },  // All-white                     - FACTION_NONE?
+	{ 0, 1, 2, 3 },  // Cyan fuselage, magenta wings  - FACTION_PLAYER1
+	{ 0, 2, 1, 3 },  // Magenta fuselage, cyan wings  - FACTION_PLAYER2
 	// New colors:
-	{ 0, 1, 3, 2 },  // Cyan fuselage, white wings    - OWNER_PLAYER3
-	{ 0, 2, 3, 1 },  // Magenta fuselage, white wings - OWNER_PLAYER4
-	{ 0, 3, 1, 2 },  // White fuselage, cyan wings    - OWNER_PLAYER5
-	{ 0, 3, 2, 1 },  // White fuselage, magenta wings - OWNER_PLAYER6
+	{ 0, 1, 3, 2 },  // Cyan fuselage, white wings    - FACTION_PLAYER3
+	{ 0, 2, 3, 1 },  // Magenta fuselage, white wings - FACTION_PLAYER4
+	{ 0, 3, 1, 2 },  // White fuselage, cyan wings    - FACTION_PLAYER5
+	{ 0, 3, 2, 1 },  // White fuselage, magenta wings - FACTION_PLAYER6
 	// Now we're getting into boring territory...
-	{ 0, 1, 1, 3 },  // All-cyan                      - OWNER_PLAYER7
-	{ 0, 2, 2, 3 },  // All-magenta                   - OWNER_PLAYER8
+	{ 0, 1, 1, 3 },  // All-cyan                      - FACTION_PLAYER7
+	{ 0, 2, 2, 3 },  // All-magenta                   - FACTION_PLAYER8
 };
 
 uint8_t *vid_vram;
@@ -177,18 +177,17 @@ void Vid_XorPixel(int x, int y, int clr)
 	*sptr ^= clr & 3;
 }
 
-// Given a player number (ob_owner_t), returns the color of the fuselage
-// when that plane is drawn to the screen. This is used by the map to get
-// the color of objects when they're drawn there.
+// Returns the color of the fuselage for planes of a given faction.
+// This is used for the colors shown for objects on the map.
 // TODO: When the fuselage is white, we should probably return the wing
 // color instead so that the player can be distinguished from the ground.
-int Vid_FuselageColor(ob_owner_t clr)
+int Vid_FuselageColor(faction_t f)
 {
-	assert(clr < arrlen(color_mappings));
-	return color_mappings[clr][1];
+	assert(f < arrlen(color_mappings));
+	return color_mappings[f][1];
 }
 
-void Vid_DispSymbol(int x, int y, sopsym_t *symbol, ob_owner_t clr)
+void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 {
 	uint8_t *sptr = vid_vram + (SCR_HGHT-1 - y) * vid_pitch + x;
 	const uint8_t *data = symbol->data;

@@ -315,9 +315,9 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 	// purpose: they give you an impression of what the game will
 	// look like under the different palettes.
 	Vid_DispSymbol(x * 8 - 32, SCR_HGHT - 10,
-	               &symbol_plane[0].sym[0], OWNER_PLAYER1);
+	               &symbol_plane[0].sym[0], FACTION_PLAYER1);
 	Vid_DispSymbol((x + title_len) * 8 + 16, SCR_HGHT - 10,
-	               &symbol_plane[0].sym[6], OWNER_PLAYER2);
+	               &symbol_plane[0].sym[6], FACTION_PLAYER2);
 
 	swcolor(2);
 	swposcur(x, 2);

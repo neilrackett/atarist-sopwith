@@ -237,32 +237,33 @@ typedef struct {
 	int ribbons[6];  /* Ribbon display order */
 } score_t;
 
-// Objects in levels are assigned an "owner" player. This is mainly used
-// to control which targets are assigned to which player. However, since
-// each player is assigned a unique color scheme, these constants are
-// also used in some places to denote a color scheme to draw symbols in.
-// For the time being, OWNER_PLAYER3 means "OWNER_PLAYER1 in multiplayer;
-// OWNER_PLAYER2 in single player". All others are synonyms for either
-// OWNER_PLAYER1 or OWNER_PLAYER2; this may change in the future if/when
-// we support more than two players.
+// Objects in levels are assigned a faction. This is mainly used to control
+// which targets are assigned to which player. However, since each player is
+// assigned a unique color scheme, these constants are also used in some places
+// to denote a color scheme to draw symbols in.  For the time being,
+// FACTION_PLAYER3 means "FACTION_PLAYER1 in multiplayer; FACTION_PLAYER2 in
+// single player". All others are synonyms for either FACTION_PLAYER1 or
+// FACTION_PLAYER2; this may change in the future.  we support more than two
+// players.
 typedef enum {
-	OWNER_NONE,
-	OWNER_PLAYER1,
-	OWNER_PLAYER2,
-	OWNER_PLAYER3,
-	OWNER_PLAYER4,
-	OWNER_PLAYER5,
-	OWNER_PLAYER6,
-	OWNER_PLAYER7,
-	OWNER_PLAYER8,
-} ob_owner_t;
+	FACTION_NONE,
+	FACTION_PLAYER1,
+	FACTION_PLAYER2,
+	FACTION_PLAYER3,
+	FACTION_PLAYER4,
+	FACTION_PLAYER5,
+	FACTION_PLAYER6,
+	FACTION_PLAYER7,
+	FACTION_PLAYER8,
+	NUM_FACTIONS,
+} faction_t;
 
 typedef struct {
 	obtype_t type;
 	int x;
 	int orient;
 	int territory_l, territory_r;    /* Computer plane territory */
-	ob_owner_t owner;
+	faction_t faction;
 	int transform;                   /* Rotation/mirroring */
 } original_ob_t;
 

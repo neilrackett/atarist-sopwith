@@ -216,46 +216,46 @@ static GRNDTYPE original_ground[] = { /* Original ground height by pixel */
 
 static original_ob_t original_targets[] = {
 	// Left side of map -
-	{TARGET,  191, 1, 0, 0, OWNER_PLAYER3},
-	{TARGET,  284, 3, 0, 0, OWNER_PLAYER3},
-	{FLOCK,   370, 0, 370, 2630, OWNER_NONE},
-	{TARGET,  409, 1, 0, 0, OWNER_PLAYER3},
-	{TARGET,  539, 1, 0, 0, OWNER_PLAYER3},
-	{PLANE,   588, 0, 0, 1154, OWNER_PLAYER3},
-	{TARGET,  685, 3, 0, 0, OWNER_PLAYER3},
-	{TARGET,  807, 0, 0, 0, OWNER_PLAYER3},
-	{TARGET,  934, 1, 0, 0, OWNER_PLAYER3},
+	{TARGET,  191, 1, 0, 0, FACTION_PLAYER3},
+	{TARGET,  284, 3, 0, 0, FACTION_PLAYER3},
+	{FLOCK,   370, 0, 370, 2630, FACTION_NONE},
+	{TARGET,  409, 1, 0, 0, FACTION_PLAYER3},
+	{TARGET,  539, 1, 0, 0, FACTION_PLAYER3},
+	{PLANE,   588, 0, 0, 1154, FACTION_PLAYER3},
+	{TARGET,  685, 3, 0, 0, FACTION_PLAYER3},
+	{TARGET,  807, 0, 0, 0, FACTION_PLAYER3},
+	{TARGET,  934, 1, 0, 0, FACTION_PLAYER3},
 
 	// Player 1 base
-	{FLOCK,  1000, 0, 370, 2630, OWNER_NONE},
-	{TARGET, 1210, 2, 0, 0, OWNER_PLAYER1},
-	{TARGET, 1240, 0, 0, 0, OWNER_PLAYER1},
-	{PLANE,  1270, 0,  901, 1835, OWNER_PLAYER1},
-	{PLANE,  1330, 0,  901, 1835, OWNER_PLAYER5}, // Extra planes for multiplayer
-	{PLANE,  1360, 0,  901, 1835, OWNER_PLAYER6},
-	{OX,     1376, 0, 0, 0, OWNER_NONE},
-	{TARGET, 1440, 3, 0, 0, OWNER_PLAYER1},
+	{FLOCK,  1000, 0, 370, 2630, FACTION_NONE},
+	{TARGET, 1210, 2, 0, 0, FACTION_PLAYER1},
+	{TARGET, 1240, 0, 0, 0, FACTION_PLAYER1},
+	{PLANE,  1270, 0,  901, 1835, FACTION_PLAYER1},
+	{PLANE,  1330, 0,  901, 1835, FACTION_PLAYER5}, // Extra planes for multiplayer
+	{PLANE,  1360, 0,  901, 1835, FACTION_PLAYER6},
+	{OX,     1376, 0, 0, 0, FACTION_NONE},
+	{TARGET, 1440, 3, 0, 0, FACTION_PLAYER1},
 
 	// Player 2 base
-	{TARGET, 1550, 3, 0, 0, OWNER_PLAYER2},
-	{OX,     1608, 0, 0, 0, OWNER_NONE},
-	{FLOCK,  1630, 0, 370, 2630, OWNER_NONE},
-	{PLANE,  1630, 1, 1155, 2089, OWNER_PLAYER7}, // Extra planes for multiplayer
-	{PLANE,  1660, 1, 1155, 2089, OWNER_PLAYER8},
-	{PLANE,  1720, 1, 1155, 2089, OWNER_PLAYER2},
-	{TARGET, 1750, 0, 0, 0, OWNER_PLAYER2},
-	{TARGET, 1780, 2, 0, 0, OWNER_PLAYER2},
-	{TARGET, 2024, 1, 0, 0, OWNER_PLAYER2},
+	{TARGET, 1550, 3, 0, 0, FACTION_PLAYER2},
+	{OX,     1608, 0, 0, 0, FACTION_NONE},
+	{FLOCK,  1630, 0, 370, 2630, FACTION_NONE},
+	{PLANE,  1630, 1, 1155, 2089, FACTION_PLAYER7}, // Extra planes for multiplayer
+	{PLANE,  1660, 1, 1155, 2089, FACTION_PLAYER8},
+	{PLANE,  1720, 1, 1155, 2089, FACTION_PLAYER2},
+	{TARGET, 1750, 0, 0, 0, FACTION_PLAYER2},
+	{TARGET, 1780, 2, 0, 0, FACTION_PLAYER2},
+	{TARGET, 2024, 1, 0, 0, FACTION_PLAYER2},
 
 	// Right side of map -
-	{TARGET, 2159, 1, 0, 0, OWNER_PLAYER4},
-	{TARGET, 2279, 3, 0, 0, OWNER_PLAYER4},
-	{TARGET, 2390, 3, 0, 0, OWNER_PLAYER4},
-	{PLANE,  2456, 1, 2089, 9999, OWNER_PLAYER4},
-	{TARGET, 2549, 0, 0, 0, OWNER_PLAYER4},
-	{FLOCK,  2630, 0, 370, 2630, OWNER_NONE},
-	{TARGET, 2678, 0, 0, 0, OWNER_PLAYER4},
-	{TARGET, 2763, 1, 0, 0, OWNER_PLAYER4},
+	{TARGET, 2159, 1, 0, 0, FACTION_PLAYER4},
+	{TARGET, 2279, 3, 0, 0, FACTION_PLAYER4},
+	{TARGET, 2390, 3, 0, 0, FACTION_PLAYER4},
+	{PLANE,  2456, 1, 2089, 9999, FACTION_PLAYER4},
+	{TARGET, 2549, 0, 0, 0, FACTION_PLAYER4},
+	{FLOCK,  2630, 0, 370, 2630, FACTION_NONE},
+	{TARGET, 2678, 0, 0, 0, FACTION_PLAYER4},
+	{TARGET, 2763, 1, 0, 0, FACTION_PLAYER4},
 };
 
 const GAMES original_level = {
@@ -271,7 +271,7 @@ static const char *obtype_names[] = {
 	"FLOCK", "BIRD", "OX", "MISSILE", "STARBURST", "BALLOON", NULL,
 };
 
-static const char *owner_names[] = {
+static const char *faction_names[] = {
 	"NONE", "PLAYER1", "PLAYER2", "PLAYER3", "PLAYER4", "PLAYER5",
 	"PLAYER6", "PLAYER7", "PLAYER8", NULL,
 };
@@ -303,7 +303,10 @@ static void AddObject(original_ob_t *ob, struct yocton_object *yo)
 		YOCTON_VAR_INT(p, "territory_r", int, ob->territory_r);
 		YOCTON_VAR_INT(p, "transform", int, ob->transform);
 		YOCTON_VAR_ENUM(p, "type", ob->type, obtype_names);
-		YOCTON_VAR_ENUM(p, "owner", ob->owner, owner_names);
+		YOCTON_VAR_ENUM(p, "faction", ob->faction, faction_names);
+
+		// Old name for faction field.
+		YOCTON_VAR_ENUM(p, "owner", ob->faction, faction_names);
 	}
 }
 

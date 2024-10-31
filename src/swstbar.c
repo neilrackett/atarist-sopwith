@@ -27,7 +27,7 @@ static void dispribbonrow (int *ribbonid, int ribbons_nr, int y)
 		int ribbon_id = ribbonid[i];
 
 		Vid_DispSymbol(offset, y, &symbol_ribbon[ribbon_id].sym[0],
-		               OWNER_PLAYER1);
+		               FACTION_PLAYER1);
 		offset += 8;
 	}
 }
@@ -44,7 +44,7 @@ static void dispmedals(OBJECTS *ob)
 
 		Vid_DispSymbol(medal_offset + medal_offsets[medal_id],
 		               11, &symbol_medal[medal_id].sym[0],
-		               OWNER_PLAYER1);
+		               FACTION_PLAYER1);
 		medal_offset += medal_widths[medal_id];
 	}
 

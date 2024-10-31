@@ -99,8 +99,8 @@ extern void Vid_XorPixel(int x, int y, int clr);
 // draw a symbol
 
 extern void Vid_DispSymbol(int x, int y, sopsym_t *symbol,
-                           ob_owner_t owner);
-extern int Vid_FuselageColor(ob_owner_t clr);
+                           faction_t f);
+extern int Vid_FuselageColor(faction_t f);
 
 // clear screen
 
