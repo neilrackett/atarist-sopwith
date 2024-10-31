@@ -635,26 +635,23 @@ static void AddPlayerTarget(OBJECTS *ob, const original_ob_t *orig_ob)
 		case FACTION_PLAYER5:
 		case FACTION_PLAYER7:
 			ob->ob_owner = planes[0];
-			++numtarg[0];
 			break;
 		case FACTION_PLAYER2:
 		case FACTION_PLAYER4:
 		case FACTION_PLAYER6:
 		case FACTION_PLAYER8:
 			ob->ob_owner = planes[1];
-			++numtarg[1];
 			break;
 		case FACTION_PLAYER3:
 			if (playmode == PLAYMODE_ASYNCH) {
 				ob->ob_owner = planes[0];
-				++numtarg[0];
 			} else {
 				ob->ob_owner = planes[1];
-				++numtarg[1];
 			}
 			break;
 	}
 	ob->ob_faction = ob->ob_owner->ob_faction;
+	++numtarg[ob->ob_faction];
 }
 
 // building/target
@@ -981,8 +978,7 @@ static void inittargets(void)
 	const original_ob_t *orig_ob;
 	int i;
 
-	numtarg[0] = 0;
-	numtarg[1] = 0;
+	memset(numtarg, 0, sizeof(numtarg));
 
 	for (i = 0; i < currgame->gm_num_objects; i++) {
 		orig_ob = &currgame->gm_objects[i];

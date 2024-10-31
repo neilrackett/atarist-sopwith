@@ -165,8 +165,48 @@ static void scoretarg(OBJECTS *obp, int score)
 	}
 }
 
+static bool IsHumanFaction(faction_t f)
+{
+	int i;
+
+	for (i = 0; i < MAX_PLYR; i++) {
+		if (planes[i] != NULL && planes[i]->ob_faction == f
+		 && planes[i]->ob_movef == moveplyr) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// CheckForWinner examines the numtarg[] array to see if there is any
+// faction that has destroyed all targets owned by all other factions.
+static faction_t CheckForWinner(void)
+{
+	faction_t i, j;
+
+	for (i = FACTION_PLAYER1; i < NUM_FACTIONS; i++) {
+		// Computer planes can't win.
+		if (!IsHumanFaction(i)) {
+			continue;
+		}
+
+		for (j = FACTION_PLAYER1; j < NUM_FACTIONS; j++) {
+			if (i != j && numtarg[j] > 0) {
+				break;
+			}
+		}
+		if (j >= NUM_FACTIONS) {
+			return i;
+		}
+	}
+
+	return FACTION_NONE;
+}
+
 static void TargetDestroyed(OBJECTS *ob, obtype_t type)
 {
+	faction_t winner;
 	int reverse;
 	OBJECTS *so = GetScoreObject(ob, &reverse);
 
@@ -179,13 +219,11 @@ static void TargetDestroyed(OBJECTS *ob, obtype_t type)
 
 	scoretarg(ob, ob->ob_orient == TARGET_OIL_TANK ? 200 : 100);
 
-	--numtarg[ob->ob_clr - 1];
-	if (numtarg[ob->ob_clr - 1] <= 0
-	 && (playmode == PLAYMODE_ASYNCH || ob->ob_clr == 2)) {
-		endgame(ob->ob_clr);
+	--numtarg[ob->ob_faction];
+	winner = CheckForWinner();
+	if (winner != FACTION_NONE) {
+		endgame(winner);
 	}
-	//printf("TargetDestroyed by %d: remaining %d / %d\n", type,
-	//       numtarg[0], numtarg[1]);
 }
 
 static bool scorepenalty(obtype_t ttype, OBJECTS * ob, int score)

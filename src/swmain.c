@@ -41,7 +41,7 @@ int conf_video_palette = 0;			// Video palette selection (0 is the default CGA c
 playmode_t playmode;		/* Mode of play                     */
 const GAMES *currgame;		/* Game parameters and current game */
 OBJECTS *consoleplayer;
-int numtarg[2];			/* Number of active targets by color */
+int numtarg[NUM_FACTIONS];	/* Number of active targets by faction */
 int countmove;			/* Performance counters             */
 
 int gamenum = 0;		/* Current game number              */

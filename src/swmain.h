@@ -34,7 +34,7 @@ extern int conf_video_palette;
 extern OBJECTS *consoleplayer;
 extern playmode_t playmode;
 extern const GAMES *currgame;
-extern int     numtarg[2];
+extern int     numtarg[NUM_FACTIONS];
 extern int     counttick, countmove;
 extern int     gamenum;
 extern int     initial_gamenum;

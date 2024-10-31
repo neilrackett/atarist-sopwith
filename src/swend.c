@@ -48,24 +48,15 @@ void swend(char *msg, bool update)
 	}
 }
 
-void endgame(int targclr)
+void endgame(faction_t winning_faction)
 {
 	int winclr;
 	OBJECTS *ob;
 
-	if (playmode != PLAYMODE_ASYNCH) {
-		winclr = 1;
-	} else if ((objtop + 1)->ob_score.score == objtop->ob_score.score) {
-		winclr = 3 - targclr;
-	} else {
-		winclr = ((objtop + 1)->ob_score.score
-		       > objtop->ob_score.score) + 1;
-	}
-
 	ob = objtop;
 	while (ob->ob_type == PLANE) {
 		if (ob->ob_endsts == PLAYING) {
-			if (ob->ob_clr == winclr
+			if (ob->ob_faction == winning_faction
 			 && (ob->ob_crashcnt < (MAXCRASH - 1)
 			  || (ob->ob_crashcnt < MAXCRASH
 			   && !PlaneIsKilled(ob->ob_state)))) {
