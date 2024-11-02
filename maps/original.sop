@@ -55,6 +55,7 @@ level {
 		type: TARGET
 		x: 685
 		orient: 3
+		transform: 6
 		territory_l: 0
 		territory_r: 0
 		faction: PLAYER3
@@ -147,6 +148,7 @@ level {
 		type: TARGET
 		x: 1550
 		orient: 3
+		transform: 6
 		territory_l: 0
 		territory_r: 0
 		faction: PLAYER2
@@ -229,6 +231,7 @@ level {
 		type: TARGET
 		x: 2279
 		orient: 3
+		transform: 6
 		territory_l: 0
 		territory_r: 0
 		faction: PLAYER4
