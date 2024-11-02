@@ -54,7 +54,7 @@ The following is an example:
     orient: 0
     territory_l: 0
     territory_r: 0
-    owner: PLAYER1
+    faction: PLAYER1
   }
 .EE
 .PP
@@ -72,6 +72,9 @@ For planes, defines the direction in which planes face: 0 (right) or 1 (left).
 For ground targets, this controls the type of ground target; see \fBTARGET
 TYPES\fR below.
 .TP
+\fBfaction\fR
+Specifies the faction to which the object belongs. See \fBFACTIONS\fR below.
+.TP
 \fBtransform\fR
 For ground targets, this specifies a "transformation" to apply to the symbol.
 Eight different transformations are supported: 0 (no transformation); 1 (rotate
@@ -80,10 +83,6 @@ clockwise); 4 (flip vertically); 5 (mirror, then rotate 90 degrees
 counterclockwise); 6 (mirror); 7 (mirror and then rotate 90 degrees clockwise).
 If you want to see an Ox do a headstand, this is the property to use, although
 it's more likely you'll want to use it to make tanks face the right direction.
-.TP
-\fBowner\fR
-Specifies the player to whom the object belongs. Valid values are \fBPLAYER1\fR
-to \fBPLAYER8\fR. In single player mode, the human player is \fBPLAYER1\fR.
 .TP
 \fBterritory_l\fR
 For planes, the left boundary of the range of the level the plane defends.
@@ -102,7 +101,7 @@ contains a flat ground with no objects other than the player's plane:
       orient: 0
       territory_l: 0
       territory_r: 0
-      owner: PLAYER1
+      faction: PLAYER1
     }
     ground {
       _: 64 _: 64 _: 64 _: 64 _: 64 _: 64 _: 64 _: 64 _: 64 _: 64
@@ -145,11 +144,9 @@ contains a flat ground with no objects other than the player's plane:
 The following object types can appear in a level:
 .TP
 \fBPLANE\fR
-Defines either a player or computer-controlled plane. The \fBowner\fR property
-controls the type; the level should contain at least one plane owned by
-\fBPLAYER1\fR as this is the player's plane. \fBPLAYER2\fR to \fBPLAYER4\fR
-will be computer controlled players in single player "vs. computer" mode, or
-other players in multiplayer mode.
+Defines either a player or computer-controlled plane. The \fBfaction\fR
+property controls whether it is a human player or computer-controlled player;
+see \fBFACTIONS\fR below.
 .
 Computer-controlled planes will defend their "territory", the range of which is
 defined by the \fBterritory_l\fR and \fBterritory_r\fR properties. If the
@@ -157,14 +154,14 @@ player enters this territory, they will take off from their base and attack.
 .TP
 \fBTARGET\fR
 A ground target. The value of the \fBorient\fR property defines the type of
-target, see \fBTARGET TYPES\fR below. The value of the \fBowner\fR property
-specifies the plane to whom the target belongs. When one player destroys all
-targets owned by all enemy planes, the game advances to the next level.
+target, see \fBTARGET TYPES\fR below. The value of the \fBfaction\fR property
+specifies the faction to which the target belongs. When one player destroys all
+targets owned by all enemy factions, the game advances to the next level.
 .TP
 \fBBALLOON\fR
 Observation balloon. The value of the \fBorient\fR property defines the type
 of balloon; 0 = spherical balloon, 1 = Caquot-style. The value of the
-\fBowner\fR property specifies the plane to whom the balloon belongs.
+\fBfaction\fR property specifies the faction to which the balloon belongs.
 .TP
 \fBOX\fR
 An Ox (type of cattle). The Ox does nothing except act as an obstacle, and does
@@ -179,6 +176,38 @@ that the player(s) must avoid. Does not appear in novice mode.
 A flock of birds moves along the top of the screen. The flock acts an obstacle
 and may disperse into many different birds if disturbed. Does not appear in
 novice mode.
+.SH FACTIONS
+Military objects belong to a "faction"; objects allied to a different faction
+are considered enemies. The color of the object indicates the faction:
+.TP
+\fBPLAYER1\fR
+For planes, cyan fuselage and magenta wings. This corresponds to the human
+player in single player mode, and player 1 in multiplayer mode.
+.TP
+\fBPLAYER2\fR
+For planes, magenta fuselage and cyan wings. This corresponds to the computer
+opponent in single player mode, and player 2 in multiplayer mode.
+.TP
+\fBNONE\fR
+Used for animals / non-military targets.
+.PP
+The following values are also recognized; they are currently (effectively)
+unused, but may be used in the future if the multiplayer feature is extended to
+support more than two players.
+.TP
+\fBPLAYER3\fR
+Maps to \fBPLAYER2\fR in single player mode, or \fBPLAYER1\fR in multiplayer
+mode. Planes of this faction are currently ignored in multiplayer mode.
+.TP
+\fBPLAYER4\fR
+Maps to \fBPLAYER2\fR. Planes of this faction are currently ignored in
+multiplayer mode.
+.TP
+\fBPLAYER5\fR, \fBPLAYER7\fR
+Maps to \fBPLAYER1\fR, but planes with this faction are currently ignored.
+.TP
+\fBPLAYER6\fR, \fBPLAYER8\fR
+Maps to \fBPLAYER2\fR, but planes with this faction are currently ignored.
 .SH SYMBOLS SECTION
 The \fBsymbols\fR section allows the game's graphics to be replaced. The
 section can contain a number of subsections, one for each type of graphic.
