@@ -108,34 +108,49 @@ void Vid_DispGround(GRNDTYPE *gptr)
 	GRNDTYPE *g = gptr;
 	uint8_t *sptr;
 	int x, y;
-	int gc, gl;
+	int hr, hc, hl;
 
-	gl = *g;
-	if (gl >= SCR_HGHT - 1) {
-		gl = SCR_HGHT - 1;
+	sptr = vid_vram;
+	y = SCR_HGHT - 1;
+
+	hc = *g;
+	++g;
+	if (hc >= SCR_HGHT - 1) {
+		hc = SCR_HGHT - 1;
 	}
+	hl = hc;
 
-	sptr = vid_vram + (SCR_HGHT-1 - gl) * vid_pitch;
-
-	for (x=SCR_WDTH, g = gptr; x>0; --x) {
-		gc = *g++;
-		if (gc >= SCR_HGHT - 1) {
-			gc = SCR_HGHT - 1;
+	// We keep a rolling window of three consecutive ground heights.
+	// Although 'x' is the current column we're drawing, 'g' always points
+	// one column ahead; we look one pixel both ahead (hr) and behind (hl).
+	// We then draw a vertical line from lowest of the three to the current
+	// height. This approach always draws the correct ground height for
+	// that column. It also correctly handles a number of corner cases:
+	// left-facing cliff, right-facing cliff, and pixel-wide bump/pillar.
+	for (x = 0; x < SCR_WDTH; ++x) {
+		hr = *g++;
+		if (hr >= SCR_HGHT - 1) {
+			hr = SCR_HGHT - 1;
 		}
-		if (gl == gc) {
-			*sptr ^= 3;
-		} else if (gc < gl) {
-			for (y = gl - gc; y; --y) {
-				*sptr ^= 3;
-				sptr += vid_pitch;
-			}
-		} else {
-			for (y = gc - gl; y; --y) {
-				*sptr ^= 3;
-				sptr -= vid_pitch;
-			}
+		if (y > hl) {
+			sptr += vid_pitch * (y - hl);
+			y = hl;
 		}
-		gl = gc;
+		if (y > hr) {
+			sptr += vid_pitch * (y - hr);
+			y = hr;
+		}
+		if (y >= hc) {
+			sptr += vid_pitch * (y - hc + 1);
+			y = hc - 1;
+		}
+		while (y < hc) {
+			y++;
+			sptr -= vid_pitch;
+			*sptr ^= 0x3;
+		}
+		hl = hc;
+		hc = hr;
 		++sptr;
 	}
 }
