@@ -20,10 +20,9 @@
 #include "swmain.h"
 #include "swobject.h"
 
-static OBJECTS obs;		/*  Saved computer object         */
 static int courseadj;		/*  Course adjustment             */
 
-static int shoot(OBJECTS *obt)
+static int shoot(OBJECTS *obt, OBJECTS *obs)
 {
 	static OBJECTS obsp, obtsp;
 	int obx, oby, obtx, obty;
@@ -31,7 +30,7 @@ static int shoot(OBJECTS *obt)
 	int rprev;
 	int r, i;
 
-	copyobj(&obsp, &obs);
+	copyobj(&obsp, obs);
 	copyobj(&obtsp, obt);
 	nspeed = obsp.ob_speed + BULSPEED;
 	setdxdy(&obsp,
@@ -161,6 +160,7 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 	int r, rmin, i, n=0;
 	int x, y, dx, dy, nx, ny;
 	int nangle, nspeed;
+	OBJECTS obs;
 	static const int cflaps[3] = { 0, -1, 1 };
 	static int crange[3], ccrash[3], calt[3];
 
@@ -243,7 +243,7 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 	}
 
 	if (obt) {
-		i = shoot(obt);
+		i = shoot(obt, &obs);
 
 		if (i) {
 			// cr 2005-04-28: Resort to MG if
