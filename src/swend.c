@@ -50,7 +50,6 @@ void swend(char *msg, bool update)
 
 void endgame(faction_t winning_faction)
 {
-	int winclr;
 	OBJECTS *ob;
 
 	ob = objtop;
