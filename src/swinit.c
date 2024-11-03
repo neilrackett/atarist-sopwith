@@ -798,7 +798,8 @@ void initexpl(OBJECTS *obo, int small)
 		ob->ob_life = EXPLLIFE;
 		orient = ob->ob_orient = (explseed & 0x01C0) >> 6;
 		if (mansym && (!orient || orient == 7)) {
-			mansym = orient = ob->ob_orient = 0;
+			orient = ob->ob_orient = 0;
+			mansym = false;
 			ob->ob_dx = obodx;
 			ob->ob_dy = -gminspeed;
 		}

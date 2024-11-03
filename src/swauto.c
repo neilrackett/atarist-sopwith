@@ -20,7 +20,6 @@
 #include "swmain.h"
 #include "swobject.h"
 
-static bool correction;		/*  Course correction flag        */
 static OBJECTS obs;		/*  Saved computer object         */
 static int courseadj;		/*  Course adjustment             */
 
@@ -165,8 +164,6 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 	static const int cflaps[3] = { 0, -1, 1 };
 	static int crange[3], ccrash[3], calt[3];
 
-	correction = false;
-
 	if (PlaneIsStalled(ob->ob_state)
 	 && ob->ob_angle != (3 * ANGLES / 4)) {
 		ob->ob_flaps = -1;
@@ -201,9 +198,9 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 
 	if (ob->ob_speed) {
 
-		correction = dy = y - ay;
+		dy = y - ay;
 
-		if (correction && abs(dy) < 6) {
+		if (dy != 0 && abs(dy) < 6) {
 			if (dy < 0) {
 				++y;
 			} else {
@@ -211,8 +208,7 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 			}
 			ob->ob_y = y;
 		} else {
-			correction = dx;
-			if (correction && abs(dx) < 6) {
+			if (dx != 0 && abs(dx) < 6) {
 				if (dx < 0) {
 					++x;
 				} else {
