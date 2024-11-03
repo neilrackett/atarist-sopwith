@@ -24,7 +24,7 @@ static int courseadj;		/*  Course adjustment             */
 
 static int shoot(OBJECTS *obt, OBJECTS *obs)
 {
-	static OBJECTS obsp, obtsp;
+	OBJECTS obsp, obtsp;
 	int obx, oby, obtx, obty;
 	int nspeed, nangle;
 	int rprev;
