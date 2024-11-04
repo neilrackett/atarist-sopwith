@@ -126,14 +126,8 @@ static bool tstcrash2(OBJECTS *ob, int x, int y, int alt, int dy)
 	// This is unnecessarily complicated really, but preserves the
 	// logic of the previous version of tstcrash2(). It can probably
 	// be simplified.
-	xl = ob->ob_x - 32 - gmaxspeed;
-	if (x - 32 > xl) {
-		xl = x - 32;
-	}
-	xr = ob->ob_x + 32 + gmaxspeed;
-	if (x + 32 < xr) {
-		xr = x + 32;
-	}
+	xl = clamp_min(x - 32, ob->ob_x - 32 - gmaxspeed);
+	xr = clamp_max(x + 32, ob->ob_x + 32 + gmaxspeed);
 
 	obt = ob;
 	while (obt->ob_xprev != NULL && obt->ob_xprev->ob_x >= xl) {
@@ -186,10 +180,8 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 		}
 		ob->ob_hitcount = 0;
 		return (aim(ob, x + (dx < 0 ? 150 : -150),
-			    (y + 100 > MAX_Y - 50 - courseadj)
-			        ? MAX_Y - 50 - courseadj
-			        : y + 100,
-			    NULL, true));
+		            clamp_max(y + 100, MAX_Y - 50 - courseadj),
+		            NULL, true));
 	} else {
 		if (!longway) {
 			ob->ob_hitcount = 0;
@@ -347,11 +339,10 @@ static void cruise(OBJECTS *ob)
 
 	courseadj = ((countmove & 0x001F) < 16) << 4;
 	orgx = ob->ob_original_ob->x;
-	aim(ob, courseadj +
-		(orgx < (currgame->gm_max_x / 3) ? (currgame->gm_max_x / 3) :
-		 orgx > (2 * currgame->gm_max_x / 3) ?
-		     (2 * currgame->gm_max_x / 3) : orgx),
-		MAX_Y - 50 - (courseadj >> 1), NULL, false);
+	aim(ob,
+	    courseadj + clamp_range(currgame->gm_max_x / 3, orgx,
+	                            2 * currgame->gm_max_x / 3),
+	    MAX_Y - 50 - (courseadj >> 1), NULL, false);
 }
 
 static void attack(OBJECTS *obp, OBJECTS *ob)

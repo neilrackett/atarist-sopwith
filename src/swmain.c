@@ -117,9 +117,7 @@ static bool CanMove(void)
 	 * players is > countmove. */
 
 	for (i=0; i<num_players; ++i) {
-		if (latest_player_time[i] < lowtic) {
-			lowtic = latest_player_time[i];
-		}
+		lowtic = imin(lowtic, latest_player_time[i]);
 	}
 
 	return lowtic > countmove;
@@ -140,12 +138,7 @@ static void CalculateLag(void)
 
 	// bound the compensation applied; responds to network traffic
 	// spikes
-
-	if (compensation < -5) {
-		compensation = -5;
-	} else if (compensation > 5) {
-		compensation = 5;
-	}
+	compensation = clamp_range(-5, compensation, 5);
 
 	skip_time += compensation;
 }

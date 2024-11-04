@@ -130,13 +130,8 @@ void swdisp(void)
 
 	// calculate displx from the player position
 	// do sanity checks to make sure we never go out of range
-	displx = consoleplayer->ob_x - SCR_CENTR;
-
-	if (displx < 0) {
-		displx = 0;
-	} else if (displx >= currgame->gm_max_x - SCR_WDTH) {
-		displx = currgame->gm_max_x - SCR_WDTH - 1;
-	}
+	displx = clamp_range(0, consoleplayer->ob_x - SCR_CENTR,
+	                     currgame->gm_max_x - SCR_WDTH - 1);
 
 	// draw objects
 	for (ob = objtop; ob; ob = ob->ob_next) {

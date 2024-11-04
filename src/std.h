@@ -25,5 +25,28 @@
 typedef enum { false, true } bool;
 #endif
 
+// Integer equivalents of fmin()/fmax():
+static inline int imin(int x, int y) {
+	if (x < y) {
+		return x;
+	} else {
+		return y;
+	}
+}
+
+static inline int imax(int x, int y) {
+	if (x > y) {
+		return x;
+	} else {
+		return y;
+	}
+}
+
+// These often read a lot clearer when imin/imax are being used to restrict
+// a value to a particular range:
+#define clamp_min imax
+#define clamp_max imin
+#define clamp_range(min, value, max) clamp_min(min, clamp_max(value, max))
+
 #endif
 

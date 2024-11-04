@@ -114,10 +114,8 @@ void Vid_DispGround(GRNDTYPE *gptr)
 	y = SCR_HGHT - 1;
 
 	hc = *g;
+	hc = clamp_max(*g, SCR_HGHT - 1);
 	++g;
-	if (hc >= SCR_HGHT - 1) {
-		hc = SCR_HGHT - 1;
-	}
 	hl = hc;
 
 	// We keep a rolling window of three consecutive ground heights.
@@ -128,10 +126,8 @@ void Vid_DispGround(GRNDTYPE *gptr)
 	// that column. It also correctly handles a number of corner cases:
 	// left-facing cliff, right-facing cliff, and pixel-wide bump/pillar.
 	for (x = 0; x < SCR_WDTH; ++x) {
-		hr = *g++;
-		if (hr >= SCR_HGHT - 1) {
-			hr = SCR_HGHT - 1;
-		}
+		hr = clamp_max(*g, SCR_HGHT - 1);
+		++g;
 		if (y > hl) {
 			sptr += vid_pitch * (y - hl);
 			y = hl;
@@ -164,10 +160,8 @@ void Vid_DispGround_Solid(GRNDTYPE * gptr)
 	int gc;
 
 	for (x=0, g = gptr; x<SCR_WDTH; ++x) {
-		gc = *g++;
-		if (gc >= SCR_HGHT - 1) {
-			gc = SCR_HGHT - 1;
-		}
+		gc = clamp_max(*g, SCR_HGHT - 1);
+		++g;
 
 		sptr = vid_vram + (SCR_HGHT-SBAR_HGHT-1) * vid_pitch + x;
 

@@ -315,16 +315,9 @@ static void CreateUpscaledTexture(int force)
 	// Pick texture size the next integer multiple of the screen dimensions.
 	// If one screen dimension matches an integer multiple of the original
 	// resolution, there is no need to overscale in this direction.
-	w_upscale = (w + SCR_WDTH - 1) / SCR_WDTH;
-	h_upscale = (h + SCR_HGHT - 1) / SCR_HGHT;
-
 	// Minimum texture dimensions of 320x200.
-	if (w_upscale < 1) {
-		w_upscale = 1;
-	}
-	if (h_upscale < 1) {
-		h_upscale = 1;
-	}
+	w_upscale = clamp_min(1, (w + SCR_WDTH - 1) / SCR_WDTH);
+	h_upscale = clamp_min(1, (h + SCR_HGHT - 1) / SCR_HGHT);
 
 	LimitTextureSize(&w_upscale, &h_upscale);
 

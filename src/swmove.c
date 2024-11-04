@@ -111,9 +111,7 @@ static void topup(int *counter, int max)
 	} else {
 		*counter += max / 100;
 	}
-	if (*counter > max) {
-		*counter = max;
-	}
+	*counter = clamp_max(*counter, max);
 }
 
 static void refuel(OBJECTS *ob)
@@ -896,11 +894,7 @@ bool movetarg(OBJECTS *ob)
 		}
 	}
 
-	--ob->ob_hitcount;
-
-	if (ob->ob_hitcount < 0) {
-		ob->ob_hitcount = 0;
-	}
+	ob->ob_hitcount = clamp_min(ob->ob_hitcount - 1, 0);
 
 	if (ob->ob_state == STANDING) {
 		ob->ob_newsym =

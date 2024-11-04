@@ -254,9 +254,7 @@ OBJECTS *initpln(OBJECTS * obp)
 	maxx = ob->ob_x + 20;
 	height = 0;
 	for (x = minx; x <= maxx; ++x) {
-		if (ground[x] > height) {
-			height = ground[x];
-		}
+		height = imax(height, ground[x]);
 	}
 	ob->ob_y = height + 13;
 	ob->ob_orig_y = ob->ob_y;
@@ -666,12 +664,8 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	minh = 999;
 	maxh = 0;
 	for (x = minx; x <= maxx; ++x) {
-		if (ground[x] > maxh) {
-			maxh = ground[x];
-		}
-		if (ground[x] < minh) {
-			minh = ground[x];
-		}
+		minh = imin(minh, ground[x]);
+		maxh = imax(maxh, ground[x]);
 	}
 	aveh = (minh + maxh) / 2;
 
@@ -712,13 +706,7 @@ static int TargetExplosionSize(int target_type)
 		}
 	}
 
-	if (num_pixels > 64) {
-		return 64;
-	} else if (num_pixels < 10) {
-		return 10;
-	} else {
-		return num_pixels;
-	}
+	return clamp_range(10, num_pixels, 64);
 }
 
 // explosion

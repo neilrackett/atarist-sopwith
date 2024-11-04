@@ -84,10 +84,7 @@ static void dispgge(int x, int cury, int maxy, int clr)
 {
 	int y;
 
-	cury = cury * 10 / maxy - 1;
-	if (cury > 9) {
-		cury = 9;
-	}
+	cury = clamp_max(9, cury * 10 / maxy - 1);
 	for (y = 0; y <= cury; ++y) {
 		Vid_PlotPixel(x, y, clr);
 	}
@@ -156,10 +153,7 @@ static void dispmap(void)
 	// draw ground
 
 	for (x = 0; x < currgame->gm_max_x; ++x) {
-
-		if (ground[x] > maxh) {
-			maxh = ground[x];
-		}
+		maxh = imax(maxh, ground[x]);
 
 		++dx;
 

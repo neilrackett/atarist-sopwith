@@ -58,17 +58,11 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 	if (ob1->ob_x < ob2->ob_x) {
 		x1 = ob2->ob_x - ob1->ob_x;
 		x2 = 0;
-		w = ob1->ob_newsym->w - x1;
-		if (w > ob2->ob_newsym->w) {
-			w = ob2->ob_newsym->w;
-		}
+		w = clamp_max(ob1->ob_newsym->w - x1, ob2->ob_newsym->w);
 	} else {
 		x1 = 0;
 		x2 = ob1->ob_x - ob2->ob_x;
-		w = ob2->ob_newsym->w - x2;
-		if (w > ob1->ob_newsym->w) {
-			w = ob1->ob_newsym->w;
-		}
+		w = clamp_max(ob2->ob_newsym->w - x2, ob1->ob_newsym->w);
 	}
 
 	// no intersection?
@@ -82,17 +76,11 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 	if (ob1->ob_y < ob2->ob_y) {
 		y1 = 0;
 		y2 = ob2->ob_y - ob1->ob_y;
-		h = ob2->ob_newsym->h - y2;
-		if (h > ob1->ob_newsym->h) {
-			h = ob1->ob_newsym->h;
-		}
+		h = clamp_max(ob2->ob_newsym->h - y2, ob1->ob_newsym->h);
 	} else {
 		y1 = ob1->ob_y - ob2->ob_y;
 		y2 = 0;
-		h = ob1->ob_newsym->h - y1;
-		if (h > ob2->ob_newsym->h) {
-			h = ob2->ob_newsym->h;
-		}
+		h = clamp_max(ob1->ob_newsym->h - y1, ob2->ob_newsym->h);
 	}
 
 	// no intersection?
@@ -259,10 +247,7 @@ static void crater(OBJECTS * ob)
 	for (x = xmin, i = 0; x <= xmax; ++x, ++i) {
 		ymax = ground[x];
 		ymin = ymax - crtdepth[i] +1;
-		y = currgame->gm_ground[x] - 20;
-		if (y < 20) {
-			y = 20;
-		}
+		y = clamp_min(20, currgame->gm_ground[x] - 20);
 		if (ymin <= y) {
 			ymin = y + 1;
 		}
