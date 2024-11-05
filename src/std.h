@@ -48,5 +48,11 @@ static inline int imax(int x, int y) {
 #define clamp_max imin
 #define clamp_range(min, value, max) clamp_min(min, clamp_max(value, max))
 
+static inline bool in_range(int min, int value, int max) {
+	// Note: This should probably be 'value < max' but '<=' is used here
+	// to be consistent with clamp_range() above.
+	return value >= min && value <= max;
+}
+
 #endif
 

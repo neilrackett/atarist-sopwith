@@ -35,7 +35,7 @@ static inline void drawchar(int x, int y, int c)
 	uint8_t *p;
 	int x2, y2;
 
-	if (c < 0 || c >= 256) {
+	if (!in_range(0, c, 255)) {
 		return;
 	}
 

@@ -87,8 +87,8 @@ static void nearpln(OBJECTS *ob)
 
 		if (obt->ob_drawf == dispcomp) {
 			if (playmode != PLAYMODE_COMPUTER
-			 || (obx >= obt->ob_original_ob->territory_l
-			  && obx <= obt->ob_original_ob->territory_r)) {
+			 || in_range(obt->ob_original_ob->territory_l, obx,
+			             obt->ob_original_ob->territory_r)) {
 				obc = obt->ob_target;
 				if (!obc || abs(obx - obt->ob_x)
 				          < abs(obc->ob_x - obt->ob_x)) {
@@ -621,11 +621,8 @@ static bool movepln(OBJECTS *ob)
 
 	movexy(ob, &x, &y);
 
-	if (x < 0) {
-		x = ob->ob_x = 0;
-		updateobjpos(ob);
-	} else if (x >= (currgame->gm_max_x - 16)) {
-		x = ob->ob_x = currgame->gm_max_x - 16;
+	if (!in_range(0, x, currgame->gm_max_x - 16)) {
+		x = clamp_range(0, x, currgame->gm_max_x - 16);
 		updateobjpos(ob);
 	}
 
@@ -649,7 +646,7 @@ static bool movepln(OBJECTS *ob)
 		refuel(ob);
 	}
 
-	if (y < MAX_Y && y >= 0) {
+	if (in_range(0, y, MAX_Y - 1)) {
 		if (ob->ob_state == FALLING || PlaneIsWounded(ob->ob_state)) {
 			initsmok(ob);
 		}
@@ -690,8 +687,8 @@ bool moveshot(OBJECTS *ob)
 
 	movexy(ob, &x, &y);
 
-	if (y >= MAX_Y || x < 0 || x >= currgame->gm_max_x
-	 || y <= (int) ground[x]) {
+	if (!in_range(0, x, currgame->gm_max_x - 1)
+	 || !in_range((int) ground[x] + 1, y, MAX_Y - 1)) {
 		deallobj(ob);
 		return false;
 	}
@@ -719,7 +716,7 @@ bool movebomb(OBJECTS *ob)
 
 	movexy(ob, &x, &y);
 
-	if (y < 0 || x < 0 || x >= currgame->gm_max_x) {
+	if (y < 0 || !in_range(0, x, currgame->gm_max_x - 1)) {
 		deallobj(ob);
 		stopsound(ob);
 		ob->ob_state = FINISHED;
@@ -777,7 +774,7 @@ bool movemiss(OBJECTS *ob)
 		movexy(ob, &x, &y);
 	}
 
-	if (y < 0 || x < 0 || x >= currgame->gm_max_x) {
+	if (y < 0 || !in_range(0, x, currgame->gm_max_x - 1)) {
 		deallobj(ob);
 		ob->ob_state = FINISHED;
 		return false;
@@ -806,7 +803,7 @@ bool moveburst(OBJECTS *ob)
 	adjustfall(ob);
 	movexy(ob, &x, &y);
 
-	if (x < 0 || x >= currgame->gm_max_x || y <= (int) ground[x]) {
+	if (!in_range(0, x, currgame->gm_max_x - 1) || y <= (int) ground[x]) {
 		ob->ob_owner->ob_missiletarget = NULL;
 		deallobj(ob);
 		return false;
@@ -841,7 +838,7 @@ static OBJECTS *FindEnemyPlane(OBJECTS *ob)
 			continue;
 		}
 		r = range(ob->ob_x, ob->ob_y, obp->ob_x, obp->ob_y);
-		if (r > 0 && r < targrnge) {
+		if (in_range(1, r, targrnge - 1)) {
 			return obp;
 		}
 	}
@@ -942,7 +939,7 @@ bool moveexpl(OBJECTS * obp)
 
 	movexy(ob, &x, &y);
 
-	if (x < 0 || x >= currgame->gm_max_x || y <= (int) ground[x]) {
+	if (!in_range(0, x, currgame->gm_max_x - 1) || y <= (int) ground[x]) {
 		if (orient) {
 			stopsound(ob);
 		}
@@ -1063,7 +1060,7 @@ static bool checkwall(OBJECTS *obp, int direction)
 
 	check_x = obp->ob_x;
 	for (cnt = 0; cnt < 20; ++cnt) {
-		if (check_x < 0 || check_x >= currgame->gm_max_x) {
+		if (!in_range(0, check_x, currgame->gm_max_x - 1)) {
 			return true;
 		}
 		if ((int) ground[check_x] > obp->ob_y + 10) {
@@ -1109,8 +1106,8 @@ bool movebird(OBJECTS * obp)
 	movexy(ob, &x, &y);
 
 	ob->ob_newsym = &symbol_bird[ob->ob_orient].sym[0];
-	if (x < 0 || x >= currgame->gm_max_x
-	 || y >= MAX_Y || y <= (int) ground[x]) {
+	if (!in_range(0, x, currgame->gm_max_x - 1)
+	 || !in_range((int) ground[x] + 1, y, MAX_Y - 1)) {
 		ob->ob_y -= ob->ob_dy;
 		ob->ob_life = -2;
 		return false;

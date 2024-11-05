@@ -66,10 +66,10 @@ static void dispscore(OBJECTS * ob)
 	Vid_Box(0, 16, 48 + 32, 16, 0);
 
 	// We adjust position for large scores to not overwrite the medals.
-	if (ob->ob_score.score >= 100000 || ob->ob_score.score <= -10000) {
+	if (!in_range(-9999, ob->ob_score.score, 99999)) {
 		// Wow?
 		x = 0;
-	} else if (ob->ob_score.score >= 10000 || ob->ob_score.score <= -1000) {
+	} else if (!in_range(-999, ob->ob_score.score, 9999)) {
 		x = 1;
 	} else {
 		x = 2;

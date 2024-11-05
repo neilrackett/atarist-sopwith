@@ -64,13 +64,11 @@ static int shoot(OBJECTS *obt, OBJECTS *obs)
 
 		movexy(&obtsp, &obtx, &obty);
 		r = range(obx, oby, obtx, obty);
-		if (r < 0 || r > rprev) {
+		if (!in_range(0, r, rprev)) {
 			return 0;
 		}
-		if (obx >= obtx
-		    && obx <= (obtx + SYM_WDTH - 1)
-		    && oby <= obty
-		    && oby >= (obty - SYM_HGHT + 1)) {
+		if (in_range(obtx, obx, obtx + SYM_WDTH - 1)
+		 && in_range(obty - SYM_HGHT + 1, oby, obty)) {
 			return 1 + (i > (BULLIFE / 3));
 		}
 
@@ -252,7 +250,7 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 	rmin = 32767;
 	for (i = 0; i < 3; ++i) {
 		r = crange[i];
-		if (r >= 0 && r < rmin && !ccrash[i]) {
+		if (in_range(0, r, rmin - 1) && !ccrash[i]) {
 			rmin = r;
 			n = i;
 		}

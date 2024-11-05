@@ -140,7 +140,8 @@ void swdisp(void)
 		x = ob->ob_x;
 		y = ob->ob_y;
 
-		if (ob->ob_drwflg && x >= displx && x < displx + SCR_WDTH) {
+		if (ob->ob_drwflg
+		 && in_range(displx, x, displx + SCR_WDTH - 1)) {
 			swputsym(x - displx, y, ob);
 
 			if (ob->ob_drawf) {

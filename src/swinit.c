@@ -1044,7 +1044,7 @@ void swinitlevel(void)
 		// which is incorrect - it should be possible to have
 		// multiple planes per faction.
 		pln_index = currgame->gm_objects[i].faction - 1;
-		if (pln_index >= 0 && pln_index < MAX_PLYR * 2) {
+		if (in_range(0, pln_index, MAX_PLYR * 2 - 1)) {
 			orig_planes[pln_index] = &currgame->gm_objects[i];
 		}
 	}
