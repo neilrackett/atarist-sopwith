@@ -89,7 +89,6 @@ static int PollSocket(int s)
 }
 
 // connect to a host
-
 void commconnect(char *host)
 {
 #ifdef TCPIP
@@ -102,7 +101,6 @@ void commconnect(char *host)
 
 	// sdh 17/11/2001: check for host:port, use a different
 	// port from the default
-
 	{
 		char *p = strchr(host, ':');
 		if (p) {
@@ -116,7 +114,6 @@ void commconnect(char *host)
 	}
 
 	// resolve name
-
 	hent = gethostbyname(realhost);
 
 	if (realhost != host) {
@@ -130,7 +127,6 @@ void commconnect(char *host)
 		          strerror(errno));
 	}
 	// create socket
-
 	tcp_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (tcp_sock < 0) {
@@ -139,7 +135,6 @@ void commconnect(char *host)
 	}
 
 	// connect
-
 	in.sin_family = AF_INET;
 	in.sin_addr.s_addr = ((struct in_addr *) hent->h_addr)->s_addr;
 	in.sin_port = htons(port);
@@ -153,7 +148,6 @@ void commconnect(char *host)
 }
 
 // open a socket and listen until a connection is established
-
 void commlisten(void)
 {
 #ifdef TCPIP
@@ -163,15 +157,14 @@ void commlisten(void)
 	comminit();
 
 	// create socket
-
 	server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (server_sock < 0) {
 		ErrorExit("commconnect: can't create socket: %s",
 		          strerror(errno));
 	}
-	// bind to port
 
+	// bind to port
 	memset(&in, 0, sizeof(in));
 	in.sin_family = AF_INET;
 	in.sin_addr.s_addr = INADDR_ANY;
@@ -185,7 +178,6 @@ void commlisten(void)
 	atexit(commterm);
 
 	// listen for connections
-
 	if (listen(server_sock, 1)) {
 		ErrorExit("commlisten: cant listen on port %i: %s",
 		          asynport, strerror(errno));
@@ -195,7 +187,6 @@ void commlisten(void)
 		"commlisten: listening for connection on port %i\n", asynport);
 
 	// listen for connection
-
 	for (;;) {
 		if (ctlbreak()) {
 			ErrorExit("commlisten: user aborted connect");
@@ -223,15 +214,13 @@ void commlisten(void)
 }
 
 // read a byte from socket
-
 int commin(void)
 {
 #ifdef TCPIP
 	unsigned char c;
 	int bytes;
 
-	// lost connection
-
+	// lost connection?
 	if (tcp_sock < 0) {
 		return -1;
 	}
@@ -255,7 +244,6 @@ int commin(void)
 }
 
 // send a byte
-
 void commout(unsigned char i)
 {
 #ifdef TCPIP
@@ -270,7 +258,6 @@ void commout(unsigned char i)
 }
 
 // disconnect
-
 void commterm(void)
 {
 #ifdef TCPIP

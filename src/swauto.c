@@ -187,7 +187,6 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 	}
 
 	if (ob->ob_speed) {
-
 		dy = y - ay;
 
 		if (dy != 0 && abs(dy) < 6) {
@@ -238,7 +237,6 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 		if (i) {
 			// cr 2005-04-28: Resort to MG if
 			//       missiles are disabled
-
 			if (ob->ob_missiles && conf_missiles && i == 2) {
 				ob->ob_mfiring = obt->ob_athome ? ob : obt;
 			} else {
@@ -322,7 +320,6 @@ int gohome(OBJECTS *ob)
 	}
 
 	/* When wounded, only move every other tic */
-
 	if (ob->ob_state == WOUNDED && (countmove & 1)) {
 		return 0;
 	} else {

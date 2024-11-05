@@ -46,9 +46,6 @@ static inline void drawchar(int x, int y, int c)
 
 		for (x2 = 0; x2 < 8; ++x2) {
 			if (p[y2] & m) {
-				// sdh 17/10/2001: -1 to y co-ordinate
-				// to stop it overwriting the wrong memory
-
 				Vid_PlotPixel
 					(x + x2,
 					 SCR_HGHT - (y + y2 - 1),

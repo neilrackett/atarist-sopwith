@@ -45,7 +45,6 @@ int Vid_GetGameKeys(void)
 	int i, c = 0;
 
 	// empty input buffer, get new key state
-
 	while (Vid_GetKey());
 
 	if (Vid_GetCtrlBreak()) {
@@ -94,7 +93,6 @@ int Vid_GetGameKeys(void)
 	}
 
 	// clear bits in key array
-
 	for (i=0; i<NUM_KEYS; ++i) {
 		keysdown[i] &= ~2;
 	}
@@ -238,7 +236,6 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 }
 
 // sdh 27/6/2002: box function for drawing filled boxes
-
 void Vid_Box(int x, int y, int w, int h, int c)
 {
 	uint8_t *p = vid_vram + (SCR_HGHT-1-y) * vid_pitch + x;
@@ -248,10 +245,7 @@ void Vid_Box(int x, int y, int w, int h, int c)
 	}
 }
 
-//
-// Clear screen
-//
-
+// clear screen
 void Vid_ClearBuf(void)
 {
 	memset(vid_vram, 0, VRAMSIZE);

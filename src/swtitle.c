@@ -113,17 +113,12 @@ void swtitlf(void)
 	swsound();
 }
 
-//
-// menus
-//
-
 bool ctlbreak(void)
 {
 	return Vid_GetCtrlBreak();
 }
 
 // clear bottom of screen
-
 void clrprmpt(void)
 {
 	int x, y;
@@ -150,7 +145,6 @@ static bool gethost(void)
 }
 
 // network menu
-
 static bool getnet(void)
 {
 	for (;;) {
@@ -180,7 +174,6 @@ static bool getnet(void)
 }
 
 // sdh: get single player skill level
-
 static bool getskill(void)
 {
 	for (;;) {

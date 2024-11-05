@@ -118,7 +118,6 @@ static void refuel(OBJECTS *ob)
 {
 	// sdh 26/10/2001: top up stuff, if anything happens update
 	// the gauges (now a single function)
-
 	topup(&ob->ob_life, MAXFUEL);
 	topup(&ob->ob_rounds, MAXROUNDS);
 	topup(&ob->ob_bombs, MAXBOMBS);
@@ -178,11 +177,9 @@ bool moveplyr(OBJECTS *ob)
 	}
 	
 	// get move command for this tic
-	
 	multkey = latest_player_commands[ob->ob_plrnum][countmove % MAX_NET_LAG];
 
 	// Thanks to Kodath duMatri for fixing this :)
-
 	if ((multkey & K_HARRYKEYS) != 0 && ob->ob_orient) {
 		if (multkey & (K_FLAPU | K_FLAPD)) {
 			multkey ^= K_FLAPU | K_FLAPD;
@@ -191,17 +188,9 @@ bool moveplyr(OBJECTS *ob)
 
 	interpret(ob, multkey);
 
-	/*
-	if (dispcnt) {
-		ob->ob_flaps = 0;
-		ob->ob_bfiring = ob->ob_bombing = false;
-		ob->ob_mfiring = NULL;
-	}*/
-
 	if (ob->ob_state == CRASHED && ob->ob_hitcount <= 0) {
 
 		// sdh: infinite lives in multiplayer mode
-
 		if (playmode != PLAYMODE_ASYNCH) {
 			++ob->ob_crashcnt;
 		}
@@ -611,13 +600,6 @@ static bool movepln(OBJECTS *ob)
 		ob->ob_newsym = &symbol_plane[ob->ob_angle % 4]
 			.sym[ob->ob_angle / 4];
 	}
-
-	//ob->ob_newsym =
-	//ob->ob_state == FINISHED ? NULL :
-	//((ob->ob_state == FALLING
-	//&& !ob->ob_dx && ob->ob_dy < 0)
-	//? swhitsym[ob->ob_orient]
-	//: swplnsym[ob->ob_orient][ob->ob_angle]);
 
 	movexy(ob, &x, &y);
 

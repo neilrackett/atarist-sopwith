@@ -151,7 +151,6 @@ static void dispmap(void)
 	y = 0;
 
 	// draw ground
-
 	for (x = 0; x < currgame->gm_max_x; ++x) {
 		maxh = imax(maxh, ground[x]);
 
@@ -178,7 +177,6 @@ static void dispmap(void)
 	}
 
 	// map border
-
 	maxh = MAX_Y / WRLD_RSY;
 	for (y = 0; y <= maxh; ++y) {
 		Vid_PlotPixel(SCR_CENTR, y, 11);
@@ -188,7 +186,6 @@ static void dispmap(void)
 	dispmapobjects();
 
 	// border of status bar
-
 	for (x = 0; x < SCR_WDTH; ++x) {
 		Vid_PlotPixel(x, (SCR_MNSH + 2), 7);
 	}

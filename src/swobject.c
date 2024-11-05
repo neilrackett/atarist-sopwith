@@ -171,9 +171,6 @@ void deallobj(OBJECTS *ob)
 void movexy(OBJECTS *ob, int *x, int *y)
 {
 	unsigned int pos = 0;
-	//long vel;
-//      pos = (((long) (ob->ob_x)) << 16) + ob->ob_lx;
-//      vel = (((long) (ob->ob_dx)) << 16) + ob->ob_ldx;
 
 	// Adding this to avoid range errors -- Jesse
 	pos = clamp_range(0, pos, (currgame->gm_max_x - 10) << 16);

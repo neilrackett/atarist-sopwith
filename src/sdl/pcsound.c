@@ -210,7 +210,6 @@ static void SoundCallback(void *userdata, Uint8 *stream8, int len)
 	// We save the time so that the multiple time slices all fit together
 	// smoothly. If we have changed frequency since last time, we need to
 	// adjust lasttime to the new frequency
-
 	lasttime *= lastfreq / current_freq;
 
 	for (i = 0; i < len; ++i) {

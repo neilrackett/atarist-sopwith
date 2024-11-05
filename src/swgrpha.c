@@ -35,7 +35,6 @@ void swground(GRNDTYPE *gptr, int x)
 
 // sdh 14/2/2003: find the color of an object
 // always draw bullets white
-
 static inline int ob_color(OBJECTS *ob)
 {
 	if (ob->ob_type == SHOT) {

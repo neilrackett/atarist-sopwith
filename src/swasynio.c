@@ -110,7 +110,6 @@ void asynupdate(void)
 
 		/* we have read a short from the other player. add
 		 * to the queue */
-
 		netplayer = !player;
 
 		ticnum = latest_player_time[netplayer] % MAX_NET_LAG;

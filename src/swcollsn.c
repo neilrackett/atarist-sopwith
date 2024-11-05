@@ -54,7 +54,6 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 	// (w, h) is the size of the area
 
 	// x:
-
 	if (ob1->ob_x < ob2->ob_x) {
 		x1 = ob2->ob_x - ob1->ob_x;
 		x2 = 0;
@@ -66,13 +65,11 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 	}
 
 	// no intersection?
-
 	if (w <= 0) {
 		return false;
 	}
 
 	// y:
-
 	if (ob1->ob_y < ob2->ob_y) {
 		y1 = 0;
 		y2 = ob2->ob_y - ob1->ob_y;
@@ -84,7 +81,6 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 	}
 
 	// no intersection?
-
 	if (h <= 0) {
 		return false;
 	}
@@ -291,7 +287,6 @@ static void swkill(OBJECTS * ob1, OBJECTS * ob2)
 	case SHOT:
 		/* cr 2005-04-28: Don't stop the shot if it just
 		 * launched from its presumed originator */
-
 		if (!(obt && obt->ob_type == PLANE && IsYoungShot(ob))) {
 			ob->ob_life = 1;
 		}
@@ -352,7 +347,6 @@ static void swkill(OBJECTS * ob1, OBJECTS * ob2)
 		state = ob->ob_state;
 
 		/* cr 2005-04-28: Avoid having planes hit themselves */
-
 		if (IsYoungShot(obt)) {
 			return;	
 		}
@@ -550,17 +544,14 @@ static void tstcrash(OBJECTS *obp)
 		y = obp->ob_y - ground[x + obp->ob_x];
 
 		// out of range?
-
 		if (y >= sym->h) {
 			continue;
 		}
 
 		// check for collision at this point
-
 		if (y < 0 || sym->data[y * sym->w + x]) {
 
 			// collision!
-
 			if (killptr < 2 * MAX_OBJS) {
 				killed[killptr] = obp;
 				killer[killptr] = NULL;

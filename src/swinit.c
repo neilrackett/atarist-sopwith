@@ -315,7 +315,6 @@ void initplyr(OBJECTS * obp)
 
 		/* todo: save pointers to all player planes
 		 * and turn consoleplayer into a macro */
-
 		if (ob->ob_plrnum == player) {
 			consoleplayer = ob;
 		}
@@ -472,7 +471,6 @@ void initshot(OBJECTS *obo, OBJECTS * targ)
 }
 
 // bomb
-
 void initbomb(OBJECTS *obo)
 {
 	OBJECTS *ob;
@@ -517,11 +515,9 @@ void initbomb(OBJECTS *obo)
 	ob->ob_movef = movebomb;
 
 	insertx(ob, obo);
-
 }
 
 // missile
-
 void initmiss(OBJECTS *obo)
 {
 	OBJECTS *ob;
@@ -563,11 +559,9 @@ void initmiss(OBJECTS *obo)
 	ob->ob_onmap = true;
 
 	insertx(ob, obo);
-
 }
 
 // starburst
-
 void initburst(OBJECTS *obo)
 {
 	OBJECTS *ob;
@@ -613,7 +607,6 @@ void initburst(OBJECTS *obo)
 	ob->ob_movef = moveburst;
 
 	insertx(ob, obo);
-
 }
 
 static void AddPlayerTarget(OBJECTS *ob, const original_ob_t *orig_ob)
@@ -710,7 +703,6 @@ static int TargetExplosionSize(int target_type)
 }
 
 // explosion
-
 void initexpl(OBJECTS *obo, int small)
 {
 	OBJECTS *ob;
@@ -808,7 +800,6 @@ void initexpl(OBJECTS *obo, int small)
 }
 
 // smoke from falling plane
-
 void initsmok(OBJECTS *obo)
 {
 	OBJECTS *ob;
@@ -833,7 +824,6 @@ void initsmok(OBJECTS *obo)
 }
 
 // birds
-
 static OBJECTS *initflock(const original_ob_t *orig_ob)
 {
 	OBJECTS *ob;
@@ -871,7 +861,6 @@ static OBJECTS *initflock(const original_ob_t *orig_ob)
 }
 
 // single bird
-
 void initbird(OBJECTS *obo, int i)
 {
 	OBJECTS *ob;
@@ -931,7 +920,6 @@ static OBJECTS *initballoon(const original_ob_t *orig_ob)
 }
 
 // oxen
-
 static OBJECTS *initox(const original_ob_t *orig_ob)
 {
 	OBJECTS *ob;
@@ -1017,7 +1005,6 @@ void swinitlevel(void)
 
 	// clear out any waiting keys. this stops, eg. 's' on the
 	// menu from toggling sound once the game starts
-
 	Vid_GetGameKeys();
 
 	if (playmode == PLAYMODE_ASYNCH) {
@@ -1120,7 +1107,6 @@ void swrestart(void)
 		have_savescore = false;
 
 		// sh 28/10/2001: go back to the title screen
-
 		playmode = PLAYMODE_UNSET;
 	}
 

@@ -33,7 +33,6 @@
 // different to the format we interpret here. To convert tunes between the two
 // formats, you'll need to move all A and B notes up or down by one octave (add
 // < or > commands)
-
 static const int notefreq[] = {
 	523,  // c
 	554,  // c#
@@ -114,7 +113,6 @@ static int tunedura;
 static int octavefactor;
 
 // random number generator
-
 static const int seed[50] = {
 	0x90B9, 0xBCFB, 0x6564, 0x3313, 0x3190, 0xA980, 0xBCF0, 0x6F97,
 	0x37F4, 0x064B, 0x9FD8, 0x595B, 0x1EEE, 0x820C, 0x4201, 0x651E,
@@ -345,10 +343,7 @@ static void playnote(void)
 		freq >>= 8;
 		freq *= noteoctavefactor;
 		freq >>= 8;
-//        freq = soundmul( *(notefreq+index), octavefactor, noteoctavefactor );
 		tunefreq = 1331000 / freq;
-//    tunefreq = sounddiv( 1331000L, freq );
-
 	}
 #ifdef SOPWITH1_TUNE
 	tunedura = duration * 0.7;
@@ -520,7 +515,6 @@ void swsound(void)
 void sound(int type, int parm, OBJECTS * ob)
 {
 	// if we are already playing the title music, ignore
-
 	if (type == S_TITLE) {
 		if (!titleflg) {
 			titlplace = 0;
@@ -573,16 +567,6 @@ void initsound(OBJECTS *ob, int type)
 		return;
 	}
 }
-
-// sdh:
-// in original sopwith this was done with interrupts
-// we dont have access to interrupts and its ugly in
-// any case, so instead we call this function occasionally
-// to check for updating the sound
-
-// in fact for continuity i have put a call to this
-// in the sdl sound callback function, so it is done
-// rather like the old interrupt system after all :)
 
 static int lastclock = 0;
 

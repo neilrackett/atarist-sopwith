@@ -80,13 +80,9 @@ const int sintab[ANGLES] = {	/* sine table of pi/8 increments    */
 	-256, -237, -181, -98
 };
 
-/* player commands */
-
 /* buffer of player commands, loops round.
  * latest_player_commands[plr][latest_player_time[plr] % MAX_NET_LAG] is the
- * very latest command for plr.
- */
-
+ * very latest command for plr.  */
 int latest_player_commands[MAX_PLYR][MAX_NET_LAG];
 int latest_player_time[MAX_PLYR];
 int num_players;
@@ -94,7 +90,6 @@ int num_players;
 /* Time each player command in the buffer was created.
  * We store this to calculate the lag between the player command
  * being created and the command being executed. */
-
 static int player_command_time[MAX_NET_LAG];
 
 /* Skip time.  This is used to keep players in sync.
@@ -102,12 +97,8 @@ static int player_command_time[MAX_NET_LAG];
  * (ie. in a single player game): the amount equal to skip_time here.
  * skip_time is generated from the lag players experience.
  * This means that lagged players wait a bit to "catch up" with the
- * others, keeping the game in sync.
- */
-
+ * others, keeping the game in sync.  */
 static int skip_time;
-
-/* possibly advance the game */
 
 static bool CanMove(void)
 {
@@ -115,7 +106,6 @@ static bool CanMove(void)
 
 	/* we can only advance the game if latest_player_time for all
 	 * players is > countmove. */
-
 	for (i=0; i<num_players; ++i) {
 		lowtic = imin(lowtic, latest_player_time[i]);
 	}
@@ -124,7 +114,6 @@ static bool CanMove(void)
 }
 
 /* Calculate lag between the controls and the game */
-
 static void CalculateLag(void)
 {
 	int lag = Timer_GetMS() - player_command_time[countmove % MAX_NET_LAG];
@@ -133,7 +122,6 @@ static void CalculateLag(void)
 	// only make a small adjustment based on the lag, so as not
 	// to affect the playability.  however, over a long period
 	// this should have the desired effect.
-
 	compensation = lag / 100;
 
 	// bound the compensation applied; responds to network traffic
@@ -149,24 +137,20 @@ static void NewMove(void)
 	int tictime;
 
 	/* generate a new move command and save it */
-
 	multkey = Vid_GetGameKeys();
 	if (conf_harrykeys) {
 		multkey |= K_HARRYKEYS;
 	}
 
 	/* tictime is the game time of the command we are creating */
-
 	tictime = latest_player_time[player];
 	latest_player_commands[player][tictime % MAX_NET_LAG] = multkey;
 	++latest_player_time[player];
 
 	/* Save the current time for lag calculation */
-
 	player_command_time[tictime % MAX_NET_LAG] = Timer_GetMS();
 
 	/* if this is a multiplayer game, send the command */
-
 	if (playmode == PLAYMODE_ASYNCH) {
 		asynput(multkey);
 	}
@@ -193,7 +177,6 @@ restart:
 
 	// sdh 28/10/2001: playmode is called from here now
 	// makes for a more coherent progression through the setup process
-
 	if (!playmode) {
 		getgamemode();
 	}
@@ -212,7 +195,6 @@ restart:
 
 		/* generate a new move command periodically
 		 * and send to other players if necessary */
-
 		nowtime = Timer_GetMS();
 
 		// TODO: Replace the sync code with a PID loop like what
@@ -224,9 +206,7 @@ restart:
 
 			/* Be accurate (exact amount between tics);
 			 * However, if a large spike occurs between tics,
-			 * catch up immediately.
-			 */
-
+			 * catch up immediately. */
 			if (nowtime - nexttic > 1000) {
 				nexttic = nowtime + (1000/FPS);
 			} else {
@@ -234,7 +214,6 @@ restart:
 			}
 
 			// wait a bit longer to compensate for lag
-
 			nexttic += skip_time;
 			skip_time = 0;
 		}
@@ -243,7 +222,6 @@ restart:
 		swsndupdate();
 
 		/* if we have all the tic commands we need, we can move */
-
 		if (CanMove()) {
 			CalculateLag();
 			//DumpCmds();
