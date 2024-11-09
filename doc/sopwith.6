@@ -3,16 +3,19 @@
 .SH NAME
 sopwith \- classic aerial combat shoot em up game
 .
+.\" begin no-emscripten
 .SH SYNOPSIS
-.B sopwith 
+.B sopwith
 [ \-n | \-s | \-c | \-l | \-j \fIhost\fR ] [\-f] [\-g\fIlevel\fR] [\-m \fIfilename\fR] [\-q]
 .
+.\" end no-emscripten
 .SH DESCRIPTION
 Sopwith is a modern port of the classic 1980s shoot 'em up game of the same
 name. The game has a World War I aviation theme. The object of Sopwith is to
 destroy all enemy targets with a somewhat limited airforce.
 .PP
 It can be played both in single player and multiplayer mode over a TCP/IP network.
+.\" begin no-emscripten
 .PP
 Sopwith looks for a configuration file in the user's home directory at
 \fI~/.local/share/SDL Sopwith/sopwith.cfg\fR; the configuration file is only
@@ -74,6 +77,7 @@ difficulty.
 sopwith -j example.com:9999
 Connect to a game server at \fIexample.com\fR on TCP port 9999.
 .
+.\" end no-emscripten
 .SH CONTROLS
 The standard controls on a US layout keyboard are as follows:
 .TP 
@@ -234,6 +238,7 @@ Medals are only awarded if you get back to base safely. For example, if you
 destroy some targets but then crash, or if you shoot down a plane but get shot
 down yourself, it doesn't count.
 .
+.\" begin no-emscripten
 .SH MULTIPLAYER SERVERS
 .
 When run in "listen" mode with the \fB\-l\fR command line flag (see above),
@@ -256,6 +261,7 @@ nc -l -p 3847 -c "nc -l -p 3847"
 Developing the above command into a complete shell script for a
 continually-active dedicated server is left as an exercise for the reader.
 .
+.\" end no-emscripten
 .SH WWW
 .UR https://fragglet.github.io/sdl-sopwith
 .UE
