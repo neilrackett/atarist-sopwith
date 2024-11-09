@@ -15,6 +15,10 @@
 #include <ctype.h>
 #include <string.h>
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
+
 #include "video.h"
 
 #include "sw.h"
@@ -221,6 +225,9 @@ void getgamemode(void)
 #ifndef NO_EXIT
 		swputs("     Q - quit game\n");
 #endif
+#ifdef __EMSCRIPTEN__
+		swputs("     M - open manual\n");
+#endif
 		Vid_Update();
 
 		if (ctlbreak()) {
@@ -252,6 +259,11 @@ void getgamemode(void)
 #ifndef NO_EXIT
 		case 'Q':
 			exit(0);
+			break;
+#endif
+#ifdef __EMSCRIPTEN__
+		case 'M':
+			emscripten_run_script("openManual()");
 			break;
 #endif
 		}
