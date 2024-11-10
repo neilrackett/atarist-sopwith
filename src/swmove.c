@@ -854,6 +854,7 @@ static const int target_aggression[NUM_TARGET_TYPES] = {
 
 bool movetarg(OBJECTS *ob)
 {
+	sopsym_t *oldsym = ob->ob_newsym;
 	int transform = ob->ob_original_ob->transform;
 	int aggression;
 
@@ -882,6 +883,12 @@ bool movetarg(OBJECTS *ob)
 		ob->ob_newsym =
 			&symbol_target_hit[ob->ob_orient].sym[transform];
 	}
+
+	// Symbol changes on explosion, and the new sprite might be a
+	// different size. Stay centered, and if the symbol height changes, we
+	// need to adjust Y so the target stays on the ground.
+	ob->ob_x += (oldsym->w - ob->ob_newsym->w) / 2;
+	ob->ob_y -= oldsym->h - ob->ob_newsym->h;
 
 	return true;
 }

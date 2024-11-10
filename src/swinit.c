@@ -446,8 +446,8 @@ void initshot(OBJECTS *obo, OBJECTS * targ)
 	}
 
 	ob->ob_type = SHOT;
-	ob->ob_x = obo->ob_x + SYM_WDTH / 2;
-	ob->ob_y = obo->ob_y - SYM_HGHT / 2;
+	ob->ob_x = obo->ob_x + obo->ob_newsym->w / 2;
+	ob->ob_y = obo->ob_y - obo->ob_newsym->h / 2;
 	ob->ob_lx = obo->ob_lx;
 	ob->ob_ly = obo->ob_ly;
 
@@ -652,19 +652,22 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	int minh, maxh, aveh, minx, maxx;
 
 	ob = allocobj();
+
+	// Initial symbol:
+	ob->ob_newsym = &symbol_targets[orig_ob->orient].sym[0];
+
 	minx = ob->ob_x = orig_ob->x;
-	maxx = ob->ob_x + 15;
+	maxx = ob->ob_x + ob->ob_newsym->w - 1;
 	minh = 999;
 	maxh = 0;
 	for (x = minx; x <= maxx; ++x) {
 		minh = imin(minh, ground[x]);
 		maxh = imax(maxh, ground[x]);
 	}
-	aveh = (minh + maxh) / 2;
 
-	while ((ob->ob_y = aveh + 16) >= MAX_Y) {
-		--aveh;
-	}
+	aveh = (minh + maxh) / 2;
+	aveh = clamp_max(aveh, MAX_Y - ob->ob_newsym->h - 1);
+	ob->ob_y = aveh + ob->ob_newsym->h;
 
 	for (x = minx; x <= maxx; ++x) {
 		ground[x] = aveh;
@@ -677,7 +680,6 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	ob->ob_orient = orig_ob->orient;
 	AddPlayerTarget(ob, orig_ob);
 	ob->ob_clr = ob->ob_faction;
-	ob->ob_newsym = &symbol_targets[0].sym[0];
 	ob->ob_drawf = disptarg;
 	ob->ob_movef = movetarg;
 	ob->ob_onmap = true;
