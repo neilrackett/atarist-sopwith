@@ -58,7 +58,7 @@ extern symset_t symbol_balloon[6];              // swballoonsym
 extern sopsym_t symbol_pixel;
 
 extern void GenerateSymbols(void);
-extern void SymsetFromText(symset_t *s, const char *text, int w, int h);
+extern void SymsetFromText(symset_t *s, const char *text);
 symset_t *LookupSymset(const char *name, int frame);
 
 #endif

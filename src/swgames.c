@@ -358,9 +358,7 @@ static void ProcessSymbol(const char *name, struct yocton_object *obj)
 		             "frame number", s != NULL);
 		value = yocton_prop_value(p);
 		if (s != NULL && value != NULL) {
-			// TODO: Symbols must currently be the same size as
-			// the symbol they are replacing.
-			SymsetFromText(s, value, s->sym[0].w, s->sym[0].h);
+			SymsetFromText(s, value);
 		}
 	}
 }

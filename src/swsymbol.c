@@ -959,11 +959,35 @@ static void Rotate(int *x, int *y, int w, int h, int rotations, bool mirror)
 	}
 }
 
-static void SopsymFromText(sopsym_t *sym, const char *text, int w, int h,
-                           int rotations, bool mirror)
+static void GetSymbolDimensions(const char *text, int *w, int *h)
+{
+	const char *p;
+
+	*w = 0;
+	*h = 0;
+
+	for (p = text; *p != '\0';) {
+		const char *line_start = p, *line_end;
+		while (*p != '\0' && *p != '\n') {
+			++p;
+		}
+		line_end = p;
+		if (*p == '\0' && line_start == line_end) {
+			break;
+		}
+		*w = imax(*w, (line_end - line_start + 1) / 2);
+		++*h;
+		++p;
+	}
+}
+
+static void SopsymFromText(sopsym_t *sym, const char *text, int rotations,
+                           bool mirror)
 {
 	const char *p, *p2;
-	int x, y, dx, dy, c;
+	int x, y, dx, dy, c, w, h;
+
+	GetSymbolDimensions(text, &w, &h);
 
 	if ((rotations & 1) == 0) {
 		sym->w = w;
@@ -997,14 +1021,14 @@ static void SopsymFromText(sopsym_t *sym, const char *text, int w, int h,
 	}
 }
 
-void SymsetFromText(symset_t *s, const char *text, int w, int h)
+void SymsetFromText(symset_t *s, const char *text)
 {
 	int r;
 
 	for (r = 0; r < 4; r++)
 	{
-		SopsymFromText(&s->sym[r], text, w, h, r, false);
-		SopsymFromText(&s->sym[r + 4], text, w, h, r, true);
+		SopsymFromText(&s->sym[r], text, r, false);
+		SopsymFromText(&s->sym[r + 4], text, r, true);
 	}
 }
 
@@ -1060,33 +1084,33 @@ sopsym_t symbol_pixel = {
 };
 
 // generate array of symset_t structs from array of strings:
-#define SYMSETS_FROM_TEXT(text, w, h, out)                        \
-        { int _i;                                                 \
-          for (_i = 0; _i < arrlen(out); ++_i) {                  \
-             InitSymset(&(out)[_i], #text, _i);                   \
-             SymsetFromText(&(out)[_i], (text)[_i], (w), (h));    \
-          }                                                       \
+#define SYMSETS_FROM_TEXT(text, out)                    \
+        { int _i;                                       \
+          for (_i = 0; _i < arrlen(out); ++_i) {        \
+             InitSymset(&(out)[_i], #text, _i);         \
+             SymsetFromText(&(out)[_i], (text)[_i]);    \
+          }                                             \
         }
 
 void GenerateSymbols(void)
 {
-	SYMSETS_FROM_TEXT(swbmbsym, 8, 8, symbol_bomb);
-	SYMSETS_FROM_TEXT(swtrgsym, 16, 16, symbol_targets);
-	SYMSETS_FROM_TEXT(swexpsym, 8, 8, symbol_debris);
-	SYMSETS_FROM_TEXT(swflksym, 16, 16, symbol_flock);
-	SYMSETS_FROM_TEXT(swbrdsym, 4, 2, symbol_bird);
-	SYMSETS_FROM_TEXT(swoxsym, 16, 16, symbol_ox);
-	SYMSETS_FROM_TEXT(swmscsym, 8, 8, symbol_missile);
-	SYMSETS_FROM_TEXT(swbstsym, 8, 8, symbol_burst);
-	SYMSETS_FROM_TEXT(swplnsym, 16, 16, symbol_plane);
-	SYMSETS_FROM_TEXT(swhitsym, 16, 16, symbol_plane_hit);
-	SYMSETS_FROM_TEXT(swwinsym, 16, 16, symbol_plane_win);
-	SYMSETS_FROM_TEXT(swmedalsym, 8, 12, symbol_medal);
-	SYMSETS_FROM_TEXT(swribbonsym, 8, 2, symbol_ribbon);
-	SYMSETS_FROM_TEXT(swhtrsym, 16, 16, symbol_target_hit);
-	SYMSETS_FROM_TEXT(swshtsym, 16, 16, symbol_shotwin);
-	SYMSETS_FROM_TEXT(swsplsym, 32, 32, symbol_birdsplat);
-	SYMSETS_FROM_TEXT(swballoonsym, 16, 16, symbol_balloon);
+	SYMSETS_FROM_TEXT(swbmbsym, symbol_bomb);
+	SYMSETS_FROM_TEXT(swtrgsym, symbol_targets);
+	SYMSETS_FROM_TEXT(swexpsym, symbol_debris);
+	SYMSETS_FROM_TEXT(swflksym, symbol_flock);
+	SYMSETS_FROM_TEXT(swbrdsym, symbol_bird);
+	SYMSETS_FROM_TEXT(swoxsym, symbol_ox);
+	SYMSETS_FROM_TEXT(swmscsym, symbol_missile);
+	SYMSETS_FROM_TEXT(swbstsym, symbol_burst);
+	SYMSETS_FROM_TEXT(swplnsym, symbol_plane);
+	SYMSETS_FROM_TEXT(swhitsym, symbol_plane_hit);
+	SYMSETS_FROM_TEXT(swwinsym, symbol_plane_win);
+	SYMSETS_FROM_TEXT(swmedalsym, symbol_medal);
+	SYMSETS_FROM_TEXT(swribbonsym, symbol_ribbon);
+	SYMSETS_FROM_TEXT(swhtrsym, symbol_target_hit);
+	SYMSETS_FROM_TEXT(swshtsym, symbol_shotwin);
+	SYMSETS_FROM_TEXT(swsplsym, symbol_birdsplat);
+	SYMSETS_FROM_TEXT(swballoonsym, symbol_balloon);
 }
 
 //
