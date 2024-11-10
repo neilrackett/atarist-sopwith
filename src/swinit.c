@@ -704,6 +704,18 @@ static int TargetExplosionSize(int target_type)
 	return clamp_range(10, num_pixels, 64);
 }
 
+// The original Sopwith sprites were all 16x16. Since we now support larger
+// sprites, we apply an adjustment so that entire targets appear to be
+// exploding. This is no-op when the symbol is 16x16 like the original.
+static void ApplySpriteSizeOffset(OBJECTS *ob, OBJECTS *obo, int angle)
+{
+	int rangex = clamp_min(obo->ob_newsym->w, 16) - 16,
+	    rangey = clamp_min(obo->ob_newsym->h, 16) - 16;
+	ob->ob_x += COS(angle) * rangex / (256 * 2);
+	ob->ob_y += SIN(angle) * rangey / (256 * 2);
+	ob->ob_y -= rangey;
+}
+
 // explosion
 void initexpl(OBJECTS *obo, int small)
 {
@@ -771,6 +783,8 @@ void initexpl(OBJECTS *obo, int small)
 
 		ob->ob_x = obox + ob->ob_dx;
 		ob->ob_y = oboy + ob->ob_dy;
+		ApplySpriteSizeOffset(ob, obo, i);
+
 		explseed *= ob->ob_x * ob->ob_y;
 		explseed += 7491;
 		if (!explseed) {
