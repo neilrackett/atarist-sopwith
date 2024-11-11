@@ -1,3 +1,30 @@
+
+* Some tanks were changed to face in the opposite direction where it made more
+  sense, as a minor visual improvement.
+* A document was added that describes the project's philosophy.
+* The Emscripten version now has an option on the main menu to open the
+  manual.
+
+Bug fixes:
+* Custom missions can now be used in network games (thanks NY00123).
+* A minor visual bug was fixed where objects appeared to be overlapping with
+  the ground sometimes.
+* A bug was fixed where targets could sometimes blow themselves up with their
+  own bullets (most notably the hangars by shooting their own flags).
+
+Custom mission files:
+* New target types: water towers, radio towers and observation balloons. You
+  can load new_targets.sop to see them.
+* Replacement graphics no longer need to be the same size as the graphics they
+  are replacing.
+* It is now possible to have target graphics that are larger than 16x16 pixels.
+  The new radio and water tower targets provide examples of this.
+* The original.sop mission file now includes the original graphics and title
+  music, to make it easier for people to make quick mods.
+* The "owner" field in mission files was renamed to "faction". Objects are
+  allied to factions, rather than belonging to planes. The manual page
+  documents how the factions system works.
+
 # v2.6.0 (2024-10-26)
 
 * The autopilot logic has been improved to avoid crashing the plane into the
