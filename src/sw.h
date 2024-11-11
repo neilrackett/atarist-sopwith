@@ -283,15 +283,12 @@ typedef struct obj {                            /*  Object list             */
 	struct obj    *ob_owner;
 	faction_t      ob_faction;
 	struct obj    *ob_target;
-	int            ob_bombing;
 	int            ob_bombs;
 	int            ob_clr;
 	int            ob_lx, ob_ly;
 	int            ob_ldx, ob_ldy;
 	struct obj    *ob_next;
 	struct obj    *ob_prev;
-	bool           ob_drwflg;
-	bool           ob_onmap;
 	void        ( *ob_drawf ) (struct obj *);
 	bool        ( *ob_movef ) (struct obj *);
 	struct obj    *ob_xnext;
@@ -299,20 +296,16 @@ typedef struct obj {                            /*  Object list             */
 	int            ob_crashcnt;
 	sopsym_t      *ob_symbol;
 	int            ob_bdelay;
-	int            ob_home;
 	obtype_t       ob_type;
-	int            ob_athome;
 	struct tt     *ob_sound;
 	int            ob_missiles;
 	struct obj    *ob_mfiring;
 	int            ob_mdelay;
 	struct obj    *ob_missiletarget;
 	int            ob_bursts;
-	int            ob_bfiring;
 	int            ob_bsdelay;
 	int            ob_plrnum;
 	obendstatus_t  ob_endsts;
-	bool           ob_goingsun;
 	score_t	       ob_score;
 	flight_score_t ob_flightscore;
 	const original_ob_t *ob_original_ob;
@@ -323,6 +316,14 @@ typedef struct obj {                            /*  Object list             */
 	// That generated values is saved here as ob_orig_y, and we must
 	// look in two different locations to get the two coordinates.
 	int            ob_orig_y;
+
+	bool           ob_bombing;
+	bool           ob_drwflg;
+	bool           ob_onmap;
+	bool           ob_home;
+	bool           ob_athome;
+	bool           ob_bfiring;
+	bool           ob_goingsun;
 } OBJECTS;
 
 typedef struct {                                /*  Game structure          */
