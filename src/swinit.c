@@ -268,7 +268,7 @@ OBJECTS *initpln(OBJECTS * obp)
 	ob->ob_target = ob->ob_missiletarget = NULL;
 	ob->ob_firing = ob->ob_mfiring = NULL;
 	ob->ob_bombing = ob->ob_bfiring = ob->ob_home = false;
-	ob->ob_newsym = &symbol_plane[0].sym[ob->ob_orient ? 4 : 0];
+	ob->ob_symbol = &symbol_plane[0].sym[ob->ob_orient ? 4 : 0];
 	ob->ob_athome = true;
 	ob->ob_onmap = true;
 	ob->ob_flightscore.combatwound = false;
@@ -446,15 +446,15 @@ void initshot(OBJECTS *obo, OBJECTS * targ)
 	}
 
 	ob->ob_type = SHOT;
-	ob->ob_x = obo->ob_x + obo->ob_newsym->w / 2;
-	ob->ob_y = obo->ob_y - obo->ob_newsym->h / 2;
+	ob->ob_x = obo->ob_x + obo->ob_symbol->w / 2;
+	ob->ob_y = obo->ob_y - obo->ob_symbol->h / 2;
 	ob->ob_lx = obo->ob_lx;
 	ob->ob_ly = obo->ob_ly;
 
 	ob->ob_life = BULLIFE;
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
-	ob->ob_newsym = &symbol_pixel;
+	ob->ob_symbol = &symbol_pixel;
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveshot;
 	ob->ob_speed = 0;
@@ -510,7 +510,7 @@ void initbomb(OBJECTS *obo)
 	ob->ob_life = BOMBLIFE;
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
-	ob->ob_newsym = &symbol_bomb[0].sym[0];
+	ob->ob_symbol = &symbol_bomb[0].sym[0];
 	ob->ob_drawf = dispbomb;
 	ob->ob_movef = movebomb;
 
@@ -551,7 +551,7 @@ void initmiss(OBJECTS *obo)
 	ob->ob_life = MISSLIFE;
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
-	ob->ob_newsym = &symbol_missile[0].sym[0];
+	ob->ob_symbol = &symbol_missile[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = movemiss;
 	ob->ob_missiletarget = obo->ob_mfiring;
@@ -602,7 +602,7 @@ void initburst(OBJECTS *obo)
 	ob->ob_life = BURSTLIFE;
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
-	ob->ob_newsym = &symbol_burst[0].sym[0];
+	ob->ob_symbol = &symbol_burst[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveburst;
 
@@ -654,10 +654,10 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	ob = allocobj();
 
 	// Initial symbol:
-	ob->ob_newsym = &symbol_targets[orig_ob->orient].sym[0];
+	ob->ob_symbol = &symbol_targets[orig_ob->orient].sym[0];
 
 	minx = ob->ob_x = orig_ob->x;
-	maxx = ob->ob_x + ob->ob_newsym->w - 1;
+	maxx = ob->ob_x + ob->ob_symbol->w - 1;
 	minh = 999;
 	maxh = 0;
 	for (x = minx; x <= maxx; ++x) {
@@ -666,8 +666,8 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	}
 
 	aveh = (minh + maxh) / 2;
-	aveh = clamp_max(aveh, MAX_Y - ob->ob_newsym->h - 1);
-	ob->ob_y = aveh + ob->ob_newsym->h;
+	aveh = clamp_max(aveh, MAX_Y - ob->ob_symbol->h - 1);
+	ob->ob_y = aveh + ob->ob_symbol->h;
 
 	for (x = minx; x <= maxx; ++x) {
 		ground[x] = aveh;
@@ -709,8 +709,8 @@ static int TargetExplosionSize(int target_type)
 // exploding. This is no-op when the symbol is 16x16 like the original.
 static void ApplySpriteSizeOffset(OBJECTS *ob, OBJECTS *obo, int angle)
 {
-	int rangex = clamp_min(obo->ob_newsym->w, 16) - 16,
-	    rangey = clamp_min(obo->ob_newsym->h, 16) - 16;
+	int rangex = clamp_min(obo->ob_symbol->w, 16) - 16,
+	    rangey = clamp_min(obo->ob_symbol->h, 16) - 16;
 	ob->ob_x += COS(angle) * rangex / (256 * 2);
 	ob->ob_y += SIN(angle) * rangey / (256 * 2);
 	ob->ob_y -= rangey;
@@ -727,8 +727,8 @@ void initexpl(OBJECTS *obo, int small)
 	bool mansym;
 	int orient;
 
-	obox = obo->ob_x + (obo->ob_newsym->w / 2);
-	oboy = obo->ob_y + (obo->ob_newsym->h / 2);
+	obox = obo->ob_x + (obo->ob_symbol->w / 2);
+	oboy = obo->ob_y + (obo->ob_symbol->h / 2);
 	obodx = obo->ob_dx >> 2;
 	obody = obo->ob_dy >> 2;
 	oboclr = obo->ob_clr;
@@ -803,7 +803,7 @@ void initexpl(OBJECTS *obo, int small)
 		ob->ob_lx = ob->ob_ly = ob->ob_hitcount = ob->ob_speed = 0;
 		ob->ob_owner = obo;
 		ob->ob_clr = oboclr;
-		ob->ob_newsym = &symbol_debris[0].sym[0];
+		ob->ob_symbol = &symbol_debris[0].sym[0];
 		ob->ob_drawf = dispexpl;
 		ob->ob_movef = moveexpl;
 
@@ -863,7 +863,7 @@ static OBJECTS *initflock(const original_ob_t *orig_ob)
 	ob->ob_orient = 0;
 	ob->ob_life = FLOCKLIFE;
 	ob->ob_faction = FACTION_NONE;
-	ob->ob_newsym = &symbol_flock[0].sym[0];
+	ob->ob_symbol = &symbol_flock[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveflck;
 	ob->ob_clr = 1;
@@ -900,7 +900,7 @@ void initbird(OBJECTS *obo, int i)
 	    0;
 	ob->ob_life = BIRDLIFE;
 	ob->ob_faction = obo->ob_faction;
-	ob->ob_newsym = &symbol_bird[0].sym[0];
+	ob->ob_symbol = &symbol_bird[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = movebird;
 	ob->ob_clr = obo->ob_clr;
@@ -924,7 +924,7 @@ static OBJECTS *initballoon(const original_ob_t *orig_ob)
 	ob->ob_dx = 0;
 	ob->ob_dy = 0;
 	ob->ob_orient = 0;
-	ob->ob_newsym = &symbol_balloon[0].sym[0];
+	ob->ob_symbol = &symbol_balloon[0].sym[0];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveballoon;
 	ob->ob_faction = orig_ob->faction;
@@ -956,7 +956,7 @@ static OBJECTS *initox(const original_ob_t *orig_ob)
 	ob->ob_orient = ob->ob_lx = ob->ob_ly = ob->ob_ldx =
 	    ob->ob_ldy = ob->ob_dx = ob->ob_dy = 0;
 	ob->ob_faction = FACTION_NONE;
-	ob->ob_newsym = &symbol_ox[0].sym[orig_ob->transform];
+	ob->ob_symbol = &symbol_ox[0].sym[orig_ob->transform];
 	ob->ob_drawf = NULL;
 	ob->ob_movef = moveox;
 	ob->ob_clr = 1;

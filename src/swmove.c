@@ -587,17 +587,17 @@ static bool movepln(OBJECTS *ob)
 	}
 
 	if (ob->ob_endsts == WINNER && ob->ob_goingsun) {
-		ob->ob_newsym = &symbol_plane_win[endcount / 18].sym[0];
+		ob->ob_symbol = &symbol_plane_win[endcount / 18].sym[0];
 	} else if (ob->ob_state == FINISHED) {
-		ob->ob_newsym = NULL;
+		ob->ob_symbol = NULL;
 	} else if (ob->ob_state == FALLING && !ob->ob_dx && ob->ob_dy < 0) {
-		ob->ob_newsym = &symbol_plane_hit[ob->ob_orient].sym[0];
+		ob->ob_symbol = &symbol_plane_hit[ob->ob_orient].sym[0];
 	} else if (ob->ob_orient) {
 		// Flipped:
 		int a = (16 - ob->ob_angle) % 16;
-		ob->ob_newsym = &symbol_plane[a % 4].sym[4 + a / 4];
+		ob->ob_symbol = &symbol_plane[a % 4].sym[4 + a / 4];
 	} else {
-		ob->ob_newsym = &symbol_plane[ob->ob_angle % 4]
+		ob->ob_symbol = &symbol_plane[ob->ob_angle % 4]
 			.sym[ob->ob_angle / 4];
 	}
 
@@ -675,7 +675,7 @@ bool moveshot(OBJECTS *ob)
 		return false;
 	}
 
-	ob->ob_newsym = &symbol_pixel;
+	ob->ob_symbol = &symbol_pixel;
 	return true;
 }
 
@@ -706,7 +706,7 @@ bool movebomb(OBJECTS *ob)
 	}
 
 	ang = symangle(ob);
-	ob->ob_newsym = &symbol_bomb[ang % 2].sym[ang / 2];
+	ob->ob_symbol = &symbol_bomb[ang % 2].sym[ang / 2];
 
 	if (y >= MAX_Y) {
 		return false;
@@ -762,7 +762,7 @@ bool movemiss(OBJECTS *ob)
 		return false;
 	}
 
-	ob->ob_newsym =
+	ob->ob_symbol =
 		&symbol_missile[ob->ob_angle % 4].sym[ob->ob_angle / 4];
 
 	if (y >= MAX_Y) {
@@ -792,7 +792,7 @@ bool moveburst(OBJECTS *ob)
 	}
 
 	ob->ob_owner->ob_missiletarget = ob;
-	ob->ob_newsym = &symbol_burst[ob->ob_life & 1].sym[0];
+	ob->ob_symbol = &symbol_burst[ob->ob_life & 1].sym[0];
 
 	return y < MAX_Y;
 }
@@ -854,7 +854,7 @@ static const int target_aggression[NUM_TARGET_TYPES] = {
 
 bool movetarg(OBJECTS *ob)
 {
-	sopsym_t *oldsym = ob->ob_newsym;
+	sopsym_t *oldsym = ob->ob_symbol;
 	int transform = ob->ob_original_ob->transform;
 	int aggression;
 
@@ -877,18 +877,18 @@ bool movetarg(OBJECTS *ob)
 	ob->ob_hitcount = clamp_min(ob->ob_hitcount - 1, 0);
 
 	if (ob->ob_state == STANDING) {
-		ob->ob_newsym =
+		ob->ob_symbol =
 			&symbol_targets[ob->ob_orient].sym[transform];
 	} else {
-		ob->ob_newsym =
+		ob->ob_symbol =
 			&symbol_target_hit[ob->ob_orient].sym[transform];
 	}
 
 	// Symbol changes on explosion, and the new sprite might be a
 	// different size. Stay centered, and if the symbol height changes, we
 	// need to adjust Y so the target stays on the ground.
-	ob->ob_x += (oldsym->w - ob->ob_newsym->w) / 2;
-	ob->ob_y -= oldsym->h - ob->ob_newsym->h;
+	ob->ob_x += (oldsym->w - ob->ob_symbol->w) / 2;
+	ob->ob_y -= oldsym->h - ob->ob_symbol->h;
 
 	return true;
 }
@@ -937,7 +937,7 @@ bool moveexpl(OBJECTS * obp)
 	}
 	++ob->ob_hitcount;
 
-	ob->ob_newsym = &symbol_debris[ob->ob_orient].sym[0];
+	ob->ob_symbol = &symbol_debris[ob->ob_orient].sym[0];
 
 	return y < MAX_Y;
 }
@@ -959,7 +959,7 @@ bool movesmok(OBJECTS * obp)
 		deallobj(ob);
 		return false;
 	}
-	ob->ob_newsym = &symbol_pixel;
+	ob->ob_symbol = &symbol_pixel;
 
 	return true;
 }
@@ -991,7 +991,7 @@ bool moveflck(OBJECTS * obp)
 	}
 
 	movexy(ob, &x, &y);
-	ob->ob_newsym = &symbol_flock[ob->ob_orient].sym[0];
+	ob->ob_symbol = &symbol_flock[ob->ob_orient].sym[0];
 	return true;
 }
 
@@ -1039,7 +1039,7 @@ bool moveballoon(OBJECTS *ob)
 	  + (dx >= 20000 ? 2 :
 	     dx <= -20000 ? 0 : 1);
 
-	ob->ob_newsym = &symbol_balloon[f].sym[orig->transform];
+	ob->ob_symbol = &symbol_balloon[f].sym[orig->transform];
 	return true;
 }
 
@@ -1094,7 +1094,7 @@ bool movebird(OBJECTS * obp)
 
 	movexy(ob, &x, &y);
 
-	ob->ob_newsym = &symbol_bird[ob->ob_orient].sym[0];
+	ob->ob_symbol = &symbol_bird[ob->ob_orient].sym[0];
 	if (!in_range(0, x, currgame->gm_max_x - 1)
 	 || !in_range((int) ground[x] + 1, y, MAX_Y - 1)) {
 		ob->ob_y -= ob->ob_dy;
@@ -1107,7 +1107,7 @@ bool movebird(OBJECTS * obp)
 bool moveox(OBJECTS * ob)
 {
 	int transform = ob->ob_original_ob->transform;
-	ob->ob_newsym = &symbol_ox[ob->ob_state != STANDING].sym[transform];
+	ob->ob_symbol = &symbol_ox[ob->ob_state != STANDING].sym[transform];
 	return true;
 }
 

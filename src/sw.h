@@ -297,7 +297,7 @@ typedef struct obj {                            /*  Object list             */
 	struct obj    *ob_xnext;
 	struct obj    *ob_xprev;
 	int            ob_crashcnt;
-	sopsym_t      *ob_newsym;
+	sopsym_t      *ob_symbol;
 	int            ob_bdelay;
 	int            ob_home;
 	obtype_t       ob_type;

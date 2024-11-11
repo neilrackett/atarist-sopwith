@@ -46,7 +46,7 @@ static inline int ob_color(OBJECTS *ob)
 
 void swputsym(int x, int y, OBJECTS * ob)
 {
-	Vid_DispSymbol(x, y, ob->ob_newsym, ob_color(ob));
+	Vid_DispSymbol(x, y, ob->ob_symbol, ob_color(ob));
 }
 
 static void PrintHelp(void)

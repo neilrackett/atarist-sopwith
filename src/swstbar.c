@@ -131,18 +131,18 @@ static void dispmapobjects(void)
 			continue;
 		}
 
-		mapx = ob->ob_x + (ob->ob_newsym->w / 2);
+		mapx = ob->ob_x + (ob->ob_symbol->w / 2);
 
 		// We usually draw the dot at the map location of the
 		// center of the sprite. However, if the object is
 		// sitting on the ground (eg. target) we want to make
 		// sure it is never floating above the ground.
 		groundy = ground[ob->ob_x];
-		if (ob->ob_y - ob->ob_newsym->h <= groundy) {
+		if (ob->ob_y - ob->ob_symbol->h <= groundy) {
 			// on ground
-			mapy = ob->ob_y - ob->ob_newsym->h + 8;
+			mapy = ob->ob_y - ob->ob_symbol->h + 8;
 		} else {
-			mapy = ob->ob_y - (ob->ob_newsym->h / 2);
+			mapy = ob->ob_y - (ob->ob_symbol->h / 2);
 		}
 		x = SCR_CENTR + mapx / WRLD_RSX;
 		y = mapy / WRLD_RSY;

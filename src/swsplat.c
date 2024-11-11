@@ -49,7 +49,7 @@ void swdispsplats(void)
 
 		ob.ob_type = DUMMYTYPE;
 		ob.ob_clr = splats[i].clr;
-		ob.ob_newsym = splats[i].sym;
+		ob.ob_symbol = splats[i].sym;
 
 		swputsym(splats[i].x, splats[i].y, &ob);
 	}

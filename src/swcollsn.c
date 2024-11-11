@@ -57,11 +57,11 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 	if (ob1->ob_x < ob2->ob_x) {
 		x1 = ob2->ob_x - ob1->ob_x;
 		x2 = 0;
-		w = clamp_max(ob1->ob_newsym->w - x1, ob2->ob_newsym->w);
+		w = clamp_max(ob1->ob_symbol->w - x1, ob2->ob_symbol->w);
 	} else {
 		x1 = 0;
 		x2 = ob1->ob_x - ob2->ob_x;
-		w = clamp_max(ob2->ob_newsym->w - x2, ob1->ob_newsym->w);
+		w = clamp_max(ob2->ob_symbol->w - x2, ob1->ob_symbol->w);
 	}
 
 	// no intersection?
@@ -73,11 +73,11 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 	if (ob1->ob_y < ob2->ob_y) {
 		y1 = 0;
 		y2 = ob2->ob_y - ob1->ob_y;
-		h = clamp_max(ob2->ob_newsym->h - y2, ob1->ob_newsym->h);
+		h = clamp_max(ob2->ob_symbol->h - y2, ob1->ob_symbol->h);
 	} else {
 		y1 = ob1->ob_y - ob2->ob_y;
 		y2 = 0;
-		h = clamp_max(ob1->ob_newsym->h - y1, ob2->ob_newsym->h);
+		h = clamp_max(ob1->ob_symbol->h - y1, ob2->ob_symbol->h);
 	}
 
 	// no intersection?
@@ -92,12 +92,12 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 
 	fprintf(stderr,
 		"info: (%i, %i)/(%i, %i)  (%i, %i)/(%i, %i)\n",
-		ob1->ob_x, ob1->ob_y, ob1->ob_newsym->w, ob1->ob_newsym->h,
-		ob2->ob_x, ob2->ob_y, ob2->ob_newsym->w, ob2->ob_newsym->h);
+		ob1->ob_x, ob1->ob_y, ob1->ob_symbol->w, ob1->ob_symbol->h,
+		ob2->ob_x, ob2->ob_y, ob2->ob_symbol->w, ob2->ob_symbol->h);
 #endif
 
-	data1 = ob1->ob_newsym->data + ob1->ob_newsym->w * y1 + x1;
-	data2 = ob2->ob_newsym->data + ob2->ob_newsym->w * y2 + x2;
+	data1 = ob1->ob_symbol->data + ob1->ob_symbol->w * y1 + x1;
+	data2 = ob2->ob_symbol->data + ob2->ob_symbol->w * y2 + x2;
 
 	for (y=0; y<h; ++y) {
 		uint8_t *d1 = data1, *d2 = data2;
@@ -110,8 +110,8 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 			++d1; ++d2;
 		}
 
-		data1 += ob1->ob_newsym->w;
-		data2 += ob2->ob_newsym->w;
+		data1 += ob1->ob_symbol->w;
+		data2 += ob2->ob_symbol->w;
 	}
 
 	return false;
@@ -237,7 +237,7 @@ static void crater(OBJECTS * ob)
 	int i, x, y, ymin, ymax;
 	int xmin, xmax;
 
-	xmin = ob->ob_x + (ob->ob_newsym->w - 8) / 2;
+	xmin = ob->ob_x + (ob->ob_symbol->w - 8) / 2;
 	xmax = xmin + 7;
 
 	for (x = xmin, i = 0; x <= xmax; ++x, ++i) {
@@ -489,16 +489,16 @@ void swcollsn(void)
 	}
 
 	for (ob = topobj.ob_xnext; ob != &botobj; ob = ob->ob_xnext) {
-		xmax = ob->ob_x + ob->ob_newsym->w - 1;
+		xmax = ob->ob_x + ob->ob_symbol->w - 1;
 		ymax = ob->ob_y;
-		ymin = ymax - ob->ob_newsym->h + 1;
+		ymin = ymax - ob->ob_symbol->h + 1;
 
 		for (obp = ob->ob_xnext;
 		     obp != &botobj && obp->ob_x <= xmax;
 		     obp = obp->ob_xnext) {
 
 			if (obp->ob_y >= ymin
-			    && (obp->ob_y - obp->ob_newsym->h + 1) <= ymax
+			    && (obp->ob_y - obp->ob_symbol->h + 1) <= ymax
 			    && CollisionTest(ob, obp)
 			    && killptr < 2 * MAX_OBJS - 1) {
 				killed[killptr] = ob;
@@ -537,7 +537,7 @@ void swcollsn(void)
 
 static void tstcrash(OBJECTS *obp)
 {
-	sopsym_t *sym = obp->ob_newsym;
+	sopsym_t *sym = obp->ob_symbol;
 	int x, y;
 
 	for (x=0; x<sym->w; ++x) {
