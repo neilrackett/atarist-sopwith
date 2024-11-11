@@ -26,7 +26,6 @@ COMMON_SOURCES =                   \
         swauto.c     swauto.h      \
         swcollsn.c   swcollsn.h    \
         swconf.c     swconf.h      \
-        swdisp.c     swdisp.h      \
         swend.c      swend.h       \
         swgames.c    swgames.h     \
         swgrpha.c    swgrpha.h     \

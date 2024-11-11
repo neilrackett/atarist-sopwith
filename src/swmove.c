@@ -17,7 +17,6 @@
 #include "sw.h"
 #include "swauto.h"
 #include "swcollsn.h"
-#include "swdisp.h"
 #include "swend.h"
 #include "swinit.h"
 #include "swmain.h"
@@ -153,6 +152,37 @@ static int symangle(OBJECTS * ob)
 		return 3;
 	} else {
 		return 4;
+	}
+}
+
+// Sound callback function for planes
+static void PlaneSoundCallback(OBJECTS *ob)
+{
+	if (ob->ob_firing) {
+		sound(S_SHOT, 0, ob);
+	} else {
+		switch (ob->ob_state) {
+		case FALLING:
+			if (ob->ob_dy >= 0) {
+				sound(S_HIT, 0, ob);
+			} else {
+				sound(S_FALLING, ob->ob_y, ob);
+			}
+			break;
+
+		case FLYING:
+			sound(S_PLANE, -ob->ob_speed, ob);
+			break;
+
+		case STALLED:
+		case WOUNDED:
+		case WOUNDSTALL:
+			sound(S_HIT, 0, ob);
+			break;
+
+		default:
+			break;
+		}
 	}
 }
 
@@ -402,6 +432,7 @@ static bool movepln(OBJECTS *ob)
 	};
 
 	state = ob->ob_state;
+	ob->ob_soundf = PlaneSoundCallback;
 
 	switch (state) {
 	case FINISHED:
@@ -679,10 +710,19 @@ bool moveshot(OBJECTS *ob)
 	return true;
 }
 
+static void BombSoundCallback(OBJECTS *ob)
+{
+	if (ob->ob_dy <= 0) {
+		sound(S_BOMB, -ob->ob_y, ob);
+	}
+}
+
 bool movebomb(OBJECTS *ob)
 {
 	int x, y;
 	int ang;
+
+	ob->ob_soundf = BombSoundCallback;
 
 	if (ob->ob_life < 0) {
 		deallobj(ob);
@@ -797,6 +837,13 @@ bool moveburst(OBJECTS *ob)
 	return y < MAX_Y;
 }
 
+static void TargetSoundCallback(OBJECTS * ob)
+{
+	if (ob->ob_firing) {
+		sound(S_SHOT, 0, ob);
+	}
+}
+
 static OBJECTS *FindEnemyPlane(OBJECTS *ob)
 {
 	OBJECTS *obp;
@@ -858,6 +905,7 @@ bool movetarg(OBJECTS *ob)
 	int transform = ob->ob_original_ob->transform;
 	int aggression;
 
+	ob->ob_soundf = TargetSoundCallback;
 	ob->ob_firing = NULL;
 
 	assert(ob->ob_orient < arrlen(target_aggression));
@@ -893,11 +941,20 @@ bool movetarg(OBJECTS *ob)
 	return true;
 }
 
+static void ExplosionSoundCallback(OBJECTS *ob)
+{
+	if (ob->ob_orient) {
+		sound(S_EXPLOSION, ob->ob_hitcount, ob);
+	}
+}
+
 bool moveexpl(OBJECTS * obp)
 {
 	OBJECTS *ob;
 	int x, y;
 	int orient;
+
+	obp->ob_soundf = ExplosionSoundCallback;
 
 	ob = obp;
 	orient = ob->ob_orient;

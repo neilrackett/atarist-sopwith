@@ -25,7 +25,6 @@
 #include "swasynio.h"
 #include "swcollsn.h"
 #include "swconf.h"
-#include "swdisp.h"
 #include "swgrpha.h"
 #include "swinit.h"
 #include "swgames.h"
@@ -304,7 +303,6 @@ void initplyr(OBJECTS * obp)
 
 	ob = initpln(obp);
 	if (!obp) {
-		ob->ob_soundf = dispplyr;
 		ob->ob_movef = moveplyr;
 		ob->ob_faction = ob->ob_original_ob->faction;
 		ob->ob_clr = ob->ob_faction;
@@ -329,7 +327,6 @@ void initcomp(OBJECTS * obp)
 
 	ob = initpln(obp);
 	if (!obp) {
-		ob->ob_soundf = dispcomp;
 		ob->ob_movef = movecomp;
 		// TODO: Allow multiple computer-controlled planes belonging
 		// to different factions.
@@ -511,7 +508,6 @@ void initbomb(OBJECTS *obo)
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
 	ob->ob_symbol = &symbol_bomb[0].sym[0];
-	ob->ob_soundf = dispbomb;
 	ob->ob_movef = movebomb;
 
 	insertx(ob, obo);
@@ -680,7 +676,6 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	ob->ob_orient = orig_ob->orient;
 	AddPlayerTarget(ob, orig_ob);
 	ob->ob_clr = ob->ob_faction;
-	ob->ob_soundf = disptarg;
 	ob->ob_movef = movetarg;
 	ob->ob_onmap = true;
 
@@ -804,7 +799,6 @@ void initexpl(OBJECTS *obo, int small)
 		ob->ob_owner = obo;
 		ob->ob_clr = oboclr;
 		ob->ob_symbol = &symbol_debris[0].sym[0];
-		ob->ob_soundf = dispexpl;
 		ob->ob_movef = moveexpl;
 
 		if (orient) {
