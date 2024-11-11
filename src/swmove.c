@@ -85,7 +85,7 @@ static void nearpln(OBJECTS *ob)
 			continue;
 		}
 
-		if (obt->ob_drawf == dispcomp) {
+		if (obt->ob_movef == movecomp) {
 			if (playmode != PLAYMODE_COMPUTER
 			 || in_range(obt->ob_original_ob->territory_l, obx,
 			             obt->ob_original_ob->territory_r)) {
