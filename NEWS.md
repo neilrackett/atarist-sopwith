@@ -1,3 +1,4 @@
+# v2.7.0 (2024-11-11)
 
 * Some tanks were changed to face in the opposite direction where it made more
   sense, as a minor visual improvement.

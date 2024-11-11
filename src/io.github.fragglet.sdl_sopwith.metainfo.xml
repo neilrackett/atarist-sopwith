@@ -40,6 +40,19 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2.7.0" date="2024-11-11">
+      <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.7.0</url>
+      <description>
+        <p>Some tanks were changed to face in the opposite direction where it made more
+          sense, as a minor visual improvement. </p>
+        <p>Custom missions can now be used in network games (thanks NY00123). </p>
+        <p>A minor visual bug was fixed where objects appeared to be overlapping with
+          the ground sometimes. </p>
+        <p>A bug was fixed where targets could sometimes blow themselves up with their
+          own bullets (most notably the hangars by shooting their own flags). </p>
+        <p> Various improvements to custom mission support.</p>
+      </description>
+    </release>
     <release version="2.6.0" date="2024-10-26">
       <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.6.0</url>
       <description>
