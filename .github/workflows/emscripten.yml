@@ -68,7 +68,7 @@ jobs:
         token: "${{secrets.SDL_SOPWITH_LATEST_SECRET}}"
         target-folder: "${{steps.deploy_folder.outputs.DEPLOY_FOLDER}}"
         clean: true
-        commit-message: "Build from fragglet/sdl-sopwith@${{github.sha}}"
+        commit-message: "Build from fragglet/sdl-sopwith@${{github.sha}} (Version ${{steps.version.outputs.VERSION}})"
     - name: Comment PR
       if: ${{ github.event_name == 'pull_request' }}
       uses: thollander/actions-comment-pull-request@v3
