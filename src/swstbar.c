@@ -122,20 +122,34 @@ static void dispgauges(OBJECTS *ob)
 
 static void dispmapobjects(void)
 {
+	int mapx, mapy, x, y, groundy;
 	OBJECTS *ob;
 
 	for (ob=objtop; ob; ob=ob->ob_next) {
-		if (ob->ob_onmap) {
-			int x, y;
+		if (!ob->ob_onmap
+		 || ob->ob_x < 0 || ob->ob_x >= currgame->gm_max_x) {
+			continue;
+		}
 
-			x = SCR_CENTR
-			  + ((ob->ob_x + (ob->ob_newsym->w / 2)) / WRLD_RSX);
-			y = ((ob->ob_y - (ob->ob_newsym->h / 2)) / WRLD_RSY);
+		mapx = ob->ob_x + (ob->ob_newsym->w / 2);
 
-			if (y < SCR_MNSH-1) {
-				Vid_PlotPixel(x, y,
-				              Vid_FuselageColor(ob->ob_clr));
-			}
+		// We usually draw the dot at the map location of the
+		// center of the sprite. However, if the object is
+		// sitting on the ground (eg. target) we want to make
+		// sure it is never floating above the ground.
+		groundy = ground[ob->ob_x];
+		if (ob->ob_y - ob->ob_newsym->h <= groundy) {
+			// on ground
+			mapy = ob->ob_y - ob->ob_newsym->h + 8;
+		} else {
+			mapy = ob->ob_y - (ob->ob_newsym->h / 2);
+		}
+		x = SCR_CENTR + mapx / WRLD_RSX;
+		y = mapy / WRLD_RSY;
+
+		if (y < SCR_MNSH-1) {
+			Vid_PlotPixel(x, y,
+				      Vid_FuselageColor(ob->ob_clr));
 		}
 	}
 }
