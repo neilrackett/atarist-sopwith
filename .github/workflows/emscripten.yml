@@ -6,6 +6,8 @@ jobs:
   emscripten_build:
     name: Emscripten build
     runs-on: ubuntu-latest
+    concurrency:
+      group: emscripten-build
 
     steps:
     - uses: actions/checkout@v4
