@@ -43,6 +43,12 @@ symbols {
 }
 
 level {
+	object {
+		type: TARGET
+		x: 220
+		orient: 18
+		faction: PLAYER1
+	}
 	object {  // Custom target type
 		type: TARGET
 		x: 270
@@ -77,6 +83,12 @@ level {
 		type: TARGET
 		x: 440
 		orient: 7
+		faction: PLAYER1
+	}
+	object {
+		type: TARGET
+		x: 460
+		orient: 19
 		faction: PLAYER1
 	}
 	object {
@@ -188,14 +200,20 @@ level {
 	}
 	object {
 		type: TARGET
-		x: 1540
+		x: 1510
+		orient: 19
+		faction: PLAYER2
+	}
+	object {
+		type: TARGET
+		x: 1550
 		orient: 4
 		transform: 6
 		faction: PLAYER2
 	}
 	object {
 		type: TARGET
-		x: 1560
+		x: 1570
 		orient: 5
 		transform: 6
 		faction: PLAYER2
@@ -210,6 +228,12 @@ level {
 		type: TARGET
 		x: 1680
 		orient: 8
+		faction: PLAYER2
+	}
+	object {
+		type: TARGET
+		x: 1730
+		orient: 18
 		faction: PLAYER2
 	}
 

@@ -897,6 +897,8 @@ static const int target_aggression[NUM_TARGET_TYPES] = {
 	0,  // TARGET_CUSTOM_PASSIVE3
 	0,  // TARGET_CUSTOM_PASSIVE4
 	0,  // TARGET_CUSTOM_PASSIVE5
+	0,  // TARGET_RADIO_TOWER
+	0,  // TARGET_WATER_TOWER
 };
 
 bool movetarg(OBJECTS *ob)

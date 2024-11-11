@@ -396,6 +396,73 @@ static const char *swtrgsym[] = {
 	custom_target_sym,  // TARGET_CUSTOM_PASSIVE4
 	custom_target_sym,  // TARGET_CUSTOM_PASSIVE5
 
+	// TARGET_RADIO_TOWER:
+	"              #                 \n"
+	"            #   #               \n"
+	"          # * * * #             \n"
+	"          # #     #             \n"
+	"          #   #   #             \n"
+	"          #     # #             \n"
+	"          # * * * #             \n"
+	"          #       #             \n"
+	"        #   #   #   #           \n"
+	"        #     #     #           \n"
+	"        # * * * * * #           \n"
+	"        #   #   #   #           \n"
+	"        # #       # #           \n"
+	"        # * * * * * #           \n"
+	"        #           #           \n"
+	"      #   #       #   #         \n"
+	"      #     #   #     #         \n"
+	"      # * * * * * * * #         \n"
+	"      #     #   #     #         \n"
+	"      #   #       #   #         \n"
+	"      # #           # #         \n"
+	"      # * * * * * * * #         \n"
+	"      #               #         \n"
+	"    #   #           #   #       \n"
+	"    #     #       #     #       \n"
+	"    #       #   #       #       \n"
+	"    # * * * * * * * * * #       \n"
+	"    #       #   #       #       \n"
+	"    #     #       #     #       \n"
+	"    #   #           #   #       \n"
+	"    # #               # #       \n"
+	"    #                   #       \n",
+
+	// TARGET_WATER_TOWER:
+	"          - - - - -             \n"
+	"        - - - - - - -           \n"
+	"        * * * * * * *           \n"
+	"        * * * * * * *           \n"
+	"        * * * * * * *           \n"
+	"        * * * * * * *           \n"
+	"        - - - - - - -           \n"
+	"        * * * * * * *           \n"
+	"          # * * * #             \n"
+	"          #   -   #             \n"
+	"          #   -   #             \n"
+	"        #   # - #   #           \n"
+	"        * * * * * * *           \n"
+	"        #   # - #   #           \n"
+	"        # #   -   # #           \n"
+	"        #     -     #           \n"
+	"      #   #   -   #   #         \n"
+	"      #     # - #     #         \n"
+	"      * * * * * * * * *         \n"
+	"      #     # - #     #         \n"
+	"      #   #   -   #   #         \n"
+	"      # #     -     # #         \n"
+	"      #       -       #         \n"
+	"    #   #     -     #   #       \n"
+	"    #     #   -   #     #       \n"
+	"    #       # - #       #       \n"
+	"    * * * * * * * * * * *       \n"
+	"    #       # - #       #       \n"
+	"    #     #   -   #     #       \n"
+	"    #   #     -     #   #       \n"
+	"    # #       -       # #       \n"
+	"    #         -         #       \n",
 };
 
 static const char destroyed_building[] =
@@ -488,6 +555,42 @@ static const char destroyed_custom[] =
 	"  * * * * * * * * * * * * * * * \n"
 	"  * * * * * * * * * * * * * * * \n";
 
+static const char destroyed_radio_tower[] =
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"      *                         \n"
+	"        *             #         \n"
+	"      *   *     #     #         \n"
+	"    # * #   *   # # # # * *     \n"
+	"  #   * #   # * #     *     #   \n"
+	"  # # *   # #   #   # # # # *   \n";
+
+static const char destroyed_water_tower[] =
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"                                \n"
+	"              *       -         \n"
+	"              * *   * -         \n"
+	"      *         # * * * -       \n"
+	"    # * *   - * # * * # -       \n"
+	"  # *   # * - * #   # *   -     \n"
+	"  # # #   # * - # #   * # -     \n";
+
 // There is one entry in this array for each in swtrgsym, so that different
 // targets can have different "destroyed" symbols:
 static const char *swhtrsym[] = {
@@ -509,6 +612,8 @@ static const char *swhtrsym[] = {
 	destroyed_custom,  // TARGET_CUSTOM_PASSIVE3
 	destroyed_custom,  // TARGET_CUSTOM_PASSIVE4
 	destroyed_custom,  // TARGET_CUSTOM_PASSIVE5
+	destroyed_radio_tower,  // TARGET_RADIO_TOWER
+	destroyed_water_tower,  // TARGET_WATER_TOWER
 };
 
 static const char *swballoonsym[] = {
