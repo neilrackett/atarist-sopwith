@@ -143,8 +143,8 @@ void swdisp(void)
 		 && in_range(displx, x, displx + SCR_WDTH - 1)) {
 			swputsym(x - displx, y, ob);
 
-			if (ob->ob_drawf) {
-				(*(ob->ob_drawf)) (ob);
+			if (ob->ob_soundf) {
+				(*(ob->ob_soundf)) (ob);
 			}
 		}
 	}

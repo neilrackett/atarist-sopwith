@@ -304,7 +304,7 @@ void initplyr(OBJECTS * obp)
 
 	ob = initpln(obp);
 	if (!obp) {
-		ob->ob_drawf = dispplyr;
+		ob->ob_soundf = dispplyr;
 		ob->ob_movef = moveplyr;
 		ob->ob_faction = ob->ob_original_ob->faction;
 		ob->ob_clr = ob->ob_faction;
@@ -329,7 +329,7 @@ void initcomp(OBJECTS * obp)
 
 	ob = initpln(obp);
 	if (!obp) {
-		ob->ob_drawf = dispcomp;
+		ob->ob_soundf = dispcomp;
 		ob->ob_movef = movecomp;
 		// TODO: Allow multiple computer-controlled planes belonging
 		// to different factions.
@@ -455,7 +455,7 @@ void initshot(OBJECTS *obo, OBJECTS * targ)
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
 	ob->ob_symbol = &symbol_pixel;
-	ob->ob_drawf = NULL;
+	ob->ob_soundf = NULL;
 	ob->ob_movef = moveshot;
 	ob->ob_speed = 0;
 
@@ -511,7 +511,7 @@ void initbomb(OBJECTS *obo)
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
 	ob->ob_symbol = &symbol_bomb[0].sym[0];
-	ob->ob_drawf = dispbomb;
+	ob->ob_soundf = dispbomb;
 	ob->ob_movef = movebomb;
 
 	insertx(ob, obo);
@@ -552,7 +552,7 @@ void initmiss(OBJECTS *obo)
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
 	ob->ob_symbol = &symbol_missile[0].sym[0];
-	ob->ob_drawf = NULL;
+	ob->ob_soundf = NULL;
 	ob->ob_movef = movemiss;
 	ob->ob_missiletarget = obo->ob_mfiring;
 	ob->ob_orient = ob->ob_accel = ob->ob_flaps = 0;
@@ -603,7 +603,7 @@ void initburst(OBJECTS *obo)
 	ob->ob_owner = obo;
 	ob->ob_clr = obo->ob_clr;
 	ob->ob_symbol = &symbol_burst[0].sym[0];
-	ob->ob_drawf = NULL;
+	ob->ob_soundf = NULL;
 	ob->ob_movef = moveburst;
 
 	insertx(ob, obo);
@@ -680,7 +680,7 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	ob->ob_orient = orig_ob->orient;
 	AddPlayerTarget(ob, orig_ob);
 	ob->ob_clr = ob->ob_faction;
-	ob->ob_drawf = disptarg;
+	ob->ob_soundf = disptarg;
 	ob->ob_movef = movetarg;
 	ob->ob_onmap = true;
 
@@ -804,7 +804,7 @@ void initexpl(OBJECTS *obo, int small)
 		ob->ob_owner = obo;
 		ob->ob_clr = oboclr;
 		ob->ob_symbol = &symbol_debris[0].sym[0];
-		ob->ob_drawf = dispexpl;
+		ob->ob_soundf = dispexpl;
 		ob->ob_movef = moveexpl;
 
 		if (orient) {
@@ -834,7 +834,7 @@ void initsmok(OBJECTS *obo)
 	ob->ob_lx = ob->ob_ly = ob->ob_ldx = ob->ob_ldy = 0;
 	ob->ob_life = SMOKELIFE;
 	ob->ob_owner = obo;
-	ob->ob_drawf = NULL;
+	ob->ob_soundf = NULL;
 	ob->ob_movef = movesmok;
 	ob->ob_clr = obo->ob_clr;
 }
@@ -864,7 +864,7 @@ static OBJECTS *initflock(const original_ob_t *orig_ob)
 	ob->ob_life = FLOCKLIFE;
 	ob->ob_faction = FACTION_NONE;
 	ob->ob_symbol = &symbol_flock[0].sym[0];
-	ob->ob_drawf = NULL;
+	ob->ob_soundf = NULL;
 	ob->ob_movef = moveflck;
 	ob->ob_clr = 1;
 	ob->ob_onmap = true;
@@ -901,7 +901,7 @@ void initbird(OBJECTS *obo, int i)
 	ob->ob_life = BIRDLIFE;
 	ob->ob_faction = obo->ob_faction;
 	ob->ob_symbol = &symbol_bird[0].sym[0];
-	ob->ob_drawf = NULL;
+	ob->ob_soundf = NULL;
 	ob->ob_movef = movebird;
 	ob->ob_clr = obo->ob_clr;
 	insertx(ob, &topobj);
@@ -925,7 +925,7 @@ static OBJECTS *initballoon(const original_ob_t *orig_ob)
 	ob->ob_dy = 0;
 	ob->ob_orient = 0;
 	ob->ob_symbol = &symbol_balloon[0].sym[0];
-	ob->ob_drawf = NULL;
+	ob->ob_soundf = NULL;
 	ob->ob_movef = moveballoon;
 	ob->ob_faction = orig_ob->faction;
 	ob->ob_clr = ob->ob_faction;
@@ -957,7 +957,7 @@ static OBJECTS *initox(const original_ob_t *orig_ob)
 	    ob->ob_ldy = ob->ob_dx = ob->ob_dy = 0;
 	ob->ob_faction = FACTION_NONE;
 	ob->ob_symbol = &symbol_ox[0].sym[orig_ob->transform];
-	ob->ob_drawf = NULL;
+	ob->ob_soundf = NULL;
 	ob->ob_movef = moveox;
 	ob->ob_clr = 1;
 	return ob;

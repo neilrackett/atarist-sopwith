@@ -289,7 +289,7 @@ typedef struct obj {                            /*  Object list             */
 	int            ob_ldx, ob_ldy;
 	struct obj    *ob_next;
 	struct obj    *ob_prev;
-	void        ( *ob_drawf ) (struct obj *);
+	void        ( *ob_soundf ) (struct obj *);
 	bool        ( *ob_movef ) (struct obj *);
 	struct obj    *ob_xnext;
 	struct obj    *ob_xprev;
