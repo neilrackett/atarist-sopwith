@@ -147,8 +147,50 @@ static bool tstcrash2(OBJECTS *ob, int x, int y, int alt, int dy)
 	return false;
 }
 
+// Planes are "wingmen" if they defend the same territory.
+static bool IsWingman(OBJECTS *plane, OBJECTS *plane2)
+{
+	int midpoint = (plane2->ob_original_ob->territory_l
+	              + plane2->ob_original_ob->territory_r) / 2;
+	return plane != plane2
+	    && plane->ob_faction == plane2->ob_faction
+	    && in_range(plane->ob_original_ob->territory_l, midpoint,
+	                plane->ob_original_ob->territory_r);
+}
+
+#define IS_AHEAD_OF(other, plane) \
+	(((other)->ob_x * direction) >= ((plane)->ob_x * direction))
+
+static void FindWingmen(OBJECTS *plane, OBJECTS **behind, OBJECTS **ahead)
+{
+	int i, direction;
+
+	if (plane->ob_target == NULL) {
+		return;
+	}
+	*ahead = NULL;
+	*behind = NULL;
+	direction = plane->ob_target->ob_x > plane->ob_x ? 1 : -1;
+
+	for (i = 0; i < num_planes; i++) {
+		OBJECTS *wingman = planes[i];
+		if (!IsWingman(plane, wingman)) {
+			continue;
+		}
+		if (IS_AHEAD_OF(wingman, plane)
+		 && (*ahead == NULL || IS_AHEAD_OF(*ahead, wingman))) {
+			*ahead = wingman;
+		}
+		if (!IS_AHEAD_OF(wingman, plane)
+		 && (*behind == NULL || IS_AHEAD_OF(wingman, *behind))) {
+			*behind = wingman;
+		}
+	}
+}
+
 int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 {
+	OBJECTS *behind = NULL, *ahead = NULL;
 	int r, rmin, i, n=0;
 	int x, y, dx, dy, nx, ny;
 	int nangle, nspeed;
@@ -167,6 +209,15 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 	y = ob->ob_y;
 
 	dx = x - ax;
+
+	FindWingmen(ob, &behind, &ahead);
+
+	// If there is another plane ahead of us in the formation, wait until
+	// it takes off first so that we don't all crash into each other.
+	if (ob->ob_athome && ahead != NULL
+	 && abs(ob->ob_x - ahead->ob_x) < 64) {
+		return 0;
+	}
 
 	if (abs(dx) > 160) {
 		if (ob->ob_dx && (dx < 0) == (ob->ob_dx < 0)) {
@@ -289,6 +340,18 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 		if (ob->ob_accel < MAX_THROTTLE) {
 			++ob->ob_accel;
 		}
+	}
+
+	if (ahead != NULL && abs(ahead->ob_x - ob->ob_x) < 24) {
+		// We're getting too close to the plane in front, slow down.
+		ob->ob_accel =
+			clamp_min(1, ahead->ob_accel - 2);
+	}
+	else if (behind != NULL && abs(behind->ob_x - ob->ob_x) > 32
+	 && ob->ob_dy == 0) {
+		// The closest wingman is a long way behind us, so slow
+		// down and let it catch up.
+		ob->ob_accel = clamp_min(1, behind->ob_accel - 2);
 	}
 
 	ob->ob_flaps = cflaps[n];
