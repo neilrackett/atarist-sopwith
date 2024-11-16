@@ -116,6 +116,7 @@ typedef enum {
                                         /*  refuellings                     */
 #define MAXCRASH        5               /* Mximum number of crashes allowed */
 
+#define MAX_PLANES      16              /* Maximum planes per level */
 #define MAX_PLYR        4               /* Maximum number of players        */
 #define MAX_OBJS        100             /* Maximum number of objects        */
 #define NUM_STRAY_BIRDS 1               /* Number of stray birds per flock  */

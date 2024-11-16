@@ -267,12 +267,6 @@ void init1asy(void)
 #endif
 }
 
-void init2asy(void)
-{
-	initplyr(NULL);
-	initplyr(NULL);
-}
-
 //
 // 2003-02-14: Code was checked into version control; no further entries
 // will be added to this log.

@@ -309,12 +309,12 @@ int gohome(OBJECTS *ob)
 	courseadj = ((countmove & 0x001F) < 16) << 4;
 	if (WithinHomeRange(ob, ob->ob_x, ob->ob_y)) {
 		if (plyrplane) {
-			initplyr(ob);
+			initplyr(ob, ob->ob_original_ob);
 			initdisp(true);
 		} else if (compplane) {
-			initcomp(ob);
+			initcomp(ob, ob->ob_original_ob);
 		} else {
-			initpln(ob);
+			initpln(ob, ob->ob_original_ob);
 		}
 		return 0;
 	}

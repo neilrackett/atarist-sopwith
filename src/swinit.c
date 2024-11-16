@@ -36,7 +36,8 @@
 #include "swsymbol.h"
 #include "swtitle.h"
 
-static const original_ob_t *orig_planes[MAX_PLYR * 2];
+static const original_ob_t *orig_planes[MAX_PLANES];
+static int num_orig_planes;
 GRNDTYPE *ground;
 
 static bool have_savescore = false;
@@ -224,15 +225,15 @@ static void GetEndLevel(OBJECTS *ob)
 
 // plane
 
-OBJECTS *initpln(OBJECTS * obp)
+OBJECTS *initpln(OBJECTS *obp, const original_ob_t *orig_ob)
 {
 	OBJECTS *ob;
 	int x, height, minx, maxx;
 
 	if (!obp) {
-		assert(num_planes < MAX_PLYR);
+		assert(num_planes < MAX_PLANES);
 		ob = allocobj();
-		ob->ob_original_ob = orig_planes[num_planes];
+		ob->ob_original_ob = orig_ob;
 		planes[num_planes] = ob;
 		++num_planes;
 	} else {
@@ -297,11 +298,11 @@ OBJECTS *initpln(OBJECTS * obp)
 
 // player
 
-void initplyr(OBJECTS * obp)
+void initplyr(OBJECTS *obp, const original_ob_t *orig_ob)
 {
 	OBJECTS *ob;
 
-	ob = initpln(obp);
+	ob = initpln(obp, orig_ob);
 	if (!obp) {
 		ob->ob_movef = moveplyr;
 		ob->ob_faction = ob->ob_original_ob->faction;
@@ -321,11 +322,11 @@ void initplyr(OBJECTS * obp)
 
 // computer opponent
 
-void initcomp(OBJECTS * obp)
+void initcomp(OBJECTS *obp, const original_ob_t *orig_ob)
 {
 	OBJECTS *ob;
 
-	ob = initpln(obp);
+	ob = initpln(obp, orig_ob);
 	if (!obp) {
 		ob->ob_movef = movecomp;
 		// TODO: Allow multiple computer-controlled planes belonging
@@ -1003,8 +1004,22 @@ static void initgdep(void)
 	targrnge *= targrnge;
 }
 
+OBJECTS *PlaneForFaction(faction_t f)
+{
+	int i;
+
+	for (i = 0; i < num_planes; i++) {
+		if (planes[i]->ob_faction == f) {
+			return planes[i];;
+		}
+	}
+
+	return NULL;
+}
+
 void swinitlevel(void)
 {
+	original_ob_t *player1_ob, *player2_ob;
 	int i;
 
 	if (have_custom_level) {
@@ -1029,40 +1044,59 @@ void swinitlevel(void)
 
 	num_players = 0;
 	num_planes = 0;
+	num_orig_planes = 0;
 	memset(planes, 0, sizeof(planes));
 	memset(orig_planes, 0, sizeof(orig_planes));
 
+	player1_ob = NULL;
+	player2_ob = NULL;
 	for (i = 0; i < currgame->gm_num_objects; i++) {
-		int pln_index;
-		if (currgame->gm_objects[i].type != PLANE) {
+		original_ob_t *plane = &currgame->gm_objects[i];
+		if (plane->type != PLANE) {
 			continue;
 		}
-		// TODO: Currently we equate faction with plane number,
-		// which is incorrect - it should be possible to have
-		// multiple planes per faction.
-		pln_index = currgame->gm_objects[i].faction - 1;
-		if (in_range(0, pln_index, MAX_PLYR * 2 - 1)) {
-			orig_planes[pln_index] = &currgame->gm_objects[i];
+		if (playmode == PLAYMODE_ASYNCH
+		 && plane->faction > FACTION_PLAYER2) {
+			continue;
+		}
+		if (plane->faction > FACTION_PLAYER4) {
+			// Player 5-8 planes currently unused
+			continue;
+		}
+		orig_planes[num_orig_planes] = plane;
+		++num_orig_planes;
+		if (player1_ob == NULL && plane->faction == FACTION_PLAYER1) {
+			player1_ob = plane;
+		}
+		if (player2_ob == NULL && plane->faction == FACTION_PLAYER2) {
+			player2_ob = plane;
 		}
 	}
+	assert(player1_ob != NULL);
 
 	if (keydelay == -1) {
 		keydelay = 1;
 	}
 
+	initplyr(NULL, player1_ob);
+
 	if (playmode == PLAYMODE_ASYNCH) {
 		maxcrash = MAXCRASH * 2;
-		init2asy();
+		assert(player2_ob != NULL);
+		initplyr(NULL, player2_ob);
 	} else {
 		maxcrash = MAXCRASH;
+		player2_ob = NULL;
+	}
 
-		// single player. we spawn as many enemy planes as we have
-		// defined within the map.
-		// TODO: We should have a way to define the number of enemy
-		// planes in levels.
-		initplyr(NULL);
-		for (i = 1; i < MAX_PLYR && orig_planes[i] != NULL; i++) {
-			initcomp(NULL);
+	// single player. we spawn as many enemy planes as we have
+	// defined within the map.
+	// TODO: We should have a way to define the number of enemy
+	// planes in levels.
+	for (i = 0; i < num_orig_planes; i++) {
+		if (orig_planes[i] != player1_ob
+		 && orig_planes[i] != player2_ob) {
+			initcomp(NULL, orig_planes[i]);
 		}
 	}
 

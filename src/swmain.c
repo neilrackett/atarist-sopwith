@@ -53,7 +53,7 @@ bool soundflg = 0;		/* Sound flag                       */
 
 int displx;			/* Display left and right           */
 
-OBJECTS *planes[MAX_PLYR];      /* Plane objects                    */
+OBJECTS *planes[MAX_PLANES];    /* Plane objects                    */
 int num_planes;
 
 OBJECTS *objbot, *objtop,	/* Top and bottom of object list    */

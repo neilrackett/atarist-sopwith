@@ -43,7 +43,7 @@ extern int     targrnge;
 extern bool    titleflg;
 extern bool    soundflg;
 extern int     displx;
-extern OBJECTS *planes[MAX_PLYR];
+extern OBJECTS *planes[MAX_PLANES];
 extern int     num_planes;
 extern OBJECTS *objbot, *objtop, *objfree, *deltop, *delbot;
 extern OBJECTS topobj, botobj;

@@ -24,7 +24,6 @@ extern int asynport;
 extern void asynput(int movekey);
 extern char *asynclos(void);
 extern void init1asy(void);
-extern void init2asy(void);
 extern void asynupdate(void);
 
 #endif

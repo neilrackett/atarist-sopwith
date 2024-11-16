@@ -233,7 +233,7 @@ bool moveplyr(OBJECTS *ob)
 				loser(ob);
 			}
 		} else {
-			initplyr(ob);
+			initplyr(ob, ob->ob_original_ob);
 			initdisp(true);
 			if (endstat == WINNER) {
 				if (ctlbreak()) {
@@ -392,7 +392,7 @@ bool movecomp(OBJECTS *ob)
 	case CRASHED:
 		ob->ob_firing = NULL;
 		if (ob->ob_hitcount <= 0 && !endstat) {
-			initcomp(ob);
+			initcomp(ob, ob->ob_original_ob);
 		}
 		break;
 
