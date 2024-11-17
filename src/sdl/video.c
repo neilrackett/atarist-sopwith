@@ -349,13 +349,6 @@ static void CreateUpscaledTexture(int force)
 	}
 }
 
-static void Vid_UnsetMode(void)
-{
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-}
-
 static void GetWindowSize(int *w, int *h)
 {
 	SDL_DisplayMode mode;
@@ -397,8 +390,13 @@ static void Vid_SetMode(void)
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
 
-	window = SDL_CreateWindow(PACKAGE_STRING, SDL_WINDOWPOS_CENTERED,
-	                          SDL_WINDOWPOS_CENTERED, w, h, flags);
+	if (window == NULL) {
+		window = SDL_CreateWindow(PACKAGE_STRING, SDL_WINDOWPOS_CENTERED,
+		                          SDL_WINDOWPOS_CENTERED, w, h, flags);
+	} else {
+		SDL_SetWindowFullscreen(window, flags);
+		SDL_SetWindowSize(window, w, h);
+	}
 
 	if (window == NULL) {
 		ErrorExit("Failed to open SDL window: %s", SDL_GetError());
@@ -415,6 +413,9 @@ static void Vid_SetMode(void)
 	SetIcon();
 	SDL_ShowCursor(0);
 
+	if (renderer != NULL) {
+		SDL_DestroyRenderer(renderer);
+	}
 	renderer_flags = SDL_RENDERER_PRESENTVSYNC;
 	renderer = SDL_CreateRenderer(window, -1, renderer_flags);
 
@@ -472,9 +473,12 @@ void Vid_Shutdown(void)
 		return;
 	}
 
-	Vid_UnsetMode();
-
+	SDL_DestroyWindow(window);
+	window = NULL;
+	SDL_DestroyRenderer(renderer);
+	renderer = NULL;
 	SDL_FreeSurface(screenbuf);
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	initted = false;
 }
@@ -510,7 +514,6 @@ void Vid_Reset(void)
 		return;
 	}
 
-	Vid_UnsetMode();
 	Vid_SetMode();
 
 	// need to redraw buffer to screen
