@@ -219,7 +219,18 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 		return 0;
 	}
 
-	if (abs(dx) > 160) {
+	if (abs(dx) <= 160) {
+		if (!longway) {
+			ob->ob_hitcount = 0;
+		}
+	} else if (ahead != NULL && abs(ob->ob_x - ahead->ob_x) < 80) {
+		// Form up behind and below the plane in front of us
+		// (echelon formation)
+		return aim(ob, ahead->ob_x + 20, ahead->ob_y - 20,
+		           NULL, false);
+	} else {
+		int height;
+
 		if (ob->ob_dx && (dx < 0) == (ob->ob_dx < 0)) {
 			if (!ob->ob_hitcount) {
 				ob->ob_hitcount = (y > (MAX_Y - 50)) ? 2 : 1;
@@ -228,13 +239,14 @@ int aim(OBJECTS *ob, int ax, int ay, OBJECTS *obt, bool longway)
 				    ? (y + 25) : (y - 25), NULL, true));
 		}
 		ob->ob_hitcount = 0;
-		return (aim(ob, x + (dx < 0 ? 150 : -150),
-		            clamp_max(y + 100, MAX_Y - 50 - courseadj),
-		            NULL, true));
-	} else {
-		if (!longway) {
-			ob->ob_hitcount = 0;
+		height = clamp_max(y + 100, MAX_Y - 50 - courseadj);
+		if (behind != NULL) {
+			// When flying in formation the lead plane needs
+			// to fly a bit higher to give the others space.
+			height = clamp_max(height + 32, MAX_Y - 32);
 		}
+		return (aim(ob, x + (dx < 0 ? 150 : -150), height,
+		            NULL, true));
 	}
 
 	if (ob->ob_speed) {
