@@ -19,6 +19,8 @@
 
 #include "sw.h"
 
+#define TOUCH_AREA_HEIGHT 120
+
 enum gamekey {
 	KEY_UNKNOWN,
 	KEY_PULLUP,

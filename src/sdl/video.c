@@ -90,6 +90,7 @@ int keybindings[NUM_KEYS] = {
 };
 
 bool vid_fullscreen = false;
+static bool touch_area_enabled = false;
 static int ctrlbreak = 0;
 static bool initted = false;
 static SDL_Window *window = NULL;
@@ -156,9 +157,18 @@ static SDL_Surface *SurfaceFromSopsym(sopsym_t *sym)
 	return surface;
 }
 
+static int TouchAreaHeight(void)
+{
+	if (touch_area_enabled) {
+		return TOUCH_AREA_HEIGHT;
+	}
+
+	return 0;
+}
+
 void Vid_Update(void)
 {
-	static SDL_Rect blit_rect = { 0, 0, SCR_WDTH, SCR_HGHT };
+	SDL_Rect blit_rect = {0, 0, SCR_WDTH, SCR_HGHT + TouchAreaHeight()};
 
 	if (!initted) {
 		Vid_Init();
@@ -234,6 +244,7 @@ static void SetIcon(void)
 static void LimitTextureSize(int *w_upscale, int *h_upscale)
 {
 	SDL_RendererInfo rinfo;
+	int height = SCR_HGHT + TouchAreaHeight();
 	int orig_w, orig_h;
 
 	orig_w = *w_upscale;
@@ -248,7 +259,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 	while (*w_upscale * SCR_WDTH > rinfo.max_texture_width) {
 		--*w_upscale;
 	}
-	while (*h_upscale * SCR_HGHT > rinfo.max_texture_height) {
+	while (*h_upscale * height > rinfo.max_texture_height) {
 		--*h_upscale;
 	}
 
@@ -265,14 +276,14 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 	// depending on the hardware there may be performance problems with very
 	// huge textures, so the user can use this to reduce the maximum texture
 	// size if desired.
-	if (max_scaling_buffer_pixels < SCR_WDTH * SCR_HGHT) {
+	if (max_scaling_buffer_pixels < SCR_WDTH * height) {
 		ErrorExit("CreateUpscaledTexture: max_scaling_buffer_"
 		          "pixels too small to create a texture buffer:"
 		          " %d < %d", max_scaling_buffer_pixels,
-		          SCR_WDTH * SCR_HGHT);
+		          SCR_WDTH * height);
 	}
 
-	while (*w_upscale * *h_upscale * SCR_WDTH * SCR_HGHT
+	while (*w_upscale * *h_upscale * SCR_WDTH * height
 	       > max_scaling_buffer_pixels) {
 		if (*w_upscale > *h_upscale) {
 			--*w_upscale;
@@ -284,7 +295,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 	if (*w_upscale != orig_w || *h_upscale != orig_h) {
 		printf("CreateUpscaledTexture: Limited texture size to %dx%d "
 		       "(max %d pixels, max texture size %dx%d)",
-		       *w_upscale * SCR_WDTH, *h_upscale * SCR_HGHT,
+		       *w_upscale * SCR_WDTH, *h_upscale * height,
 		       max_scaling_buffer_pixels, rinfo.max_texture_width,
 		       rinfo.max_texture_height);
 	}
@@ -293,6 +304,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 static void CreateUpscaledTexture(int force)
 {
 	static int h_upscale_old, w_upscale_old;
+	int height = SCR_HGHT + TouchAreaHeight();
 	int w, h;
 	int h_upscale, w_upscale;
 	SDL_Texture *new_texture, *old_texture;
@@ -307,12 +319,12 @@ static void CreateUpscaledTexture(int force)
 	// When the screen or window dimensions do not match the aspect ratio
 	// of the texture, the rendered area is scaled down to fit. Calculate
 	// the actual dimensions of the rendered area.
-	if (w * SCR_HGHT < h * SCR_WDTH) {
+	if (w * height < h * SCR_WDTH) {
 		// Tall window.
-		h = w * SCR_HGHT / SCR_WDTH;
+		h = w * height / SCR_WDTH;
 	} else {
 		// Wide window.
-		w = h * SCR_WDTH / SCR_HGHT;
+		w = h * SCR_WDTH / height;
 	}
 
 	// Pick texture size the next integer multiple of the screen dimensions.
@@ -320,7 +332,7 @@ static void CreateUpscaledTexture(int force)
 	// resolution, there is no need to overscale in this direction.
 	// Minimum texture dimensions of 320x200.
 	w_upscale = clamp_min(1, (w + SCR_WDTH - 1) / SCR_WDTH);
-	h_upscale = clamp_min(1, (h + SCR_HGHT - 1) / SCR_HGHT);
+	h_upscale = clamp_min(1, (h + height - 1) / height);
 
 	LimitTextureSize(&w_upscale, &h_upscale);
 
@@ -339,7 +351,7 @@ static void CreateUpscaledTexture(int force)
 
 	new_texture = SDL_CreateTexture(
 		renderer, pixel_format, SDL_TEXTUREACCESS_TARGET,
-		w_upscale*SCR_WDTH, h_upscale*SCR_HGHT);
+		w_upscale*SCR_WDTH, h_upscale*height);
 
 	old_texture = texture_upscaled;
 	texture_upscaled = new_texture;
@@ -355,7 +367,7 @@ static void GetWindowSize(int *w, int *h)
 	int factor;
 
 	*w = SCR_WDTH;
-	*h = SCR_HGHT;
+	*h = SCR_HGHT + TouchAreaHeight();
 
 	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
 		return;
@@ -422,7 +434,8 @@ static void Vid_SetMode(void)
 	// Important: Set the "logical size" of the rendering context. At the
 	// same time this also defines the aspect ratio that is preserved while
 	// scaling and stretching the texture into the window.
-	SDL_RenderSetLogicalSize(renderer, SCR_WDTH, SCR_HGHT);
+	SDL_RenderSetLogicalSize(renderer, SCR_WDTH,
+	                         SCR_HGHT + TouchAreaHeight());
 
 	// Blank out the full screen area in case there is any junk in
 	// the borders that won't otherwise be overwritten.
@@ -441,8 +454,10 @@ static void Vid_SetMode(void)
 		SDL_PixelFormatEnumToMasks(
 			pixel_format, &bpp, &rmask, &gmask,
 			&bmask, &amask);
+		// The texture we create is larger than the screen in height,
+		// so that we can display the touch controls if enabled.
 		argbbuffer = SDL_CreateRGBSurface(
-			0, SCR_WDTH, SCR_HGHT, bpp,
+			0, SCR_WDTH, SCR_HGHT + TOUCH_AREA_HEIGHT, bpp,
 			rmask, gmask, bmask, amask);
 		SDL_FillRect(argbbuffer, NULL, 0);
 	}
@@ -461,7 +476,7 @@ static void Vid_SetMode(void)
 	// texture's content is going to change frequently.
 	texture = SDL_CreateTexture(renderer, pixel_format,
 	                            SDL_TEXTUREACCESS_STREAMING,
-	                            SCR_WDTH, SCR_HGHT);
+	                            SCR_WDTH, SCR_HGHT + TouchAreaHeight());
 
 	// Initially create the upscaled texture for rendering to screen
 	CreateUpscaledTexture(1);
@@ -490,11 +505,12 @@ void Vid_Init(void)
 	}
 
 	fflush(stdout);
+	touch_area_enabled = SDL_GetNumTouchDevices() > 0;
 
 	Vid_SetMode();
 
-	screenbuf = SDL_CreateRGBSurface(0, SCR_WDTH, SCR_HGHT, 8,
-	                                 0, 0, 0, 0);
+	screenbuf = SDL_CreateRGBSurface(
+		0, SCR_WDTH, SCR_HGHT + TOUCH_AREA_HEIGHT, 8, 0, 0, 0, 0);
 	vid_vram = screenbuf->pixels;
 	vid_pitch = screenbuf->pitch;
 	SDL_SetPaletteColors(screenbuf->format->palette,
