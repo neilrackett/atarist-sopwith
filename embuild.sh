@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Wrapper script for emscripten build.
 #
@@ -10,7 +10,7 @@ make_wrapper_script() {
     toolname="$1"
     emtoolname="$2"
     path="$EM_CACHE/bin/asmjs-local-emscripten-$toolname"
-    (echo "#!/bin/bash"
+    (echo "#!/usr/bin/env bash"
      echo "exec $emtoolname \"\$@\"") > "$path"
     chmod a+rx "$path"
 }
