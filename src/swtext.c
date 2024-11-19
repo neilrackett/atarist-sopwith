@@ -59,7 +59,7 @@ static inline void drawchar(int x, int y, int c)
 
 void swputc(char c)
 {
-	if (isprint(c)) {
+	if (isprint(c) || (c >= 0x10 && c < 0x20)) {
 		drawchar(cur_x * 8, cur_y * 8, c);
 	}
 	++cur_x;
