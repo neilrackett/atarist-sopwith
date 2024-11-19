@@ -112,4 +112,22 @@ char *Vid_GetPrefPath(void);
 
 void ErrorExit(char *s, ...);
 
+enum touch_button_type {
+	TOUCH_BUTTON_END,
+	TOUCH_BUTTON_LABEL,
+	TOUCH_BUTTON_GAME_KEY,
+	TOUCH_BUTTON_KEYPRESS,
+	TOUCH_BUTTON_CLOSE,
+};
+
+struct touch_button {
+	enum touch_button_type type;
+	const char *label;
+	int x, y;
+	int param;
+};
+
+extern void Vid_DrawTouchControls(void);
+extern const struct touch_button *Vid_GetTouchButton(int x, int y);
+
 #endif

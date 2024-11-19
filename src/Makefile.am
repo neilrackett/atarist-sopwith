@@ -42,6 +42,7 @@ COMMON_SOURCES =                   \
         swtitle.c    swtitle.h     \
         tcpcomm.c    tcpcomm.h     \
         timer.h                    \
+        touch_area.c               \
         video.c      video.h       \
         yocton.c     yocton.h
 

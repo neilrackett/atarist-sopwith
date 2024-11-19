@@ -89,6 +89,10 @@ int keybindings[NUM_KEYS] = {
 	SDL_SCANCODE_S,       // KEY_SOUND
 };
 
+// Button that each finger is currently pressing. We assume the user does
+// not have more than 16 fingers.
+static const struct touch_button *pressed_buttons[16];
+
 bool vid_fullscreen = false;
 static bool touch_area_enabled = false;
 static int ctrlbreak = 0;
@@ -175,6 +179,12 @@ void Vid_Update(void)
 	}
 
 	SDL_UnlockSurface(screenbuf);
+
+	if (touch_area_enabled) {
+		vid_vram += SCR_HGHT * vid_pitch;
+		Vid_DrawTouchControls();
+		vid_vram -= SCR_HGHT * vid_pitch;
+	}
 
 	// Blit from the paletted 8-bit screen buffer to the intermediate
 	// 32-bit RGBA buffer that we can load into the texture.
@@ -684,6 +694,112 @@ static void KeyUp(SDL_KeyboardEvent *event)
 	}
 }
 
+static bool TouchCoordToPixel(float x, float y, int *px, int *py)
+{
+	int height = SCR_HGHT + TouchAreaHeight();
+	int win_w, win_h;
+
+	SDL_GetWindowSize(window, &win_w, &win_h);
+
+	if ((height * win_w / SCR_WDTH) < win_h) {
+		// Letterboxed
+		*px = x * SCR_WDTH;
+		*py = (((y - 0.5) * win_h * SCR_WDTH) / win_w)
+		    + (height / 2);
+	} else {
+		// Pillarboxed
+		*px = (((x - 0.5) * win_w * height) / win_h)
+		    + (SCR_WDTH / 2);
+		*py = y * height;
+	}
+
+	return *px >= 0 && *px < SCR_WDTH && *py >= 0 && *py < height;
+}
+
+static bool ValidFinger(SDL_TouchFingerEvent *ev)
+{
+	// TODO: Support more than two touch devices:
+	return ev->touchId == SDL_GetTouchDevice(0)
+	    && ev->fingerId < arrlen(pressed_buttons);
+}
+
+static const struct touch_button *GetTouchButton(SDL_TouchFingerEvent *ev)
+{
+	int x, y;
+
+	if (!TouchCoordToPixel(ev->x, ev->y, &x, &y) || y < SCR_HGHT) {
+		return NULL;
+	}
+	return Vid_GetTouchButton(x, y - SCR_HGHT);
+}
+
+static void FingerDown(SDL_TouchFingerEvent *ev)
+{
+	const struct touch_button *b;
+
+	if (!ValidFinger(ev)) {
+		return;
+	}
+
+	b = GetTouchButton(ev);
+	pressed_buttons[ev->fingerId] = b;
+	if (b == NULL) {
+		return;
+	}
+
+	switch (b->type) {
+	case TOUCH_BUTTON_GAME_KEY:
+		keysdown[b->param] |= 6;
+		break;
+
+	default:
+		break;
+	}
+}
+
+static void FingerUp(SDL_TouchFingerEvent *ev)
+{
+	const struct touch_button *b;
+
+	if (!ValidFinger(ev)) {
+		return;
+	}
+	b = pressed_buttons[ev->fingerId];
+	if (b == NULL) {
+		return;
+	}
+	switch (b->type) {
+	case TOUCH_BUTTON_GAME_KEY:
+		keysdown[b->param] &= ~4;
+		break;
+
+	case TOUCH_BUTTON_CLOSE:
+		touch_area_enabled = false;
+		Vid_Reset();
+		break;
+
+	default:
+		break;
+	}
+	pressed_buttons[ev->fingerId] = NULL;
+}
+
+static void FingerMove(SDL_TouchFingerEvent *ev)
+{
+	const struct touch_button *b, *old_button;
+
+	if (!ValidFinger(ev)) {
+		return;
+	}
+
+	old_button = pressed_buttons[ev->fingerId];
+	b = GetTouchButton(ev);
+	if (b != old_button) {
+		FingerUp(ev);
+		FingerDown(ev);
+	}
+}
+
 static void GetEvents(void)
 {
 	SDL_Event event;
@@ -726,6 +842,24 @@ static void GetEvents(void)
 				need_redraw = true;
 				break;
 			}
+			break;
+
+		case SDL_FINGERDOWN:
+			if (!touch_area_enabled) {
+				touch_area_enabled = true;
+				Vid_Reset();
+			} else {
+				FingerDown(&event.tfinger);
+			}
+			break;
+
+		case SDL_FINGERUP:
+			FingerUp(&event.tfinger);
+			break;
+
+		case SDL_FINGERMOTION:
+			FingerMove(&event.tfinger);
+			break;
 		}
 	}
 
