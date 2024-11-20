@@ -58,4 +58,4 @@ make_wrapper_script ranlib emranlib
 if [ ! -e configure ] || [ ! -e Makefile ]; then
     ./autogen.sh --host=asmjs-local-emscripten
 fi
-make "$@"
+exec make "$@"
