@@ -52,7 +52,7 @@ static const struct touch_button game_buttons[] = {
 static void GetButtonPos(const struct touch_button *b, int *x, int *y)
 {
 	*x = b->x * 8 - 28;
-	*y = b->y * 8 - 14;
+	*y = b->y * 8 - 12;
 }
 
 static void DrawTouchArea(const struct touch_button *buttons)

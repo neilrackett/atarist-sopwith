@@ -46,10 +46,9 @@ static inline void drawchar(int x, int y, int c)
 
 		for (x2 = 0; x2 < 8; ++x2) {
 			if (p[y2] & m) {
-				Vid_PlotPixel
-					(x + x2,
-					 SCR_HGHT - (y + y2 - 1),
-					 cur_color);
+				Vid_PlotPixel(
+					x + x2, SCR_HGHT - 1 - (y + y2),
+					cur_color);
 			}
 
 			m >>= 1;
