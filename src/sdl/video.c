@@ -417,7 +417,14 @@ static void Vid_SetMode(void)
 		                          SDL_WINDOWPOS_CENTERED, w, h, flags);
 	} else {
 		SDL_SetWindowFullscreen(window, flags);
+#ifndef __EMSCRIPTEN__
+		// SDL's Emscripten backend automatically resizes windows if
+		// they are created with SDL_WINDOW_RESIZABLE, but this gets
+		// overridden if we call SDL_SetWindowSize() without actually
+		// changing the canvas size, leading to a stretched out image
+		// in the wrong aspect ratio.
 		SDL_SetWindowSize(window, w, h);
+#endif
 	}
 
 	if (window == NULL) {
