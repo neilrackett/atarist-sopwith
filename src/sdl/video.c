@@ -704,21 +704,9 @@ static void KeyUp(SDL_KeyboardEvent *event)
 static bool TouchCoordToPixel(float x, float y, int *px, int *py)
 {
 	int height = SCR_HGHT + TouchAreaHeight();
-	int win_w, win_h;
 
-	SDL_GetWindowSize(window, &win_w, &win_h);
-
-	if ((height * win_w / SCR_WDTH) < win_h) {
-		// Letterboxed
-		*px = x * SCR_WDTH;
-		*py = (((y - 0.5) * win_h * SCR_WDTH) / win_w)
-		    + (height / 2);
-	} else {
-		// Pillarboxed
-		*px = (((x - 0.5) * win_w * height) / win_h)
-		    + (SCR_WDTH / 2);
-		*py = y * height;
-	}
+	*px = (int) (x * SCR_WDTH);
+	*py = (int) (y * height);
 
 	return *px >= 0 && *px < SCR_WDTH && *py >= 0 && *py < height;
 }
