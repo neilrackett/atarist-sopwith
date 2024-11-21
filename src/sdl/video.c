@@ -738,6 +738,7 @@ static void FingerDown(SDL_TouchFingerEvent *ev)
 
 	b = GetTouchButton(ev);
 	pressed_buttons[ev->fingerId] = b;
+	Vid_TouchButtonPress(b, true);
 	if (b == NULL) {
 		return;
 	}
@@ -777,6 +778,7 @@ static void FingerUp(SDL_TouchFingerEvent *ev)
 		break;
 	}
 	pressed_buttons[ev->fingerId] = NULL;
+	Vid_TouchButtonPress(b, false);
 }
 
 static void FingerMove(SDL_TouchFingerEvent *ev)

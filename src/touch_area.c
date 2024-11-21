@@ -71,12 +71,14 @@ static void DrawTouchArea(const struct touch_button *buttons)
 			swcolor(3);
 		} else {
 			int x, y;
+			bool pressed = i < arrlen(button_pressed)
+			            && button_pressed[i];
 			GetButtonPos(b, &x, &y);
 			Vid_Box(x, SCR_HGHT - y,
 			        BUTTON_WIDTH, BUTTON_HEIGHT, 3);
 			Vid_Box(x + 1, SCR_HGHT - y - 1,
 			        BUTTON_WIDTH - 2, BUTTON_HEIGHT - 2,
-			        b->type == TOUCH_BUTTON_CLOSE ? 2 : 1);
+			        pressed ? 2 : 1);
 			swcolor(0);
 		}
 
@@ -101,6 +103,14 @@ const struct touch_button *Vid_GetTouchButton(int x, int y)
 	}
 
 	return NULL;
+}
+
+void Vid_TouchButtonPress(const struct touch_button *b, bool pressed)
+{
+	int idx = b - game_buttons;
+	if (idx >= 0 && idx < arrlen(button_pressed)) {
+		button_pressed[idx] = pressed;
+	}
 }
 
 void Vid_DrawTouchControls(void)
