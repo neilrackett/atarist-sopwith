@@ -24,27 +24,28 @@
 
 #define MARGIN 4
 #define BUTTON_WIDTH  87
-#define BUTTON_HEIGHT 32
+#define BUTTON_HEIGHT 36
 
+static bool button_pressed[16];
 static const struct touch_button game_buttons[] = {
-	{TOUCH_BUTTON_GAME_KEY, " \x18",     4,  2, KEY_PULLDOWN},
-	{TOUCH_BUTTON_LABEL,    "Stick",     3,  5},
-	{TOUCH_BUTTON_GAME_KEY, " \x19",     4,  8, KEY_PULLUP},
-	{TOUCH_BUTTON_GAME_KEY, "Flip",      4, 12, KEY_FLIP},
+	{TOUCH_BUTTON_GAME_KEY, " \x18",     4,  3, KEY_PULLDOWN},
+	{TOUCH_BUTTON_LABEL,    "Stick",     3,  7},
+	{TOUCH_BUTTON_GAME_KEY, " \x19",     4, 11, KEY_PULLUP},
+	{TOUCH_BUTTON_GAME_KEY, "Flip",      4, 17, KEY_FLIP},
 
-	{TOUCH_BUTTON_GAME_KEY, " \x18",    18,  2, KEY_ACCEL},
-	{TOUCH_BUTTON_LABEL,    "Throttle", 16,  5},
-	{TOUCH_BUTTON_GAME_KEY, " \x19",    18,  8, KEY_DECEL},
-	{TOUCH_BUTTON_GAME_KEY, "Home",     18, 12, KEY_HOME},
+	{TOUCH_BUTTON_GAME_KEY, " \x18",    18,  3, KEY_ACCEL},
+	{TOUCH_BUTTON_LABEL,    "Throttle", 16,  7},
+	{TOUCH_BUTTON_GAME_KEY, " \x19",    18, 11, KEY_DECEL},
+	{TOUCH_BUTTON_GAME_KEY, "Home",     18, 17, KEY_HOME},
 
 	/*
 	{TOUCH_BUTTON_GAME_KEY, "Missile",  20,  7, KEY_MISSILE},
 	{TOUCH_BUTTON_GAME_KEY, "Flare",    20, 10, KEY_STARBURST},
 	*/
 
-	{TOUCH_BUTTON_CLOSE,    "Close",    32,  2},
-	{TOUCH_BUTTON_GAME_KEY, "Fire",     32,  8, KEY_FIRE},
-	{TOUCH_BUTTON_GAME_KEY, "Bomb",     32, 12, KEY_BOMB},
+	{TOUCH_BUTTON_CLOSE,    "Close",    32,  3},
+	{TOUCH_BUTTON_GAME_KEY, "Fire",     32, 11, KEY_FIRE},
+	{TOUCH_BUTTON_GAME_KEY, "Bomb",     32, 17, KEY_BOMB},
 
 	{TOUCH_BUTTON_END},
 };
@@ -52,7 +53,7 @@ static const struct touch_button game_buttons[] = {
 static void GetButtonPos(const struct touch_button *b, int *x, int *y)
 {
 	*x = b->x * 8 - 28;
-	*y = b->y * 8 - 12;
+	*y = b->y * 8 - 14;
 }
 
 static void DrawTouchArea(const struct touch_button *buttons)

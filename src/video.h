@@ -19,7 +19,7 @@
 
 #include "sw.h"
 
-#define TOUCH_AREA_HEIGHT 120
+#define TOUCH_AREA_HEIGHT 160
 
 enum gamekey {
 	KEY_UNKNOWN,
