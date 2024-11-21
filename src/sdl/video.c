@@ -442,11 +442,10 @@ static void Vid_SetMode(void)
 	SetIcon();
 	SDL_ShowCursor(0);
 
-	if (renderer != NULL) {
-		SDL_DestroyRenderer(renderer);
+	if (renderer == NULL) {
+		renderer_flags = SDL_RENDERER_PRESENTVSYNC;
+		renderer = SDL_CreateRenderer(window, -1, renderer_flags);
 	}
-	renderer_flags = SDL_RENDERER_PRESENTVSYNC;
-	renderer = SDL_CreateRenderer(window, -1, renderer_flags);
 
 	// Important: Set the "logical size" of the rendering context. At the
 	// same time this also defines the aspect ratio that is preserved while
@@ -505,10 +504,10 @@ void Vid_Shutdown(void)
 		return;
 	}
 
-	SDL_DestroyWindow(window);
-	window = NULL;
 	SDL_DestroyRenderer(renderer);
 	renderer = NULL;
+	SDL_DestroyWindow(window);
+	window = NULL;
 	SDL_FreeSurface(screenbuf);
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
