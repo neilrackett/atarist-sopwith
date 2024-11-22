@@ -7,7 +7,7 @@ MANPAGE_MANGLE_AWK = \
 	/end no-emscripten/ { strip = 0 }
 
 TOPLEVEL = ../..
-DIST_FILES = error.png loading.gif
+DIST_FILES = error.png loading.gif icon-192.png icon-512.png
 SOPWITH_JS = $(TOPLEVEL)/src/sopwith
 SOPWITH_WASM = $(TOPLEVEL)/src/sopwith.wasm
 PANDOC_FLAGS = -s --template=default.html5 -H ../style.html
@@ -18,6 +18,8 @@ page: $(SOPWITH_JS) $(SOPWITH_WASM) $(DIST_FILES) sopwith.html mangled.6
 	mkdir -p $@
 	sed "s/__PACKAGE_STRING__/$(PACKAGE_STRING)/" \
 	     < sopwith.html > $@/sopwith.html
+	sed "s/__PACKAGE_NAME__/$(PACKAGE_NAME)/" \
+	     < manifest.json > $@/manifest.json
 	cp $(DIST_FILES) $(SOPWITH_WASM) $@/
 	cp $(TOPLEVEL)/icon.png $@/favicon.png
 	cp $(SOPWITH_JS) $@/sopwith.js

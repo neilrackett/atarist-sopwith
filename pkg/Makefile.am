@@ -5,6 +5,9 @@ EXTRA_DIST = \
 ./emscripten/error.png                   \
 ./emscripten/loading.gif                 \
 ./emscripten/sopwith.html                \
+./emscripten/icon-192.png                \
+./emscripten/icon-512.png                \
+./emscripten/manifest.json               \
 ./macos/cp-with-libs                     \
 ./macos/disk                             \
 ./macos/disk/background.png              \
