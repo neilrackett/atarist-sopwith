@@ -18,6 +18,7 @@ src/sopwith.exe
 *~
 *.orig
 *.rej
+*.wasm
 stamp-h1
 tags
 TAGS
