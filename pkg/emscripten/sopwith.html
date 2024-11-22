@@ -58,6 +58,11 @@
       function openManual() {
         window.open("doc/sopwith-emscripten.html");
       }
+      function promptForInstall() {
+        if (installPrompt != null) {
+          installPrompt.prompt();
+        }
+      }
       function programError() {
         canvas.style.visibility = "hidden";
         loadingElement.style.visibility = "visible";
@@ -110,6 +115,11 @@
         Module.setStatus = function(text) {
           if (text) Module.printErr('[post-exception status] ' + text);
         };
+      });
+      var installPrompt = null;
+      window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        installPrompt = event;
       });
     </script>
 

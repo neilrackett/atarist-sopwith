@@ -220,6 +220,7 @@ void getgamemode(void)
 #endif
 #ifdef __EMSCRIPTEN__
 		swputs("     M - open manual\n");
+		swputs("     I - install as app\n");
 #endif
 		Vid_Update();
 
@@ -255,6 +256,9 @@ void getgamemode(void)
 			break;
 #endif
 #ifdef __EMSCRIPTEN__
+		case 'I':
+			emscripten_run_script("promptForInstall()");
+			break;
 		case 'M':
 			emscripten_run_script("openManual()");
 			break;
