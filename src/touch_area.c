@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "video.h"
 #include "sw.h"
@@ -25,6 +26,8 @@
 #define MARGIN 4
 #define BUTTON_WIDTH  87
 #define BUTTON_HEIGHT 36
+#define SMALL_BUTTON_WIDTH  39  /* single character button */
+#define SMALL_BUTTON_HEIGHT 30
 
 static bool button_pressed[16];
 static const struct touch_button game_buttons[] = {
@@ -50,10 +53,22 @@ static const struct touch_button game_buttons[] = {
 	{TOUCH_BUTTON_END},
 };
 
-static void GetButtonPos(const struct touch_button *b, int *x, int *y)
+static const struct touch_button *curr_buttons = game_buttons;
+
+static void GetButtonPos(const struct touch_button *b, int *x, int *y,
+                         int *w, int *h)
 {
-	*x = b->x * 8 - 28;
-	*y = b->y * 8 - 14;
+	if (strlen(b->label) == 1) {
+		*x = b->x * 8 - 15;
+		*y = b->y * 8 - 11;
+		*w = SMALL_BUTTON_WIDTH;
+		*h = SMALL_BUTTON_HEIGHT;
+	} else {
+		*x = b->x * 8 - 28;
+		*y = b->y * 8 - 14;
+		*w = BUTTON_WIDTH;
+		*h = BUTTON_HEIGHT;
+	}
 }
 
 static void DrawTouchArea(const struct touch_button *buttons)
@@ -71,14 +86,12 @@ static void DrawTouchArea(const struct touch_button *buttons)
 		if (b->type == TOUCH_BUTTON_LABEL) {
 			swcolor(3);
 		} else {
-			int x, y;
+			int x, y, w, h;
 			bool pressed = i < arrlen(button_pressed)
 			            && button_pressed[i];
-			GetButtonPos(b, &x, &y);
-			Vid_Box(x, SCR_HGHT - y,
-			        BUTTON_WIDTH, BUTTON_HEIGHT, 3);
-			Vid_Box(x + 1, SCR_HGHT - y - 1,
-			        BUTTON_WIDTH - 2, BUTTON_HEIGHT - 2,
+			GetButtonPos(b, &x, &y, &w, &h);
+			Vid_Box(x, SCR_HGHT - y, w, h, 3);
+			Vid_Box(x + 1, SCR_HGHT - y - 1, w - 2, h - 2,
 			        pressed ? 2 : 1);
 			swcolor(0);
 		}
@@ -90,15 +103,15 @@ static void DrawTouchArea(const struct touch_button *buttons)
 
 const struct touch_button *Vid_GetTouchButton(int x, int y)
 {
-	int i, bx, by;
+	int i, bx, by, bw, bh;
 
-	for (i = 0; game_buttons[i].type != TOUCH_BUTTON_END; i++) {
-		const struct touch_button *b = &game_buttons[i];
-		GetButtonPos(b, &bx, &by);
+	for (i = 0; curr_buttons[i].type != TOUCH_BUTTON_END; i++) {
+		const struct touch_button *b = &curr_buttons[i];
+		GetButtonPos(b, &bx, &by, &bw, &bh);
 
 		if (b->type != TOUCH_BUTTON_LABEL
 		 && x >= bx && y >= by
-		 && x < bx + BUTTON_WIDTH && y < by + BUTTON_HEIGHT) {
+		 && x < bx + bw && y < by + bh) {
 			return b;
 		}
 	}
@@ -108,13 +121,65 @@ const struct touch_button *Vid_GetTouchButton(int x, int y)
 
 void Vid_TouchButtonPress(const struct touch_button *b, bool pressed)
 {
-	int idx = b - game_buttons;
-	if (idx >= 0 && idx < arrlen(button_pressed)) {
-		button_pressed[idx] = pressed;
+	int i;
+
+	for (i = 0; curr_buttons[i].type != TOUCH_BUTTON_END; i++) {
+		if (b == &curr_buttons[i]) {
+			button_pressed[i] = pressed;
+			return;
+		}
 	}
 }
 
 void Vid_DrawTouchControls(void)
 {
-	DrawTouchArea(game_buttons);
+	DrawTouchArea(curr_buttons);
+}
+
+void Vid_ShowTouchGameControls(void)
+{
+	memset(button_pressed, 0, sizeof(button_pressed));
+	curr_buttons = game_buttons;
+}
+
+void Vid_ShowTouchKeys(const char *keys)
+{
+	static struct touch_button buttons[27], *b;
+	static char button_labels[27][2];
+	int i, x = 2, y = 8, key;
+
+	memset(button_pressed, 0, sizeof(button_pressed));
+
+	buttons[0].type = TOUCH_BUTTON_KEYPRESS;
+	buttons[0].label = "ESC";
+	buttons[0].x = 4;
+	buttons[0].y = 3;
+	buttons[0].param = 27;
+
+	buttons[1].type = TOUCH_BUTTON_CLOSE;
+	buttons[1].label = "Close";
+	buttons[1].x = 32;
+	buttons[1].y = 3;
+
+	for (i = 0; i < arrlen(buttons) - 3 && keys[i] != '\0'; i++) {
+		b = &buttons[i + 2];
+		key = toupper(keys[i]);
+		b->type = TOUCH_BUTTON_KEYPRESS;
+		b->label = button_labels[i];
+		b->x = x;
+		b->y = y;
+		b->param = key;
+		x += 5;
+		if (x >= 38) {
+			x = 2;
+			y += 4;
+		}
+
+		snprintf(button_labels[i], sizeof(button_labels[i]),
+		         "%c", key);
+	}
+
+	buttons[i + 2].type = TOUCH_BUTTON_END;
+
+	curr_buttons = buttons;
 }

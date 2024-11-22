@@ -152,6 +152,7 @@ static bool getnet(void)
 		swputs("Key: L - listen for connection\n");
 		swputs("     C - connect to remote host\n");
 
+		Vid_ShowTouchKeys("LC");
 		Vid_Update();
 
 		swsndupdate();
@@ -181,6 +182,7 @@ static bool getskill(void)
 		swputs("Key: N - novice player\n");
 		swputs("     E - expert player\n");
 
+		Vid_ShowTouchKeys("NE");
 		Vid_Update();
 
 		swsndupdate();
@@ -215,13 +217,16 @@ void getgamemode(void)
 		swputs("     N - network game\n");
 #endif
 		swputs("     O - game options\n");
-#ifndef NO_EXIT
-		swputs("     Q - quit game\n");
-#endif
 #ifdef __EMSCRIPTEN__
 		swputs("     M - open manual\n");
 		swputs("     I - install as app\n");
 #endif
+#ifndef NO_EXIT
+		swputs("     Q - quit game\n");
+#endif
+		// TODO: We should only show the buttons for the options that
+		// are present above.
+		Vid_ShowTouchKeys("SCNOMIQ");
 		Vid_Update();
 
 		if (ctlbreak()) {

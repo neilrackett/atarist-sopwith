@@ -130,5 +130,7 @@ struct touch_button {
 extern void Vid_DrawTouchControls(void);
 extern const struct touch_button *Vid_GetTouchButton(int x, int y);
 extern void Vid_TouchButtonPress(const struct touch_button *b, bool pressed);
+extern void Vid_ShowTouchGameControls(void);
+extern void Vid_ShowTouchKeys(const char *keys);
 
 #endif

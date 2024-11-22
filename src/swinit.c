@@ -1028,6 +1028,8 @@ void swinitlevel(void)
 		currgame = &original_level;
 	}
 
+	Vid_ShowTouchGameControls();
+
 	// clear out any waiting keys. this stops, eg. 's' on the
 	// menu from toggling sound once the game starts
 	Vid_GetGameKeys();

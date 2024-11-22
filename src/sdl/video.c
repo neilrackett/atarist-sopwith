@@ -754,6 +754,7 @@ static void FingerDown(SDL_TouchFingerEvent *ev)
 
 static void FingerUp(SDL_TouchFingerEvent *ev)
 {
+	SDL_Keysym fake = {0};
 	const struct touch_button *b;
 
 	if (!ValidFinger(ev)) {
@@ -771,6 +772,12 @@ static void FingerUp(SDL_TouchFingerEvent *ev)
 	case TOUCH_BUTTON_CLOSE:
 		touch_area_enabled = false;
 		Vid_Reset();
+		break;
+
+	case TOUCH_BUTTON_KEYPRESS:
+		fake.sym = b->param;
+		fake.scancode = SDL_SCANCODE_UNKNOWN;
+		InputBufferPush(fake);
 		break;
 
 	default:

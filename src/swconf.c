@@ -309,6 +309,9 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 {
 	int i, y, keynum, said_key = 0;
 	int title_len = strlen(title), x = 19 - title_len / 2;
+	char buttons[32];
+	int num_buttons = 0;
+
 	Vid_ClearBuf();
 
 	// Planes on the menus look decorative but serve a real
@@ -361,6 +364,11 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 			++y;
 		}
 
+		if (num_buttons < sizeof(buttons) - 1) {
+			buttons[num_buttons] = key;
+			++num_buttons;
+		}
+
 		swposcur(28, 5+y);
 		opt = ConfOptionByName(menu[i].config_name);
 		if (opt == NULL) {
@@ -382,6 +390,9 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 			break;
 		}
 	}
+
+	buttons[num_buttons] = '\0';
+	Vid_ShowTouchKeys(buttons);
 
 	swcolor(1);
 
