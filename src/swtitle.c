@@ -148,6 +148,7 @@ static bool gethost(void)
 static bool getnet(void)
 {
 	for (;;) {
+		swtitln();
 		clrprmpt();
 		swputs("Key: L - listen for connection\n");
 		swputs("     C - connect to remote host\n");
@@ -178,6 +179,7 @@ static bool getnet(void)
 static bool getskill(void)
 {
 	for (;;) {
+		swtitln();
 		clrprmpt();
 		swputs("Key: N - novice player\n");
 		swputs("     E - expert player\n");
