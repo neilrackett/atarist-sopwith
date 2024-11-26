@@ -271,6 +271,12 @@ static const char *obtype_names[] = {
 	"FLOCK", "BIRD", "OX", "MISSILE", "STARBURST", "BALLOON", NULL,
 };
 
+static const char *transform_names[] = {
+       "NONE", "ROTATE90", "ROTATE180", "ROTATE270",
+       "FLIP", "FLIP_ROTATE90", "MIRROR", "MIRROR_ROTATE90",
+       YOCTON_ENUM_TRY_INDEX,
+};
+
 static const char *faction_names[] = {
 	"NONE", "PLAYER1", "PLAYER2", "PLAYER3", "PLAYER4", "PLAYER5",
 	"PLAYER6", "PLAYER7", "PLAYER8", NULL,
@@ -301,7 +307,7 @@ static void AddObject(original_ob_t *ob, struct yocton_object *yo)
 		YOCTON_VAR_INT(p, "orient", int, ob->orient);
 		YOCTON_VAR_INT(p, "territory_l", int, ob->territory_l);
 		YOCTON_VAR_INT(p, "territory_r", int, ob->territory_r);
-		YOCTON_VAR_INT(p, "transform", transform_t, ob->transform);
+		YOCTON_VAR_ENUM(p, "transform", ob->transform, transform_names);
 		YOCTON_VAR_ENUM(p, "type", ob->type, obtype_names);
 		YOCTON_VAR_ENUM(p, "faction", ob->faction, faction_names);
 
