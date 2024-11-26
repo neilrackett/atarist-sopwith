@@ -222,7 +222,7 @@ static original_ob_t original_targets[] = {
 	{TARGET,  409, 1, 0, 0, FACTION_PLAYER3},
 	{TARGET,  539, 1, 0, 0, FACTION_PLAYER3},
 	{PLANE,   588, 0, 0, 1154, FACTION_PLAYER3},
-	{TARGET,  685, 3, 0, 0, FACTION_PLAYER3, 6},
+	{TARGET,  685, 3, 0, 0, FACTION_PLAYER3, TRANSFORM_MIRROR},
 	{TARGET,  807, 0, 0, 0, FACTION_PLAYER3},
 	{TARGET,  934, 1, 0, 0, FACTION_PLAYER3},
 
@@ -237,7 +237,7 @@ static original_ob_t original_targets[] = {
 	{TARGET, 1440, 3, 0, 0, FACTION_PLAYER1},
 
 	// Player 2 base
-	{TARGET, 1550, 3, 0, 0, FACTION_PLAYER2, 6},
+	{TARGET, 1550, 3, 0, 0, FACTION_PLAYER2, TRANSFORM_MIRROR},
 	{OX,     1608, 0, 0, 0, FACTION_NONE},
 	{FLOCK,  1630, 0, 370, 2630, FACTION_NONE},
 	{PLANE,  1630, 1, 1155, 2089, FACTION_PLAYER7}, // Extra planes for multiplayer
@@ -249,7 +249,7 @@ static original_ob_t original_targets[] = {
 
 	// Right side of map -
 	{TARGET, 2159, 1, 0, 0, FACTION_PLAYER4},
-	{TARGET, 2279, 3, 0, 0, FACTION_PLAYER4, 6},
+	{TARGET, 2279, 3, 0, 0, FACTION_PLAYER4, TRANSFORM_MIRROR},
 	{TARGET, 2390, 3, 0, 0, FACTION_PLAYER4},
 	{PLANE,  2456, 1, 2089, 9999, FACTION_PLAYER4},
 	{TARGET, 2549, 0, 0, 0, FACTION_PLAYER4},
@@ -301,7 +301,7 @@ static void AddObject(original_ob_t *ob, struct yocton_object *yo)
 		YOCTON_VAR_INT(p, "orient", int, ob->orient);
 		YOCTON_VAR_INT(p, "territory_l", int, ob->territory_l);
 		YOCTON_VAR_INT(p, "territory_r", int, ob->territory_r);
-		YOCTON_VAR_INT(p, "transform", int, ob->transform);
+		YOCTON_VAR_INT(p, "transform", transform_t, ob->transform);
 		YOCTON_VAR_ENUM(p, "type", ob->type, obtype_names);
 		YOCTON_VAR_ENUM(p, "faction", ob->faction, faction_names);
 

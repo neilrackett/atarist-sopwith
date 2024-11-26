@@ -261,13 +261,24 @@ typedef enum {
 	NUM_FACTIONS,
 } faction_t;
 
+typedef enum {
+	TRANSFORM_NONE,
+	TRANSFORM_ROTATE90,
+	TRANSFORM_ROTATE180,
+	TRANSFORM_ROTATE270,
+	TRANSFORM_FLIP,
+	TRANSFORM_FLIP_ROTATE90,
+	TRANSFORM_MIRROR,
+	TRANSFORM_MIRROR_ROTATE90,
+} transform_t;
+
 typedef struct {
 	obtype_t type;
 	int x;
 	int orient;
 	int territory_l, territory_r;    /* Computer plane territory */
 	faction_t faction;
-	int transform;                   /* Rotation/mirroring */
+	transform_t transform;           /* Rotation/mirroring */
 } original_ob_t;
 
 typedef struct obj {                            /*  Object list             */
