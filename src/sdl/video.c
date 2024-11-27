@@ -28,6 +28,12 @@
 
 #define INPUT_BUFFER_LEN 32
 
+void Vid_ControllerButtonDown(SDL_ControllerButtonEvent *event);
+void Vid_ControllerButtonUp(SDL_ControllerButtonEvent *event);
+void Vid_ControllerAdded(SDL_ControllerDeviceEvent *event);
+void Vid_ControllerRemoved(SDL_ControllerDeviceEvent *event);
+void Vid_ControllerInit(void);
+
 struct palette {
 	char name[13]; // Up to 12 characters will display correctly on the menu
 	SDL_Color color[4];
@@ -537,6 +543,8 @@ void Vid_Init(void)
 
 	atexit(Vid_Shutdown);
 
+	Vid_ControllerInit();
+
 	SDL_LockSurface(screenbuf);
 }
 
@@ -862,6 +870,22 @@ static void GetEvents(void)
 
 		case SDL_FINGERMOTION:
 			FingerMove(&event.tfinger);
+			break;
+
+		case SDL_CONTROLLERBUTTONDOWN:
+			Vid_ControllerButtonDown(&event.cbutton);
+			break;
+
+		case SDL_CONTROLLERBUTTONUP:
+			Vid_ControllerButtonUp(&event.cbutton);
+			break;
+
+		case SDL_CONTROLLERDEVICEADDED:
+			Vid_ControllerAdded(&event.cdevice);
+			break;
+
+		case SDL_CONTROLLERDEVICEREMOVED:
+			Vid_ControllerRemoved(&event.cdevice);
 			break;
 		}
 	}

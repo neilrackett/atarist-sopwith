@@ -43,6 +43,7 @@ enum gamekey {
 #define KEYDOWN_KEYBOARD     (1 << 0)
 #define KEYDOWN_WAS_PRESSED  (1 << 1)
 #define KEYDOWN_TOUCH        (1 << 2)
+#define KEYDOWN_GAMEPAD      (1 << 3)
 
 extern int keysdown[NUM_KEYS];
 extern int keybindings[NUM_KEYS];
