@@ -688,7 +688,7 @@ static void KeyDown(SDL_KeyboardEvent *event)
 
 	translated = TranslateScancode(event->keysym.scancode);
 	if (translated != KEY_UNKNOWN) {
-		keysdown[translated] |= 3;
+		keysdown[translated] |= KEYDOWN_KEYBOARD | KEYDOWN_WAS_PRESSED;
 	}
 }
 
@@ -696,7 +696,7 @@ static void KeyUp(SDL_KeyboardEvent *event)
 {
 	enum gamekey translated = TranslateScancode(event->keysym.scancode);
 	if (translated != KEY_UNKNOWN) {
-		keysdown[translated] &= ~1;
+		keysdown[translated] &= ~KEYDOWN_KEYBOARD;
 	}
 }
 
@@ -744,7 +744,7 @@ static void FingerDown(SDL_TouchFingerEvent *ev)
 
 	switch (b->type) {
 	case TOUCH_BUTTON_GAME_KEY:
-		keysdown[b->param] |= 6;
+		keysdown[b->param] |= KEYDOWN_TOUCH | KEYDOWN_WAS_PRESSED;
 		break;
 
 	default:
@@ -766,7 +766,7 @@ static void FingerUp(SDL_TouchFingerEvent *ev)
 	}
 	switch (b->type) {
 	case TOUCH_BUTTON_GAME_KEY:
-		keysdown[b->param] &= ~4;
+		keysdown[b->param] &= ~KEYDOWN_TOUCH;
 		break;
 
 	case TOUCH_BUTTON_CLOSE:

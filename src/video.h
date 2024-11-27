@@ -37,15 +37,12 @@ enum gamekey {
 	NUM_KEYS,
 };
 
-// which keys are currently down
-// this is actually a simple bitfield
-// bit 0 is whether the button is currently down
-// bit 1 is whether the button has been pressed
-//       since the last call of Vid_GetGameKeys
-// in this way, every button press will have an effect:
-// if it is done based on what is currently down it is
-// possible to miss keypresses (if you press and release
-// a button fast enough)
+// Which keys are currently down or have been pressed since the last call
+// to Vid_GetGameKeys:
+
+#define KEYDOWN_KEYBOARD     (1 << 0)
+#define KEYDOWN_WAS_PRESSED  (1 << 1)
+#define KEYDOWN_TOUCH        (1 << 2)
 
 extern int keysdown[NUM_KEYS];
 extern int keybindings[NUM_KEYS];

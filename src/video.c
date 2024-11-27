@@ -94,7 +94,7 @@ int Vid_GetGameKeys(void)
 
 	// clear bits in key array
 	for (i=0; i<NUM_KEYS; ++i) {
-		keysdown[i] &= ~2;
+		keysdown[i] &= ~KEYDOWN_WAS_PRESSED;
 	}
 
 	return c;
