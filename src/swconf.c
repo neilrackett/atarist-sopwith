@@ -81,6 +81,15 @@ static const struct conf_option confoptions[] = {
 	{"key_home",       CONF_KEY, {&keybindings[KEY_HOME]}},
 	{"key_missile",    CONF_KEY, {&keybindings[KEY_MISSILE]}},
 	{"key_starburst",  CONF_KEY, {&keybindings[KEY_STARBURST]}},
+
+	{"controller_accelerate", CONF_INT, {&controller_bindings[KEY_ACCEL]}},
+	{"controller_decelerate", CONF_INT, {&controller_bindings[KEY_DECEL]}},
+	{"controller_pullup",     CONF_INT, {&controller_bindings[KEY_PULLUP]}},
+	{"controller_pulldown",   CONF_INT, {&controller_bindings[KEY_PULLDOWN]}},
+	{"controller_flip",       CONF_INT, {&controller_bindings[KEY_FLIP]}},
+	{"controller_fire",       CONF_INT, {&controller_bindings[KEY_FIRE]}},
+	{"controller_dropbomb",   CONF_INT, {&controller_bindings[KEY_BOMB]}},
+	{"controller_home",       CONF_INT, {&controller_bindings[KEY_HOME]}},
 };
 
 static void Chomp(char *s)
@@ -236,7 +245,7 @@ void swsaveconf(void)
 	            "# Created by " PACKAGE_STRING "\n\n");
 
 	for (i = 0; i < arrlen(confoptions); ++i) {
-		fprintf(fs, "%-20s", confoptions[i].name);
+		fprintf(fs, "%-25s ", confoptions[i].name);
 		switch (confoptions[i].type) {
 		case CONF_BOOL:
 			fprintf(fs, "%d", *confoptions[i].value.b);

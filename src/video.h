@@ -47,6 +47,7 @@ enum gamekey {
 
 extern int keysdown[NUM_KEYS];
 extern int keybindings[NUM_KEYS];
+extern int controller_bindings[NUM_KEYS];
 
 extern bool vid_fullscreen;
 extern uint8_t *vid_vram;
