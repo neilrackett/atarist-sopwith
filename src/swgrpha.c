@@ -12,6 +12,9 @@
 //        swgrph   -      SW screen graphics
 //
 
+#include <stdarg.h>
+
+#include "timer.h"
 #include "video.h"
 
 #include "sw.h"
@@ -23,6 +26,21 @@
 #include "swsplat.h"
 #include "swstbar.h"
 #include "swtext.h"
+
+#define NOTIFICATION_BUF_SIZE ((SCR_WDTH / 8) + 1)
+#define NOTIFICATION_TIME_MS  2000
+
+static char notification_buf[NOTIFICATION_BUF_SIZE] = "";
+static int notification_time;
+
+void Notification(const char *s, ...)
+{
+	va_list args;
+	va_start(args, s);
+	vsnprintf(notification_buf, sizeof(notification_buf), s, args);
+	va_end(args);
+	notification_time = Timer_GetMS();
+}
 
 void swground(GRNDTYPE *gptr, int x)
 {
@@ -150,6 +168,12 @@ void swdisp(void)
 	}
 
 	swground(ground, displx);
+
+	if (Timer_GetMS() - notification_time < NOTIFICATION_TIME_MS) {
+		swposcur(0, 0);
+		swcolor(3);
+		swputs(notification_buf);
+	}
 
 	// need to update the screen as we arent writing
 	// directly into vram any more

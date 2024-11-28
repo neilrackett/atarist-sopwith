@@ -25,4 +25,6 @@ extern void swinitgrph(void);
 
 extern void colorscreen(int color);
 
+void Notification(const char *s, ...);
+
 #endif

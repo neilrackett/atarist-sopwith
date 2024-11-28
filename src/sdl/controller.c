@@ -14,6 +14,7 @@
 #include <SDL.h>
 
 #include "sw.h"
+#include "swgrpha.h"
 #include "video.h"
 
 int controller_bindings[NUM_KEYS] = {
@@ -91,6 +92,7 @@ void Vid_ControllerAdded(SDL_ControllerDeviceEvent *event)
 	controller = SDL_GameControllerOpen(event->which);
 	controller_id = SDL_JoystickInstanceID(
 		SDL_GameControllerGetJoystick(controller));
+	Notification("Connected %s", SDL_GameControllerName(controller));
 }
 
 void Vid_ControllerRemoved(SDL_ControllerDeviceEvent *event)
@@ -100,6 +102,7 @@ void Vid_ControllerRemoved(SDL_ControllerDeviceEvent *event)
 	}
 	SDL_GameControllerClose(controller);
 	controller = NULL;
+	Notification("Controller disconnected");
 }
 
 void Vid_ControllerInit(void)
