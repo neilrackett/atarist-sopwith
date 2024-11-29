@@ -31,6 +31,8 @@ struct conf_option {
 	} value;
 };
 
+extern const struct conf_option *ConfOptionByName(const char *name);
+
 extern void swloadconf(void);
 extern void swsaveconf(void);
 extern void setconfig(void);          // config menu

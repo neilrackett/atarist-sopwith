@@ -32,6 +32,7 @@ COMMON_SOURCES =                   \
         sw.h                       \
         swinit.c     swinit.h      \
         swmain.c     swmain.h      \
+        swmenu.c     swmenu.h      \
         swmove.c     swmove.h      \
         swobject.c   swobject.h    \
         swsound.c    swsound.h     \
