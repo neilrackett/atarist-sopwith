@@ -88,7 +88,7 @@ void swgets(char *s, int max)
 		unsigned char c;
 
 		// erase background from previous write
-		Vid_Box(or_x * 8, SCR_HGHT - (or_y) * 8 + 1,
+		Vid_Box(or_x * 8, SCR_HGHT - (or_y) * 8 - 1,
 		        erase_len * 8, 8, 0);
 
 		cur_x = or_x;
