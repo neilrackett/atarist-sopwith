@@ -190,34 +190,28 @@ static enum menu_action getnet(const struct menuitem *item)
 }
 #endif
 
-// sdh: get single player skill level
-static enum menu_action getskill(const struct menuitem *item)
+static enum menu_action StartNovice(const struct menuitem *item)
 {
-	for (;;) {
-		swtitln();
-		clrprmpt();
-		swputs("Key: N - novice player\n");
-		swputs("     E - expert player\n");
-
-		Vid_ShowTouchKeys("NE");
-		Vid_Update();
-
-		swsndupdate();
-		if (ctlbreak()) {
-			swend(NULL, false);
-		}
-		switch (toupper(swgetc() & 0xff)) {
-		case 'N':
-			playmode = PLAYMODE_NOVICE;
-			return MENU_ACTION_RETURN;
-		case 'E':
-			playmode = PLAYMODE_SINGLE;
-			return MENU_ACTION_RETURN;
-		case 27:
-			return MENU_ACTION_NONE;
-		}
-	}
+	playmode = PLAYMODE_NOVICE;
+	return MENU_ACTION_RETURN;
 }
+
+static enum menu_action StartExpert(const struct menuitem *item)
+{
+	playmode = PLAYMODE_SINGLE;
+	return MENU_ACTION_RETURN;
+}
+
+static const struct menuitem single_player_menu_items[] = {
+	{'N', "novice player", StartNovice},
+	{'E', "expert player", StartExpert},
+	{0, NULL},
+};
+
+static const struct menu single_player_menu = {
+	TitleScreenBackground, NULL,
+	single_player_menu_items,
+};
 
 static enum menu_action StartVsComputer(const struct menuitem *item)
 {
@@ -255,7 +249,7 @@ static enum menu_action QuitGame(const struct menuitem *item)
 #endif
 
 static const struct menuitem main_menu_items[] = {
-	{'S', "single player", getskill},
+	{'S', "single player", SubMenu, &single_player_menu},
 	{'C', "single player versus computer", StartVsComputer},
 #ifdef TCPIP
 	{'N', "network game", getnet},
