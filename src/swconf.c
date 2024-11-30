@@ -267,7 +267,7 @@ void swsaveconf(void)
 	fclose(fs);
 }
 
-static const struct menuitem keys_menu[] = {
+static const struct menuitem keys_menu_items[] = {
 	{'1', "Accelerate",       "key_accelerate"},
 	{'1', "Decelerate",       "key_decelerate"},
 	{'1', "Pull up",          "key_pullup"},
@@ -279,7 +279,11 @@ static const struct menuitem keys_menu[] = {
 	{0,   NULL},
 };
 
-static const struct menuitem options_menu[] = {
+static const struct menu keys_menu = {
+	keys_menu_items,
+};
+
+static const struct menuitem options_menu_items[] = {
 #ifndef NO_FULLSCREEN
 	{'1', "Run fullscreen",          "vid_fullscreen"},
 #endif
@@ -296,14 +300,18 @@ static const struct menuitem options_menu[] = {
 	{0,   NULL},
 };
 
+static const struct menu options_menu = {
+	options_menu_items,
+};
+
 void setconfig(void)
 {
 	for (;;) {
-		switch (RunMenu("OPTIONS", options_menu)) {
+		switch (RunMenu("OPTIONS", &options_menu)) {
 			case 0:
 				return;
 			case 'K':
-				RunMenu("OPTIONS > KEY BINDINGS", keys_menu);
+				RunMenu("OPTIONS > KEY BINDINGS", &keys_menu);
 				break;
 		}
 	}

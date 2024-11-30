@@ -18,4 +18,8 @@ struct menuitem {
 	char *config_name;
 };
 
-int RunMenu(const char *title, const struct menuitem *menu);
+struct menu {
+	const struct menuitem *items;
+};
+
+int RunMenu(const char *title, const struct menu *menu);

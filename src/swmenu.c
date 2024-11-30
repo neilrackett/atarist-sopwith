@@ -73,8 +73,9 @@ static void ChangeKeyBinding(const struct menuitem *item)
 	*opt->value.i = key;
 }
 
-static void DrawMenu(const char *title, const struct menuitem *menu)
+static void DrawMenu(const char *title, const struct menu *menu)
 {
+	const struct menuitem *items = menu->items;
 	int i, y, keynum, said_key = 0;
 	int title_len = strlen(title), x = 19 - title_len / 2;
 	char buttons[32];
@@ -96,17 +97,17 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 
 	swcolor(3);
 
-	for (i=0, y=0, keynum=0; menu[i].label != NULL; ++i, ++y) {
+	for (i=0, y=0, keynum=0; items[i].label != NULL; ++i, ++y) {
 		const struct conf_option *opt;
 		char *suffix;
 		char buf[40];
 		int key;
 
-		if (strlen(menu[i].label) == 0) {
+		if (strlen(items[i].label) == 0) {
 			continue;
 		}
 
-		key = menu[i].key;
+		key = items[i].key;
 		suffix = "";
 
 		if (key == '1') {
@@ -120,13 +121,13 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 				said_key = 1;
 			}
 		}
-		if (strstr(menu[i].label, ">>>")) {
+		if (strstr(items[i].label, ">>>")) {
 			swcolor(2);
 		} else {
 			swcolor(3);
 		}
 		snprintf(buf, sizeof(buf), "%c - %s%s",
-		         key, menu[i].label, suffix);
+		         key, items[i].label, suffix);
 
 		swposcur(5, 5+y);
 		swputs(buf);
@@ -140,12 +141,12 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 			buttons[num_buttons] = key;
 			++num_buttons;
 		}
-		if (menu[i].config_name == NULL) {
+		if (items[i].config_name == NULL) {
 			continue;
 		}
 
 		swposcur(28, 5+y);
-		opt = ConfOptionByName(menu[i].config_name);
+		opt = ConfOptionByName(items[i].config_name);
 		if (opt == NULL) {
 			continue;
 		}
@@ -177,27 +178,28 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 	Vid_Update();
 }
 
-static const struct menuitem *MenuItemForKey(const struct menuitem *menu,
+static const struct menuitem *MenuItemForKey(const struct menu *menu,
                                              int key)
 {
+	const struct menuitem *items = menu->items;
 	int i, keynum;
 
 	if (key <= 0) {
 		return NULL;
 	}
 
-	for (i=0, keynum=0; menu[i].label != NULL; ++i) {
+	for (i=0, keynum=0; items[i].label != NULL; ++i) {
 		int itemkey;
-		if (menu[i].key == 0) {
+		if (items[i].key == 0) {
 			continue;
-		} else if (menu[i].key == '1') {
+		} else if (items[i].key == '1') {
 			itemkey = menukeys[keynum];
 			++keynum;
 		} else {
-			itemkey = menu[i].key;
+			itemkey = items[i].key;
 		}
 		if (key == itemkey) {
-			return &menu[i];
+			return &items[i];
 		}
 	}
 
@@ -207,7 +209,7 @@ static const struct menuitem *MenuItemForKey(const struct menuitem *menu,
 // Present the given menu to the user. Returns zero if escape was pushed
 // to exit the menu, or if a >jump item was chosen, it returns the key
 // binding associated with it.
-int RunMenu(const char *title, const struct menuitem *menu)
+int RunMenu(const char *title, const struct menu *menu)
 {
 	const struct menuitem *pressed;
 	const struct conf_option *opt;
