@@ -152,42 +152,34 @@ static bool gethost(void)
 }
 
 #ifdef TCPIP
-// network menu
-static enum menu_action getnet(const struct menuitem *item)
+static enum menu_action StartNetgameListen(const struct menuitem *item)
 {
-	for (;;) {
-		swtitln();
-		clrprmpt();
-		swputs("Key: L - listen for connection\n");
-		swputs("     C - connect to remote host\n");
+	playmode = PLAYMODE_ASYNCH;
+	asynmode = ASYN_LISTEN;
+	return MENU_ACTION_RETURN;
+}
 
-		Vid_ShowTouchKeys("LC");
-		Vid_Update();
-
-		swsndupdate();
-
-		if (ctlbreak()) {
-			swend(NULL, false);
-		}
-
-		switch (toupper(swgetc() & 0xff)) {
-		case 'L':
-			playmode = PLAYMODE_ASYNCH;
-			asynmode = ASYN_LISTEN;
-			return MENU_ACTION_RETURN;
-		case 'C':
-			if (gethost()) {
-				playmode = PLAYMODE_ASYNCH;
-				asynmode = ASYN_CONNECT;
-				return MENU_ACTION_RETURN;
-			} else {
-				return MENU_ACTION_NONE;
-			}
-		case 27:
-			return MENU_ACTION_NONE;
-		}
+static enum menu_action StartNetgameConnect(const struct menuitem *item)
+{
+	if (gethost()) {
+		playmode = PLAYMODE_ASYNCH;
+		asynmode = ASYN_CONNECT;
+		return MENU_ACTION_RETURN;
+	} else {
+		return MENU_ACTION_NONE;
 	}
 }
+
+static const struct menuitem netgame_menu_items[] = {
+	{'L', "listen for connection",  StartNetgameListen},
+	{'C', "connect to remote host", StartNetgameConnect},
+	{0, NULL},
+};
+
+static const struct menu netgame_menu = {
+	TitleScreenBackground, NULL,
+	netgame_menu_items,
+};
 #endif
 
 static enum menu_action StartNovice(const struct menuitem *item)
@@ -252,7 +244,7 @@ static const struct menuitem main_menu_items[] = {
 	{'S', "single player", SubMenu, &single_player_menu},
 	{'C', "single player versus computer", StartVsComputer},
 #ifdef TCPIP
-	{'N', "network game", getnet},
+	{'N', "network game", SubMenu, &netgame_menu},
 #endif
 	{'O', "game options", OpenOptionsMenu},
 #ifdef __EMSCRIPTEN__
