@@ -30,6 +30,8 @@
 #include "swtitle.h"
 #include "swmain.h"
 
+#define CONFIG_SETTING_COLUMN  28
+
 static const char menukeys[] = "1234567890ABCDEFGHIJKL";
 
 static void ChangeKeyBinding(const struct menuitem *item)
@@ -139,6 +141,13 @@ void FullscreenBackground(void *_title)
 static void DrawConfigOption(const struct menuitem *item)
 {
 	const struct conf_option *opt;
+	int x, y;
+
+	GetCursorPosition(&x, &y);
+	if (x >= CONFIG_SETTING_COLUMN) {
+		++y;
+	}
+	swposcur(CONFIG_SETTING_COLUMN, y);
 
 	opt = ConfOptionByName(item->user_data);
 	if (opt == NULL) {
@@ -164,7 +173,7 @@ static void DrawConfigOption(const struct menuitem *item)
 static void DrawMenu(const struct menu *menu)
 {
 	const struct menuitem *items = menu->items;
-	int i, base_y, y, keynum;
+	int i, y, keynum;
 	char buttons[32];
 	int num_buttons = 0;
 
@@ -175,15 +184,15 @@ static void DrawMenu(const struct menu *menu)
 		menu->draw_background(menu->draw_background_data);
 	}
 
-	GetCursorPosition(NULL, &base_y);
 	swcolor(3);
 
-	for (i=0, y=0, keynum=0; items[i].label != NULL; ++i, ++y) {
+	for (i=0, keynum=0; items[i].label != NULL; ++i) {
 		char *prefix, *suffix;
 		char buf[40];
 		int key;
 
 		if (strlen(items[i].label) == 0) {
+			swputs("\n");
 			continue;
 		}
 
@@ -204,13 +213,10 @@ static void DrawMenu(const struct menu *menu)
 		snprintf(buf, sizeof(buf), "%-5s%c - %s%s",
 		         prefix, key, items[i].label, suffix);
 
-		swposcur(0, base_y + y);
+		GetCursorPosition(NULL, &y);
+		swposcur(0, y);
 		swputs(buf);
 		swcolor(3);
-
-		if (strlen(buf) > 27) {
-			++y;
-		}
 
 		if (num_buttons < sizeof(buttons) - 1) {
 			buttons[num_buttons] = key;
@@ -220,9 +226,9 @@ static void DrawMenu(const struct menu *menu)
 			continue;
 		}
 		if (items[i].callback == ToggleConfigOption) {
-			swposcur(28, base_y + y);
 			DrawConfigOption(&items[i]);
 		}
+		swputs("\n");
 	}
 
 	buttons[num_buttons] = '\0';
