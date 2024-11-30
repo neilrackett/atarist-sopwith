@@ -143,6 +143,16 @@ void swposcur(int a, int b)
 	cur_y = b;
 }
 
+void GetCursorPosition(int *x, int *y)
+{
+	if (x != NULL) {
+		*x = cur_x;
+	}
+	if (y != NULL) {
+		*y = cur_y;
+	}
+}
+
 int swgetc(void)
 {
 	int i;

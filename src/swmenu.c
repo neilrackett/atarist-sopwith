@@ -130,6 +130,8 @@ void FullscreenBackground(void *_title)
 
 	swposcur(1, 22);
 	swputs("   ESC - Exit Menu");
+
+	swposcur(0, 5);
 }
 
 static void DrawConfigOption(const struct menuitem *item)
@@ -160,20 +162,22 @@ static void DrawConfigOption(const struct menuitem *item)
 static void DrawMenu(const struct menu *menu)
 {
 	const struct menuitem *items = menu->items;
-	int i, y, keynum, said_key = 0;
+	int i, base_y, y, keynum;
 	char buttons[32];
 	int num_buttons = 0;
 
 	Vid_ClearBuf();
+	swposcur(0, 0);
 
 	if (menu->draw_background != NULL) {
 		menu->draw_background(menu->draw_background_data);
 	}
 
+	GetCursorPosition(NULL, &base_y);
 	swcolor(3);
 
 	for (i=0, y=0, keynum=0; items[i].label != NULL; ++i, ++y) {
-		char *suffix;
+		char *prefix, *suffix;
 		char buf[40];
 		int key;
 
@@ -182,32 +186,27 @@ static void DrawMenu(const struct menu *menu)
 		}
 
 		key = items[i].key;
+		prefix = i == 0 ? "Key:" : "";
 		suffix = "";
 
 		if (key == '1') {
 			key = menukeys[keynum];
 			++keynum;
 			suffix = ":";
-
-			if (!said_key) {
-				swposcur(0, 5+y);
-				swputs("Key:");
-				said_key = 1;
-			}
 		}
 		if (strstr(items[i].label, ">>>")) {
 			swcolor(2);
 		} else {
 			swcolor(3);
 		}
-		snprintf(buf, sizeof(buf), "%c - %s%s",
-		         key, items[i].label, suffix);
+		snprintf(buf, sizeof(buf), "%-5s%c - %s%s",
+		         prefix, key, items[i].label, suffix);
 
-		swposcur(5, 5+y);
+		swposcur(0, base_y + y);
 		swputs(buf);
 		swcolor(3);
 
-		if (strlen(buf) > 22) {
+		if (strlen(buf) > 27) {
 			++y;
 		}
 
@@ -219,7 +218,7 @@ static void DrawMenu(const struct menu *menu)
 			continue;
 		}
 		if (items[i].callback == ToggleConfigOption) {
-			swposcur(28, 5+y);
+			swposcur(28, base_y + y);
 			DrawConfigOption(&items[i]);
 		}
 	}

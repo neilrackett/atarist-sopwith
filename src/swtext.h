@@ -19,6 +19,7 @@ extern void swputs(const char *sp );
 extern void swgets(char *s, int max);
 extern void swcolor(int a);
 extern void swposcur(int a, int b);
+extern void GetCursorPosition(int *x, int *y);
 extern int swgetc(void);
 extern void swflush(void);
 
