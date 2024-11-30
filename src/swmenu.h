@@ -12,10 +12,15 @@
 // Menu system for main menu and options menus
 //
 
+enum menu_action {
+	MENU_ACTION_NONE,
+	MENU_ACTION_RETURN,
+};
+
 struct menuitem {
 	char key;
 	char *label;
-	void (*callback)(const struct menuitem *item);
+	enum menu_action (*callback)(const struct menuitem *item);
 	const void *user_data;
 };
 
@@ -25,10 +30,10 @@ struct menu {
 	const struct menuitem *items;
 };
 
-void RunMenu(const struct menu *menu);
-void SubMenu(const struct menuitem *item);
+enum menu_action RunMenu(const struct menu *menu);
+enum menu_action SubMenu(const struct menuitem *item);
 void FullscreenBackground(void *title);
-void ToggleConfigOption(const struct menuitem *item);
+enum menu_action ToggleConfigOption(const struct menuitem *item);
 
 #define CONFIG_OPTION(label, config_name) \
 	{'1', label, ToggleConfigOption, config_name}

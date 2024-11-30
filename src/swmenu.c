@@ -74,14 +74,14 @@ static void ChangeKeyBinding(const struct menuitem *item)
 	*opt->value.i = key;
 }
 
-void ToggleConfigOption(const struct menuitem *item)
+enum menu_action ToggleConfigOption(const struct menuitem *item)
 {
 	const char *config_name = item->user_data;
 	const struct conf_option *opt;
 
 	opt = ConfOptionByName(config_name);
 	if (opt == NULL) {
-		return;
+		return MENU_ACTION_NONE;
 	}
 	switch (opt->type) {
 	case CONF_BOOL:
@@ -107,6 +107,8 @@ void ToggleConfigOption(const struct menuitem *item)
 	}
 
 	swsaveconf();
+
+	return MENU_ACTION_NONE;
 }
 
 void FullscreenBackground(void *_title)
@@ -257,14 +259,13 @@ static const struct menuitem *MenuItemForKey(const struct menu *menu,
 	return NULL;
 }
 
-
-
 // Present the given menu to the user. Returns zero if escape was pushed
 // to exit the menu, or if a >jump item was chosen, it returns the key
 // binding associated with it.
-void RunMenu(const struct menu *menu)
+enum menu_action RunMenu(const struct menu *menu)
 {
 	const struct menuitem *pressed;
+	enum menu_action result;
 	int key;
 
 	for (;;) {
@@ -276,7 +277,7 @@ void RunMenu(const struct menu *menu)
 
 		key = toupper(swgetc() & 0xff);
 		if (key == 27) {
-			return;
+			return MENU_ACTION_NONE;
 		}
 
 		// check if a number has been pressed for a menu option
@@ -284,13 +285,18 @@ void RunMenu(const struct menu *menu)
 		if (pressed == NULL) {
 			continue;
 		}
-		if (pressed->callback != NULL) {
-			pressed->callback(pressed);
+		if (pressed->callback == NULL) {
+			continue;
+		}
+
+		result = pressed->callback(pressed);
+		if (result == MENU_ACTION_RETURN) {
+			return MENU_ACTION_RETURN;
 		}
 	}
 }
 
-void SubMenu(const struct menuitem *item)
+enum menu_action SubMenu(const struct menuitem *item)
 {
-	RunMenu(item->user_data);
+	return RunMenu(item->user_data);
 }
