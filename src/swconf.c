@@ -280,6 +280,7 @@ static const struct menuitem keys_menu_items[] = {
 };
 
 static const struct menu keys_menu = {
+	FullscreenBackground, "OPTIONS",
 	keys_menu_items,
 };
 
@@ -301,17 +302,18 @@ static const struct menuitem options_menu_items[] = {
 };
 
 static const struct menu options_menu = {
+	FullscreenBackground, "OPTIONS > KEY BINDINGS",
 	options_menu_items,
 };
 
 void setconfig(void)
 {
 	for (;;) {
-		switch (RunMenu("OPTIONS", &options_menu)) {
+		switch (RunMenu(&options_menu)) {
 			case 0:
 				return;
 			case 'K':
-				RunMenu("OPTIONS > KEY BINDINGS", &keys_menu);
+				RunMenu(&keys_menu);
 				break;
 		}
 	}

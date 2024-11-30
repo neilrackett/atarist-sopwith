@@ -73,15 +73,10 @@ static void ChangeKeyBinding(const struct menuitem *item)
 	*opt->value.i = key;
 }
 
-static void DrawMenu(const char *title, const struct menu *menu)
+void FullscreenBackground(void *_title)
 {
-	const struct menuitem *items = menu->items;
-	int i, y, keynum, said_key = 0;
+	const char *title = _title;
 	int title_len = strlen(title), x = 19 - title_len / 2;
-	char buttons[32];
-	int num_buttons = 0;
-
-	Vid_ClearBuf();
 
 	// Planes on the menus look decorative but serve a real
 	// purpose: they give you an impression of what the game will
@@ -94,6 +89,25 @@ static void DrawMenu(const char *title, const struct menu *menu)
 	swcolor(2);
 	swposcur(x, 2);
 	swputs(title);
+
+	swcolor(1);
+
+	swposcur(1, 22);
+	swputs("   ESC - Exit Menu");
+}
+
+static void DrawMenu(const struct menu *menu)
+{
+	const struct menuitem *items = menu->items;
+	int i, y, keynum, said_key = 0;
+	char buttons[32];
+	int num_buttons = 0;
+
+	Vid_ClearBuf();
+
+	if (menu->draw_background != NULL) {
+		menu->draw_background(menu->draw_background_data);
+	}
 
 	swcolor(3);
 
@@ -170,11 +184,6 @@ static void DrawMenu(const char *title, const struct menu *menu)
 	buttons[num_buttons] = '\0';
 	Vid_ShowTouchKeys(buttons);
 
-	swcolor(1);
-
-	swposcur(1, 22);
-	swputs("   ESC - Exit Menu");
-
 	Vid_Update();
 }
 
@@ -209,14 +218,14 @@ static const struct menuitem *MenuItemForKey(const struct menu *menu,
 // Present the given menu to the user. Returns zero if escape was pushed
 // to exit the menu, or if a >jump item was chosen, it returns the key
 // binding associated with it.
-int RunMenu(const char *title, const struct menu *menu)
+int RunMenu(const struct menu *menu)
 {
 	const struct menuitem *pressed;
 	const struct conf_option *opt;
 	int key;
 
 	for (;;) {
-		DrawMenu(title, menu);
+		DrawMenu(menu);
 
 		if (ctlbreak()) {
 			swend(NULL, false);

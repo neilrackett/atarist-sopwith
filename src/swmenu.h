@@ -19,7 +19,10 @@ struct menuitem {
 };
 
 struct menu {
+	void (*draw_background)(void *);
+	void *draw_background_data;
 	const struct menuitem *items;
 };
 
-int RunMenu(const char *title, const struct menu *menu);
+int RunMenu(const struct menu *menu);
+void FullscreenBackground(void *title);
