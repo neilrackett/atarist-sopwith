@@ -29,6 +29,7 @@
 #include "swgrpha.h"
 #include "swinit.h"
 #include "swmain.h"
+#include "swmenu.h"
 #include "swtext.h"
 #include "swsound.h"
 #include "swsymbol.h"
@@ -131,6 +132,12 @@ void clrprmpt(void)
 	swposcur(0, 20);
 }
 
+static void TitleScreenBackground(void *unused)
+{
+	swtitln();
+	clrprmpt();
+}
+
 static bool gethost(void)
 {
 	static char addrbuf[50];
@@ -144,8 +151,9 @@ static bool gethost(void)
 	return strcmp(addrbuf, "") != 0;
 }
 
+#ifdef TCPIP
 // network menu
-static bool getnet(void)
+static enum menu_action getnet(const struct menuitem *item)
 {
 	for (;;) {
 		swtitln();
@@ -164,19 +172,26 @@ static bool getnet(void)
 
 		switch (toupper(swgetc() & 0xff)) {
 		case 'L':
+			playmode = PLAYMODE_ASYNCH;
 			asynmode = ASYN_LISTEN;
-			return 1;
+			return MENU_ACTION_RETURN;
 		case 'C':
-			asynmode = ASYN_CONNECT;
-			return gethost();
+			if (gethost()) {
+				playmode = PLAYMODE_ASYNCH;
+				asynmode = ASYN_CONNECT;
+				return MENU_ACTION_RETURN;
+			} else {
+				return MENU_ACTION_NONE;
+			}
 		case 27:
-			return 0;
+			return MENU_ACTION_NONE;
 		}
 	}
 }
+#endif
 
 // sdh: get single player skill level
-static bool getskill(void)
+static enum menu_action getskill(const struct menuitem *item)
 {
 	for (;;) {
 		swtitln();
@@ -194,84 +209,76 @@ static bool getskill(void)
 		switch (toupper(swgetc() & 0xff)) {
 		case 'N':
 			playmode = PLAYMODE_NOVICE;
-			return 1;
+			return MENU_ACTION_RETURN;
 		case 'E':
 			playmode = PLAYMODE_SINGLE;
-			return 1;
+			return MENU_ACTION_RETURN;
 		case 27:
-			return 0;
+			return MENU_ACTION_NONE;
 		}
 	}
 }
 
+static enum menu_action StartVsComputer(const struct menuitem *item)
+{
+	playmode = PLAYMODE_COMPUTER;
+	return MENU_ACTION_RETURN;
+}
+
+// TODO: This function is unnecessary.
+static enum menu_action OpenOptionsMenu(const struct menuitem *item)
+{
+	setconfig();
+	return MENU_ACTION_NONE;
+}
+
+#ifdef __EMSCRIPTEN__
+static enum menu_action OpenManual(const struct menuitem *item)
+{
+	emscripten_run_script("openManual()");
+	return MENU_ACTION_NONE;
+}
+
+static enum menu_action InstallApp(const struct menuitem *item)
+{
+	emscripten_run_script("promptForInstall()");
+	return MENU_ACTION_NONE;
+}
+#endif
+
+#ifndef NO_EXIT
+static enum menu_action QuitGame(const struct menuitem *item)
+{
+	exit(0);
+	return MENU_ACTION_NONE;
+}
+#endif
+
+static const struct menuitem main_menu_items[] = {
+	{'S', "single player", getskill},
+	{'C', "single player versus computer", StartVsComputer},
+#ifdef TCPIP
+	{'N', "network game", getnet},
+#endif
+	{'O', "game options", OpenOptionsMenu},
+#ifdef __EMSCRIPTEN__
+	{'M', "open manual", OpenManual},
+	{'I', "install as app", InstallApp},
+#endif
+#ifndef NO_EXIT
+	{'Q', "quit game", QuitGame},
+#endif
+	{0, NULL},
+};
+
+static const struct menu main_menu = {
+	TitleScreenBackground, NULL,
+	main_menu_items,
+};
+
 void getgamemode(void)
 {
-	for (;;) {
-		char c;
-
-		swtitln();
-
-		clrprmpt();
-
-		swputs("Key: S - single player\n");
-		swputs("     C - single player against computer\n");
-#ifdef TCPIP
-		swputs("     N - network game\n");
-#endif
-		swputs("     O - game options\n");
-#ifdef __EMSCRIPTEN__
-		swputs("     M - open manual\n");
-		swputs("     I - install as app\n");
-#endif
-#ifndef NO_EXIT
-		swputs("     Q - quit game\n");
-#endif
-		// TODO: We should only show the buttons for the options that
-		// are present above.
-		Vid_ShowTouchKeys("SCNOMIQ");
-		Vid_Update();
-
-		if (ctlbreak()) {
-			swend(NULL, false);
-		}
-
-		c = toupper(swgetc() & 0xff);
-
-		switch (c) {
-		case 'S':
-			if (getskill()) {
-				return;
-			}
-			break;
-		case 'O':
-			setconfig();
-			break;
-		case 'C':
-			playmode = PLAYMODE_COMPUTER;
-			return;
-#ifdef TCPIP
-		case 'N':
-			if (getnet()) {
-				playmode = PLAYMODE_ASYNCH;
-				return;
-			}
-			break;
-#endif
-#ifndef NO_EXIT
-		case 'Q':
-			exit(0);
-			break;
-#endif
-#ifdef __EMSCRIPTEN__
-		case 'I':
-			emscripten_run_script("promptForInstall()");
-			break;
-		case 'M':
-			emscripten_run_script("openManual()");
-			break;
-#endif
-		}
-	}
+	RunMenu(&main_menu);
 }
 
 //
