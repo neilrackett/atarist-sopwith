@@ -13,8 +13,9 @@
 //
 
 struct menuitem {
+	char key;
+	char *label;
 	char *config_name;
-	char *description;
 };
 
 int RunMenu(const char *title, const struct menuitem *menu);

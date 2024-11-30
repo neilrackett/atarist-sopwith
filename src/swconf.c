@@ -268,32 +268,32 @@ void swsaveconf(void)
 }
 
 static const struct menuitem keys_menu[] = {
-	{"key_accelerate", "Accelerate"},
-	{"key_decelerate", "Decelerate"},
-	{"key_pullup",     "Pull up"},
-	{"key_pulldown",   "Pull down"},
-	{"key_flip",       "Flip"},
-	{"key_fire",       "Fire machine gun"},
-	{"key_dropbomb",   "Drop bomb"},
-	{"key_home",       "Navigate home"},
-	{NULL},
+	{'1', "Accelerate",       "key_accelerate"},
+	{'1', "Decelerate",       "key_decelerate"},
+	{'1', "Pull up",          "key_pullup"},
+	{'1', "Pull down",        "key_pulldown"},
+	{'1', "Flip",             "key_flip"},
+	{'1', "Fire machine gun", "key_fire"},
+	{'1', "Drop bomb",        "key_dropbomb"},
+	{'1', "Navigate home",    "key_home"},
+	{0,   NULL},
 };
 
 static const struct menuitem options_menu[] = {
 #ifndef NO_FULLSCREEN
-	{"vid_fullscreen",      "Run fullscreen"},
+	{'1', "Run fullscreen",          "vid_fullscreen"},
 #endif
-	{"conf_video_palette",  "Video palette"},
-	{"conf_solidground",    "Solid ground"},
-	{"conf_hudsplats",      "HUD splats"},
-	{"conf_wounded",        "Wounded planes"},
-	{"conf_animals",        "Oxen and birds"},
-	{"conf_big_explosions", "Big oil tank explosions"},
-	{"conf_medals",         "Medals"},
-	{"conf_harrykeys",      "Harry keys mode"},
-	{"",                    ""},
-	{">K",                  "Key bindings"},
-	{NULL},
+	{'1', "Video palette",           "conf_video_palette"},
+	{'1', "Solid ground",            "conf_solidground"},
+	{'1', "HUD splats",              "conf_hudsplats"},
+	{'1', "Wounded planes",          "conf_wounded"},
+	{'1', "Oxen and birds",          "conf_animals"},
+	{'1', "Big oil tank explosions", "conf_big_explosions"},
+	{'1', "Medals",                  "conf_medals"},
+	{'1', "Harry keys mode",         "conf_harrykeys"},
+	{0,   ""},
+	{'K', "Key bindings >>>"},
+	{0,   NULL},
 };
 
 void setconfig(void)

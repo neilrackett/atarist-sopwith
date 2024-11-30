@@ -45,7 +45,7 @@ static void ChangeKeyBinding(const struct menuitem *item)
 
 	swcolor(2);
 	swposcur(14, 7);
-	swputs(item->description);
+	swputs(item->label);
 
 	swcolor(1);
 	swposcur(1, 22);
@@ -96,21 +96,20 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 
 	swcolor(3);
 
-	for (i=0, y=0, keynum=0; menu[i].config_name != NULL; ++i, ++y) {
+	for (i=0, y=0, keynum=0; menu[i].label != NULL; ++i, ++y) {
 		const struct conf_option *opt;
 		char *suffix;
 		char buf[40];
 		int key;
 
-		if (strlen(menu[i].config_name) == 0) {
+		if (strlen(menu[i].label) == 0) {
 			continue;
 		}
 
-		if (menu[i].config_name[0] == '>') {
-			key = menu[i].config_name[1];
-			swcolor(1);
-			suffix = " >>>";
-		} else {
+		key = menu[i].key;
+		suffix = "";
+
+		if (key == '1') {
 			key = menukeys[keynum];
 			++keynum;
 			suffix = ":";
@@ -121,8 +120,13 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 				said_key = 1;
 			}
 		}
+		if (strstr(menu[i].label, ">>>")) {
+			swcolor(2);
+		} else {
+			swcolor(3);
+		}
 		snprintf(buf, sizeof(buf), "%c - %s%s",
-		         key, menu[i].description, suffix);
+		         key, menu[i].label, suffix);
 
 		swposcur(5, 5+y);
 		swputs(buf);
@@ -135,6 +139,9 @@ static void DrawMenu(const char *title, const struct menuitem *menu)
 		if (num_buttons < sizeof(buttons) - 1) {
 			buttons[num_buttons] = key;
 			++num_buttons;
+		}
+		if (menu[i].config_name == NULL) {
+			continue;
 		}
 
 		swposcur(28, 5+y);
@@ -175,15 +182,19 @@ static const struct menuitem *MenuItemForKey(const struct menuitem *menu,
 {
 	int i, keynum;
 
-	for (i=0, keynum=0; menu[i].config_name != NULL; ++i) {
+	if (key <= 0) {
+		return NULL;
+	}
+
+	for (i=0, keynum=0; menu[i].label != NULL; ++i) {
 		int itemkey;
-		if (strlen(menu[i].config_name) == 0) {
+		if (menu[i].key == 0) {
 			continue;
-		} else if (menu[i].config_name[0] == '>') {
-			itemkey = menu[i].config_name[1];
-		} else {
+		} else if (menu[i].key == '1') {
 			itemkey = menukeys[keynum];
 			++keynum;
+		} else {
+			itemkey = menu[i].key;
 		}
 		if (key == itemkey) {
 			return &menu[i];
@@ -220,8 +231,8 @@ int RunMenu(const char *title, const struct menuitem *menu)
 			continue;
 		}
 
-		if (pressed->config_name[0] == '>') {
-			return pressed->config_name[1];
+		if (pressed->config_name == NULL) {
+			return pressed->key;
 		}
 
 		opt = ConfOptionByName(pressed->config_name);
