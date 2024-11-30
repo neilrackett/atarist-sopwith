@@ -35,6 +35,7 @@ static const char menukeys[] = "1234567890ABCDEFGHIJKL";
 static void ChangeKeyBinding(const struct menuitem *item)
 {
 	const struct conf_option *opt;
+	const char *config_name = item->user_data;
 	int key;
 
 	Vid_ClearBuf();
@@ -66,11 +67,51 @@ static void ChangeKeyBinding(const struct menuitem *item)
 		return;
 	}
 
-	opt = ConfOptionByName(item->config_name);
+	opt = ConfOptionByName(config_name);
 	if (opt == NULL) {
 		return;
 	}
 	*opt->value.i = key;
+}
+
+void ReturnKeyValue(const struct menuitem *item)
+{
+	// This function is never actually called.
+}
+
+void ToggleConfigOption(const struct menuitem *item)
+{
+	const char *config_name = item->user_data;
+	const struct conf_option *opt;
+
+	opt = ConfOptionByName(config_name);
+	if (opt == NULL) {
+		return;
+	}
+	switch (opt->type) {
+	case CONF_BOOL:
+		*opt->value.b = !*opt->value.b;
+		break;
+	case CONF_INT:
+		// TODO: This should not be a special case.
+		if(!strcasecmp(opt->name, "conf_video_palette")) {
+			*opt->value.i = (*opt->value.i + 1) % Vid_GetNumVideoPalettes();
+			Vid_SetVideoPalette(*opt->value.i);
+		}
+		break;
+	case CONF_KEY:
+		ChangeKeyBinding(item);
+		break;
+	default:
+		break;
+	}
+
+	// reset the screen if we need to
+	if (opt->value.b == &vid_fullscreen) {
+		Vid_Reset();
+	}
+
+	swsaveconf();
 }
 
 void FullscreenBackground(void *_title)
@@ -96,6 +137,31 @@ void FullscreenBackground(void *_title)
 	swputs("   ESC - Exit Menu");
 }
 
+static void DrawConfigOption(const struct menuitem *item)
+{
+	const struct conf_option *opt;
+
+	opt = ConfOptionByName(item->user_data);
+	if (opt == NULL) {
+		return;
+	}
+	switch (opt->type) {
+	case CONF_BOOL:
+		swputs(*opt->value.b ? "on" : "off");
+		break;
+	case CONF_INT:
+		if(!strcasecmp(opt->name, "conf_video_palette")) {
+			swputs(Vid_GetVideoPaletteName(*opt->value.i));
+		}
+		break;
+	case CONF_KEY:
+		swputs(Vid_KeyName(*opt->value.i));
+		break;
+	default:
+		break;
+	}
+}
+
 static void DrawMenu(const struct menu *menu)
 {
 	const struct menuitem *items = menu->items;
@@ -112,7 +178,6 @@ static void DrawMenu(const struct menu *menu)
 	swcolor(3);
 
 	for (i=0, y=0, keynum=0; items[i].label != NULL; ++i, ++y) {
-		const struct conf_option *opt;
 		char *suffix;
 		char buf[40];
 		int key;
@@ -155,29 +220,12 @@ static void DrawMenu(const struct menu *menu)
 			buttons[num_buttons] = key;
 			++num_buttons;
 		}
-		if (items[i].config_name == NULL) {
+		if (strlen(items[i].label) == 0) {
 			continue;
 		}
-
-		swposcur(28, 5+y);
-		opt = ConfOptionByName(items[i].config_name);
-		if (opt == NULL) {
-			continue;
-		}
-		switch (opt->type) {
-		case CONF_BOOL:
-			swputs(*opt->value.b ? "on" : "off");
-			break;
-		case CONF_INT:
-			if(!strcasecmp(opt->name, "conf_video_palette")) {
-				swputs(Vid_GetVideoPaletteName(*opt->value.i));
-			}
-			break;
-		case CONF_KEY:
-			swputs(Vid_KeyName(*opt->value.i));
-			break;
-		default:
-			break;
+		if (items[i].callback == ToggleConfigOption) {
+			swposcur(28, 5+y);
+			DrawConfigOption(&items[i]);
 		}
 	}
 
@@ -215,13 +263,14 @@ static const struct menuitem *MenuItemForKey(const struct menu *menu,
 	return NULL;
 }
 
+
+
 // Present the given menu to the user. Returns zero if escape was pushed
 // to exit the menu, or if a >jump item was chosen, it returns the key
 // binding associated with it.
 int RunMenu(const struct menu *menu)
 {
 	const struct menuitem *pressed;
-	const struct conf_option *opt;
 	int key;
 
 	for (;;) {
@@ -241,37 +290,11 @@ int RunMenu(const struct menu *menu)
 		if (pressed == NULL) {
 			continue;
 		}
-
-		if (pressed->config_name == NULL) {
+		if (pressed->callback == ReturnKeyValue) {
+			// TODO: This should not be a special case.
 			return pressed->key;
+		} else if (pressed->callback != NULL) {
+			pressed->callback(pressed);
 		}
-
-		opt = ConfOptionByName(pressed->config_name);
-		if (opt == NULL) {
-			continue;
-		}
-		switch (opt->type) {
-		case CONF_BOOL:
-			*opt->value.b = !*opt->value.b;
-			break;
-		case CONF_INT:
-			if(!strcasecmp(opt->name, "conf_video_palette")) {
-				*opt->value.i = (*opt->value.i + 1) % Vid_GetNumVideoPalettes();
-				Vid_SetVideoPalette(*opt->value.i);
-			}
-			break;
-		case CONF_KEY:
-			ChangeKeyBinding(pressed);
-			break;
-		default:
-			break;
-		}
-
-		// reset the screen if we need to
-		if (opt->value.b == &vid_fullscreen) {
-			Vid_Reset();
-		}
-
-		swsaveconf();
 	}
 }

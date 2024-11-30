@@ -268,14 +268,14 @@ void swsaveconf(void)
 }
 
 static const struct menuitem keys_menu_items[] = {
-	{'1', "Accelerate",       "key_accelerate"},
-	{'1', "Decelerate",       "key_decelerate"},
-	{'1', "Pull up",          "key_pullup"},
-	{'1', "Pull down",        "key_pulldown"},
-	{'1', "Flip",             "key_flip"},
-	{'1', "Fire machine gun", "key_fire"},
-	{'1', "Drop bomb",        "key_dropbomb"},
-	{'1', "Navigate home",    "key_home"},
+	CONFIG_OPTION("Accelerate",       "key_accelerate"),
+	CONFIG_OPTION("Decelerate",       "key_decelerate"),
+	CONFIG_OPTION("Pull up",          "key_pullup"),
+	CONFIG_OPTION("Pull down",        "key_pulldown"),
+	CONFIG_OPTION("Flip",             "key_flip"),
+	CONFIG_OPTION("Fire machine gun", "key_fire"),
+	CONFIG_OPTION("Drop bomb",        "key_dropbomb"),
+	CONFIG_OPTION("Navigate home",    "key_home"),
 	{0,   NULL},
 };
 
@@ -286,18 +286,18 @@ static const struct menu keys_menu = {
 
 static const struct menuitem options_menu_items[] = {
 #ifndef NO_FULLSCREEN
-	{'1', "Run fullscreen",          "vid_fullscreen"},
+	CONFIG_OPTION("Run fullscreen",          "vid_fullscreen"),
 #endif
-	{'1', "Video palette",           "conf_video_palette"},
-	{'1', "Solid ground",            "conf_solidground"},
-	{'1', "HUD splats",              "conf_hudsplats"},
-	{'1', "Wounded planes",          "conf_wounded"},
-	{'1', "Oxen and birds",          "conf_animals"},
-	{'1', "Big oil tank explosions", "conf_big_explosions"},
-	{'1', "Medals",                  "conf_medals"},
-	{'1', "Harry keys mode",         "conf_harrykeys"},
+	CONFIG_OPTION("Video palette",           "conf_video_palette"),
+	CONFIG_OPTION("Solid ground",            "conf_solidground"),
+	CONFIG_OPTION("HUD splats",              "conf_hudsplats"),
+	CONFIG_OPTION("Wounded planes",          "conf_wounded"),
+	CONFIG_OPTION("Oxen and birds",          "conf_animals"),
+	CONFIG_OPTION("Big oil tank explosions", "conf_big_explosions"),
+	CONFIG_OPTION("Medals",                  "conf_medals"),
+	CONFIG_OPTION("Harry keys mode",         "conf_harrykeys"),
 	{0,   ""},
-	{'K', "Key bindings >>>"},
+	{'K', "Key bindings >>>",        ReturnKeyValue},
 	{0,   NULL},
 };
 
