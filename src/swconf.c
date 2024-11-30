@@ -301,12 +301,7 @@ static const struct menuitem options_menu_items[] = {
 	{0,   NULL},
 };
 
-static const struct menu options_menu = {
+const struct menu options_menu = {
 	FullscreenBackground, "OPTIONS > KEY BINDINGS",
 	options_menu_items,
 };
-
-void setconfig(void)
-{
-	RunMenu(&options_menu);
-}

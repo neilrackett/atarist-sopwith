@@ -35,6 +35,7 @@ extern const struct conf_option *ConfOptionByName(const char *name);
 
 extern void swloadconf(void);
 extern void swsaveconf(void);
-extern void setconfig(void);          // config menu
+
+extern const struct menu options_menu;
 
 #endif

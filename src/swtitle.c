@@ -211,13 +211,6 @@ static enum menu_action StartVsComputer(const struct menuitem *item)
 	return MENU_ACTION_RETURN;
 }
 
-// TODO: This function is unnecessary.
-static enum menu_action OpenOptionsMenu(const struct menuitem *item)
-{
-	setconfig();
-	return MENU_ACTION_NONE;
-}
-
 #ifdef __EMSCRIPTEN__
 static enum menu_action OpenManual(const struct menuitem *item)
 {
@@ -246,7 +239,7 @@ static const struct menuitem main_menu_items[] = {
 #ifdef TCPIP
 	{'N', "network game", SubMenu, &netgame_menu},
 #endif
-	{'O', "game options", OpenOptionsMenu},
+	{'O', "game options", SubMenu, &options_menu},
 #ifdef __EMSCRIPTEN__
 	{'M', "open manual", OpenManual},
 	{'I', "install as app", InstallApp},
