@@ -297,7 +297,7 @@ static const struct menuitem options_menu_items[] = {
 	CONFIG_OPTION("Medals",                  "conf_medals"),
 	CONFIG_OPTION("Harry keys mode",         "conf_harrykeys"),
 	{0,   ""},
-	{'K', "Key bindings >>>",        ReturnKeyValue},
+	{'K', "Key bindings >>>", SubMenu, &keys_menu},
 	{0,   NULL},
 };
 
@@ -308,13 +308,5 @@ static const struct menu options_menu = {
 
 void setconfig(void)
 {
-	for (;;) {
-		switch (RunMenu(&options_menu)) {
-			case 0:
-				return;
-			case 'K':
-				RunMenu(&keys_menu);
-				break;
-		}
-	}
+	RunMenu(&options_menu);
 }

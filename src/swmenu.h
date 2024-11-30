@@ -16,7 +16,7 @@ struct menuitem {
 	char key;
 	char *label;
 	void (*callback)(const struct menuitem *item);
-	void *user_data;
+	const void *user_data;
 };
 
 struct menu {
@@ -25,9 +25,9 @@ struct menu {
 	const struct menuitem *items;
 };
 
-int RunMenu(const struct menu *menu);
+void RunMenu(const struct menu *menu);
+void SubMenu(const struct menuitem *item);
 void FullscreenBackground(void *title);
-void ReturnKeyValue(const struct menuitem *item);
 void ToggleConfigOption(const struct menuitem *item);
 
 #define CONFIG_OPTION(label, config_name) \

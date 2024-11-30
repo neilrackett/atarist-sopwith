@@ -74,11 +74,6 @@ static void ChangeKeyBinding(const struct menuitem *item)
 	*opt->value.i = key;
 }
 
-void ReturnKeyValue(const struct menuitem *item)
-{
-	// This function is never actually called.
-}
-
 void ToggleConfigOption(const struct menuitem *item)
 {
 	const char *config_name = item->user_data;
@@ -268,7 +263,7 @@ static const struct menuitem *MenuItemForKey(const struct menu *menu,
 // Present the given menu to the user. Returns zero if escape was pushed
 // to exit the menu, or if a >jump item was chosen, it returns the key
 // binding associated with it.
-int RunMenu(const struct menu *menu)
+void RunMenu(const struct menu *menu)
 {
 	const struct menuitem *pressed;
 	int key;
@@ -282,7 +277,7 @@ int RunMenu(const struct menu *menu)
 
 		key = toupper(swgetc() & 0xff);
 		if (key == 27) {
-			return 0;
+			return;
 		}
 
 		// check if a number has been pressed for a menu option
@@ -290,11 +285,13 @@ int RunMenu(const struct menu *menu)
 		if (pressed == NULL) {
 			continue;
 		}
-		if (pressed->callback == ReturnKeyValue) {
-			// TODO: This should not be a special case.
-			return pressed->key;
-		} else if (pressed->callback != NULL) {
+		if (pressed->callback != NULL) {
 			pressed->callback(pressed);
 		}
 	}
+}
+
+void SubMenu(const struct menuitem *item)
+{
+	RunMenu(item->user_data);
 }
