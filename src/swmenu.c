@@ -265,14 +265,42 @@ static const struct menuitem *MenuItemForKey(const struct menu *menu,
 	return NULL;
 }
 
+static bool MenuKeypress(const struct menu *menu, enum menu_action *result)
+{
+	const struct menuitem *pressed;
+	enum menu_action a;
+	int key;
+
+	key = toupper(swgetc() & 0xff);
+	if (key == 27) {
+		*result = MENU_ACTION_NONE;
+		return false;
+	}
+
+	// check if a number has been pressed for a menu option
+	pressed = MenuItemForKey(menu, key);
+	if (pressed == NULL) {
+		return true;
+	}
+	if (pressed->callback == NULL) {
+		return true;
+	}
+
+	a = pressed->callback(pressed);
+	if (a == MENU_ACTION_RETURN) {
+		*result = MENU_ACTION_RETURN;
+		return false;
+	}
+
+	return true;
+}
+
 // Present the given menu to the user. Returns zero if escape was pushed
 // to exit the menu, or if a >jump item was chosen, it returns the key
 // binding associated with it.
 enum menu_action RunMenu(const struct menu *menu)
 {
-	const struct menuitem *pressed;
 	enum menu_action result;
-	int key;
 
 	for (;;) {
 		DrawMenu(menu);
@@ -281,23 +309,8 @@ enum menu_action RunMenu(const struct menu *menu)
 			swend(NULL, false);
 		}
 
-		key = toupper(swgetc() & 0xff);
-		if (key == 27) {
-			return MENU_ACTION_NONE;
-		}
-
-		// check if a number has been pressed for a menu option
-		pressed = MenuItemForKey(menu, key);
-		if (pressed == NULL) {
-			continue;
-		}
-		if (pressed->callback == NULL) {
-			continue;
-		}
-
-		result = pressed->callback(pressed);
-		if (result == MENU_ACTION_RETURN) {
-			return MENU_ACTION_RETURN;
+		if (!MenuKeypress(menu, &result)) {
+			return result;
 		}
 	}
 }
