@@ -170,7 +170,7 @@ static void DrawConfigOption(const struct menuitem *item)
 	}
 }
 
-static void DrawMenu(const struct menu *menu)
+static void DrawMenu(const struct menu *menu, int selected)
 {
 	const struct menuitem *items = menu->items;
 	int i, y, keynum;
@@ -205,7 +205,12 @@ static void DrawMenu(const struct menu *menu)
 			++keynum;
 			suffix = ":";
 		}
-		if (strstr(items[i].label, ">>>")) {
+		// If we have a game controller connected, we show a
+		// cursor and allow navigation using the D-pad.
+		if (Vid_HaveController()) {
+			prefix = i == selected ? "   \x1a" : "";
+			swcolor(i == selected ? 2 : 3);
+		} else if (strstr(items[i].label, ">>>")) {
 			swcolor(2);
 		} else {
 			swcolor(3);
@@ -216,7 +221,6 @@ static void DrawMenu(const struct menu *menu)
 		GetCursorPosition(NULL, &y);
 		swposcur(0, y);
 		swputs(buf);
-		swcolor(3);
 
 		if (num_buttons < sizeof(buttons) - 1) {
 			buttons[num_buttons] = key;
@@ -271,11 +275,16 @@ static bool MenuKeypress(const struct menu *menu, enum menu_action *result)
 	enum menu_action a;
 	int key;
 
-	key = toupper(swgetc() & 0xff);
+	key = Vid_GetChar();
+	if (key == 0) {
+		return true;
+	}
 	if (key == 27) {
 		*result = MENU_ACTION_NONE;
 		return false;
 	}
+
+	key = toupper(key);
 
 	// check if a number has been pressed for a menu option
 	pressed = MenuItemForKey(menu, key);
@@ -295,23 +304,84 @@ static bool MenuKeypress(const struct menu *menu, enum menu_action *result)
 	return true;
 }
 
+static int MoveCursor(const struct menu *menu, int orig_selected,
+                      int direction)
+{
+	const struct menuitem *items = menu->items;
+	int selected = orig_selected;
+
+	for (;;) {
+		selected += direction;
+		if (selected < 0 || items[selected].label == NULL) {
+			break;
+		}
+		if (strlen(items[selected].label) > 0) {
+			return selected;
+		}
+	}
+
+	// Reached top or bottom of list.
+	return orig_selected;
+}
+
+static bool ControllerPress(const struct menu *menu, enum menu_action *result,
+                            int *selected)
+{
+	const struct menuitem *i;
+	enum menu_action a;
+
+	switch (Vid_ControllerMenuKey()) {
+	case MENUKEY_START:
+		i = &menu->items[*selected];
+		a = i->callback(i);
+		if (a == MENU_ACTION_RETURN) {
+			*result = MENU_ACTION_RETURN;
+			return false;
+		}
+		return true;
+
+	case MENUKEY_BACK:
+		*result = MENU_ACTION_NONE;
+		return false;
+
+	case MENUKEY_UP:
+		*selected = MoveCursor(menu, *selected, -1);
+		return true;
+
+	case MENUKEY_DOWN:
+		*selected = MoveCursor(menu, *selected, 1);
+		return true;
+
+	default:
+		return true;
+	}
+}
+
 // Present the given menu to the user. Returns zero if escape was pushed
 // to exit the menu, or if a >jump item was chosen, it returns the key
 // binding associated with it.
 enum menu_action RunMenu(const struct menu *menu)
 {
 	enum menu_action result;
+	int selected = 0;
+
+	// Clear out any controller presses from before the menu opened.
+	Vid_ControllerMenuKey();
 
 	for (;;) {
-		DrawMenu(menu);
+		DrawMenu(menu, selected);
 
 		if (ctlbreak()) {
 			swend(NULL, false);
 		}
 
-		if (!MenuKeypress(menu, &result)) {
+		if (!MenuKeypress(menu, &result)
+		 || !ControllerPress(menu, &result, &selected)) {
 			return result;
 		}
+
+		// Wait for a keypress:
+		Timer_Sleep(50);
 	}
 }
 
