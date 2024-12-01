@@ -257,7 +257,10 @@ static const struct menu main_menu = {
 
 void getgamemode(void)
 {
-	RunMenu(&main_menu);
+	playmode = PLAYMODE_UNSET;
+	while (playmode == PLAYMODE_UNSET) {
+		RunMenu(&main_menu);
+	}
 }
 
 //
