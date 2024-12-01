@@ -37,6 +37,14 @@ enum gamekey {
 	NUM_KEYS,
 };
 
+enum menukey {
+	MENUKEY_NONE,
+	MENUKEY_START,
+	MENUKEY_BACK,
+	MENUKEY_UP,
+	MENUKEY_DOWN,
+};
+
 // Which keys are currently down or have been pressed since the last call
 // to Vid_GetGameKeys:
 
@@ -131,5 +139,8 @@ extern const struct touch_button *Vid_GetTouchButton(int x, int y);
 extern void Vid_TouchButtonPress(const struct touch_button *b, bool pressed);
 extern void Vid_ShowTouchGameControls(void);
 extern void Vid_ShowTouchKeys(const char *keys);
+
+enum menukey Vid_ControllerMenuKey(void);
+bool Vid_HaveController(void);
 
 #endif

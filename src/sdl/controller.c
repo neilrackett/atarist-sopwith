@@ -34,6 +34,7 @@ int controller_bindings[NUM_KEYS] = {
 
 static int button_to_key[SDL_CONTROLLER_BUTTON_MAX];
 
+static enum menukey last_menukey = MENUKEY_NONE;
 static SDL_GameController *controller = NULL;
 static SDL_JoystickID controller_id;
 
@@ -52,6 +53,30 @@ static void RecalculateButtonMapping(void)
 	}
 }
 
+static void CheckForMenuKeypress(SDL_ControllerButtonEvent *event)
+{
+	switch (event->button) {
+	case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+		last_menukey = MENUKEY_DOWN;
+		break;
+	case SDL_CONTROLLER_BUTTON_DPAD_UP:
+		last_menukey = MENUKEY_UP;
+		break;
+	case SDL_CONTROLLER_BUTTON_BACK:
+	case SDL_CONTROLLER_BUTTON_X:
+	case SDL_CONTROLLER_BUTTON_Y:
+		last_menukey = MENUKEY_BACK;
+		break;
+	case SDL_CONTROLLER_BUTTON_START:
+	case SDL_CONTROLLER_BUTTON_A:
+	case SDL_CONTROLLER_BUTTON_B:
+		last_menukey = MENUKEY_START;
+		break;
+	default:
+		break;
+	}
+}
+
 void Vid_ControllerButtonDown(SDL_ControllerButtonEvent *event)
 {
 	int gamekey;
@@ -62,6 +87,7 @@ void Vid_ControllerButtonDown(SDL_ControllerButtonEvent *event)
 	if (event->button >= SDL_CONTROLLER_BUTTON_MAX) {
 		return;
 	}
+	CheckForMenuKeypress(event);
 	gamekey = button_to_key[event->button];
 	if (gamekey != KEY_UNKNOWN) {
 		keysdown[gamekey] |= KEYDOWN_GAMEPAD | KEYDOWN_WAS_PRESSED;
@@ -110,4 +136,16 @@ void Vid_ControllerInit(void)
 	SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 	// SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
 	RecalculateButtonMapping();
+}
+
+enum menukey Vid_ControllerMenuKey(void)
+{
+	enum menukey result = last_menukey;
+	last_menukey = MENUKEY_NONE;
+	return result;
+}
+
+bool Vid_HaveController(void)
+{
+	return controller != NULL;
 }
