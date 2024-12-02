@@ -69,6 +69,7 @@ void swputsym(int x, int y, OBJECTS * ob)
 
 static void PrintHelp(void)
 {
+	const char *name;
 	char buf[64];
 	int i;
 	const struct {
@@ -115,8 +116,11 @@ static void PrintHelp(void)
 		swposcur(1, i + 3);
 		swputs(buf);
 		if (Vid_HaveController()) {
-			swposcur(21, i + 3);
-			swputs(Vid_ControllerButtonName(items[i].key));
+			name = Vid_ControllerButtonName(items[i].key);
+			if (name != NULL) {
+				swposcur(21, i + 3);
+				swputs(name);
+			}
 		}
 	}
 	snprintf(buf, sizeof(buf), "%-11s- %s", "Restart", "Ctrl-R");
