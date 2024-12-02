@@ -149,3 +149,9 @@ bool Vid_HaveController(void)
 {
 	return controller != NULL;
 }
+
+const char *Vid_ControllerButtonName(enum gamekey key)
+{
+	return SDL_GameControllerGetStringForButton(
+		controller_bindings[key]);
+}

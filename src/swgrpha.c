@@ -103,12 +103,21 @@ static void PrintHelp(void)
 	swcolor(2);
 	swposcur(1, 2);
 	swputs("BEGINNER'S HELP");
+	if (Vid_HaveController()) {
+		swposcur(21, 2);
+		swputs("GAMEPAD CONTROLS:");
+	}
+
 	swcolor(3);
 	for (i = 0; i < arrlen(items); i++) {
 		snprintf(buf, sizeof(buf), "%-11s- %s",
 		        items[i].name, Vid_KeyName(keybindings[items[i].key]));
 		swposcur(1, i + 3);
 		swputs(buf);
+		if (Vid_HaveController()) {
+			swposcur(21, i + 3);
+			swputs(Vid_ControllerButtonName(items[i].key));
+		}
 	}
 	snprintf(buf, sizeof(buf), "%-11s- %s", "Restart", "Ctrl-R");
 	swposcur(1, i + 3);

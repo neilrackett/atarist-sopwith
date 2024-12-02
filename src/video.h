@@ -142,5 +142,6 @@ extern void Vid_ShowTouchKeys(const char *keys);
 
 enum menukey Vid_ControllerMenuKey(void);
 bool Vid_HaveController(void);
+const char *Vid_ControllerButtonName(enum gamekey key);
 
 #endif
