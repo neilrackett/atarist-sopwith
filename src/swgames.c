@@ -302,6 +302,8 @@ static void AddObject(original_ob_t *ob, struct yocton_object *yo)
 {
 	struct yocton_prop *p;
 
+	memset(ob, 0, sizeof(*ob));
+
 	while ((p = yocton_next_prop(yo)) != NULL) {
 		YOCTON_VAR_INT(p, "x", int, ob->x);
 		YOCTON_VAR_INT(p, "orient", int, ob->orient);
