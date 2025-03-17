@@ -171,7 +171,8 @@ void swdisp(void)
 		y = ob->ob_y;
 
 		if (ob->ob_drwflg
-		 && in_range(displx, x, displx + SCR_WDTH - 1)) {
+		 && in_range(displx - ob->ob_symbol->w, x,
+		             displx + SCR_WDTH - 1)) {
 			swputsym(x - displx, y, ob);
 
 			if (ob->ob_soundf) {

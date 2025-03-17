@@ -196,11 +196,12 @@ int Vid_FuselageColor(faction_t f)
 
 void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 {
-	uint8_t *sptr = vid_vram + (SCR_HGHT-1 - y) * vid_pitch + x;
-	const uint8_t *data = symbol->data;
+	int left_skip = x < 0 ? -x : 0;
+	uint8_t *dst = vid_vram + (SCR_HGHT-1 - y) * vid_pitch
+	             + x + left_skip;
+	const uint8_t *src = symbol->data;
 	int x1, y1;
 	int w = symbol->w, h = symbol->h;
-	int wrap = x - SCR_WDTH + w;
 	const uint8_t *color_mapping;
 
 	if (w == 1 && h == 1) {
@@ -208,11 +209,9 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 		return;
 	}
 
-	if (wrap > 0) {
-		//wrap += 4;
-		w -= wrap;
-	} else {
-		wrap = 0;
+	// Clip to right-side edge:
+	if (x + w > SCR_WDTH) {
+		w -= x + w - SCR_WDTH;
 	}
 
 	if (h > y + 1) {
@@ -222,16 +221,18 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 	assert(clr < arrlen(color_mappings));
 	color_mapping = color_mappings[clr];
 	for (y1=0; y1<h; ++y1) {
-		uint8_t *sptr2 = sptr;
-		for (x1=0; x1<w; ++x1, ++sptr2) {
-			int i = *data++;
+		uint8_t *dst2 = dst;
+		const uint8_t *src2 = src + left_skip;
+
+		for (x1=left_skip; x1<w; ++x1, ++dst2) {
+			int i = *src2++;
 
 			if (i) {
-				*sptr2 ^= color_mapping[i];
+				*dst2 ^= color_mapping[i];
 			}
 		}
-		data += wrap;
-		sptr += vid_pitch;
+		src += symbol->w;
+		dst += vid_pitch;
 	}
 }
 
