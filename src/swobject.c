@@ -34,6 +34,11 @@ bool PlaneIsWounded(obstate_t state)
 	return state == WOUNDED || state == WOUNDSTALL;
 }
 
+bool PlaneIsFlying(obstate_t state)
+{
+	return state == FLYING || state == WOUNDED;
+}
+
 bool insertx(OBJECTS *ob, OBJECTS *obp)
 {
 	OBJECTS *obs;

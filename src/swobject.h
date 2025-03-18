@@ -26,5 +26,6 @@ extern void setdxdy(OBJECTS *obj, int dx, int dy);
 extern bool PlaneIsKilled(obstate_t state);
 extern bool PlaneIsStalled(obstate_t state);
 extern bool PlaneIsWounded(obstate_t state);
+extern bool PlaneIsFlying(obstate_t state);
 
 #endif

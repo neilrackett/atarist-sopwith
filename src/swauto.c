@@ -174,7 +174,8 @@ static void FindWingmen(OBJECTS *plane, OBJECTS **behind, OBJECTS **ahead)
 
 	for (i = 0; i < num_planes; i++) {
 		OBJECTS *wingman = planes[i];
-		if (!IsWingman(plane, wingman)) {
+		if (!IsWingman(plane, wingman)
+		 || !PlaneIsFlying(wingman->ob_state)) {
 			continue;
 		}
 		if (IS_AHEAD_OF(wingman, plane)
