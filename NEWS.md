@@ -1,3 +1,30 @@
+# v2.8.0 (????...)
+
+* Gamepad support was added. This uses the SDL Game Controller API, so it
+  should "just work" with a lot of common gamepads. Configuration is currently
+  rather limited, and has to be edited in the config file.
+* Sprites are now properly clipped against the left side of the screen, so
+  objects will no longer "pop in" when flying to the left.
+* There is a new "muted" color palette, to better emulate a CGA monitor.
+* The score is now correctly shown on the very bottom line of the screen (it
+  was off by one for a long time).
+* Initial code was added to support formation flying of AI planes; they will
+  fly in echelon formation when flying long distances.
+* More than one plane can now belong to the same faction.
+* Manpage URLs now always have link text, fixing links on pandoc-converted
+  manpages where they were disappearing.
+* Alt+enter now now toggles fullscreen mode more quickly/smoothly, without
+  opening a new window. This also fixed a crash (thanks Ryan Freeman)
+* A crash was fixed on OpenBSD when loading missions.
+
+Emscripten port:
+* Support was added for touch controls, for use on mobile/tablet devices. If
+  your device has a touch screen, touching it will bring up the touch controls
+  automatically. It should be possible to navigate the entire game (menus etc.)
+  using the new controls.
+* A manifest was added to make Sopwith a Progressive Web App (PWA). This allows
+  the Emscripten version to be "installed" on devices which support PWAs.
+
 # v2.7.0 (2024-11-11)
 
 * Some tanks were changed to face in the opposite direction where it made more
