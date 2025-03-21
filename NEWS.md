@@ -1,4 +1,4 @@
-# v2.8.0 (????...)
+# v2.8.0 (2025-03-21)
 
 * Gamepad support was added. This uses the SDL Game Controller API, so it
   should "just work" with a lot of common gamepads. Configuration is currently

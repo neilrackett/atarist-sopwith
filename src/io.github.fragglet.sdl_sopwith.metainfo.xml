@@ -40,6 +40,17 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2.8.0" date="2025-03-21">
+      <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.8.0</url>
+      <description>
+        <p>Support was added for touch controls.</p>
+        <p>Gamepad support was added.</p>
+        <p>Sprites are now correctly clipped against the left side of
+           the screen.</p>
+        <p>Initial support was added for formation flying of AI planes.</p>
+        <p>There is a new "muted" color palette.</p>
+      </description>
+    </release>
     <release version="2.7.0" date="2024-11-11">
       <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.7.0</url>
       <description>
