@@ -61,8 +61,8 @@ void DrawHighScoreTable(void)
 #endif
 
 	swcolor(2);
-	swposcur(TABLE_X + 2, TABLE_Y);
-	swputs("HIGH SCORES");
+	swposcur(TABLE_X + 3, TABLE_Y);
+	swputs("TOP PILOTS");
 
 	swcolor(3);
 
