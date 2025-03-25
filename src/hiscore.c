@@ -42,14 +42,46 @@ struct high_score high_scores[MAX_HIGH_SCORES] = {
 	{"SDH", {2000}},  // Simon Howard
 };
 
+static void DrawHighScore(const struct high_score *hs, int x, int y)
+{
+	int px, py, m;
+	char buf[20];
+
+	swposcur(x, y);
+	snprintf(buf, sizeof(buf), "%-3.3s ....... %-4d",
+	         hs->name, hs->score.score);
+	swputs(buf);
+
+	px = (x + 16) * 8 + 4;
+	py = (SCR_HGHT - 1) - y * 8 + 5;
+
+	for (m = 0; m < hs->score.medals_nr; ++m) {
+		symset_t *ss = &symbol_medal[hs->score.medals[m]];
+		Vid_DispSymbol(px + m * 8, py, &ss->sym[0],
+		               FACTION_PLAYER1);
+	}
+
+	// Medal symbols are 12 characters tall, but each line is
+	// only 8 characters tall. The top part of the medal symbol
+	// gets cut off so that we can pack all the medals in; we do
+	// this by drawing a black box over the top of it.
+	Vid_Box(px, py, 32, 4, 0);
+
+	for (m = 0; m < hs->score.ribbons_nr; ++m) {
+		symset_t *ss = &symbol_ribbon[hs->score.ribbons[m]];
+		int rx = (m / 2) * 8, ry = (m % 2) * 4 + 6;
+		Vid_DispSymbol(px + 18 + rx, py - ry, &ss->sym[0],
+		               FACTION_PLAYER1);
+	}
+}
+
 void DrawHighScoreTable(void)
 {
-	const struct high_score *hs;
-	char buf[20];
-	int i, x, y, m;
+	int i;
 
 #ifdef HISCORE_DEBUG
 	for (i = 0; i < MAX_HIGH_SCORES; ++i) {
+		int m;
 		high_scores[i].score.medals_nr = 2;
 		high_scores[i].score.medals[0] = MEDAL_COMPETENCE;
 		high_scores[i].score.medals[1] = MEDAL_VALOUR;
@@ -66,22 +98,11 @@ void DrawHighScoreTable(void)
 
 	swcolor(3);
 
-	// We draw the table bottom up. See comment below for why.
+	// We draw the table bottom up. See comment in DrawHighScore for why.
 	for (i = MAX_HIGH_SCORES - 1; i >= 0; i--) {
-		hs = &high_scores[i];
-		swposcur(TABLE_X, TABLE_Y + 2 + i);
-		snprintf(buf, sizeof(buf), "%-3.3s ....... %-4d",
-		         hs->name, hs->score.score);
-		swputs(buf);
-
-		x = (TABLE_X + 16) * 8 + 4;
-		y = (SCR_HGHT - 1) - (TABLE_Y + 2 + i) * 8 + 5;
-
-		for (m = 0; m < hs->score.medals_nr; ++m) {
-			symset_t *ss = &symbol_medal[hs->score.medals[m]];
-			Vid_DispSymbol(x + m * 8, y, &ss->sym[0],
-			               FACTION_PLAYER1);
-		}
+		DrawHighScore(&high_scores[i], TABLE_X, TABLE_Y + 2 + i);
+	}
+}
 
 		// Medal symbols are 12 characters tall, but each line is
 		// only 8 characters tall. The top part of the medal symbol
