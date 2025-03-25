@@ -17,6 +17,7 @@
 
 #include "hiscore.h"
 #include "swtext.h"
+#include "video.h"
 
 #define MAX_HIGH_SCORES 10
 
@@ -43,8 +44,17 @@ struct high_score high_scores[MAX_HIGH_SCORES] = {
 
 void DrawHighScoreTable(void)
 {
+	const struct high_score *hs;
 	char buf[20];
-	int i;
+	int i, x, y, m;
+
+#ifdef HISCORE_DEBUG
+	for (i = 0; i < MAX_HIGH_SCORES; ++i) {
+		high_scores[i].score.medals_nr = 2;
+		high_scores[i].score.medals[0] = MEDAL_COMPETENCE;
+		high_scores[i].score.medals[1] = MEDAL_VALOUR;
+	}
+#endif
 
 	swcolor(2);
 	swposcur(TABLE_X + 2, TABLE_Y);
@@ -52,11 +62,29 @@ void DrawHighScoreTable(void)
 
 	swcolor(3);
 
-	for (i = 0; i < MAX_HIGH_SCORES; i++) {
+	// We draw the table bottom up. See comment below for why.
+	for (i = MAX_HIGH_SCORES - 1; i >= 0; i--) {
+		hs = &high_scores[i];
 		swposcur(TABLE_X, TABLE_Y + 2 + i);
 		snprintf(buf, sizeof(buf), "%-3.3s ....... %-4d",
-		         high_scores[i].name,
-		         high_scores[i].score.score);
+		         hs->name, hs->score.score);
 		swputs(buf);
+
+		x = (TABLE_X + 16) * 8 + 4;
+		y = (SCR_HGHT - 1) - (TABLE_Y + 2 + i) * 8 + 5;
+
+		for (m = 0; m < hs->score.medals_nr; ++m) {
+			symset_t *ss = &symbol_medal[hs->score.medals[m]];
+			Vid_DispSymbol(x + m * 8, y, &ss->sym[0],
+			               FACTION_PLAYER1);
+		}
+
+		// Medal symbols are 12 characters tall, but each line is
+		// only 8 characters tall. The top part of the medal symbol
+		// gets cut off so that we can pack all the medals in; we do
+		// this by drawing a black box over the top of it.
+		Vid_Box(x, y, 32, 4, 0);
+
+		// TODO: Show ribbons? Might be too much clutter...
 	}
 }
