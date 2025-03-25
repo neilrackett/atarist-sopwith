@@ -41,6 +41,7 @@ COMMON_SOURCES =                   \
         swsymbol.c   swsymbol.h    \
         swtext.c     swtext.h      \
         swtitle.c    swtitle.h     \
+        hiscore.c    hiscore.h     \
         tcpcomm.c    tcpcomm.h     \
         timer.h                    \
         touch_area.c               \
