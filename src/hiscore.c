@@ -21,7 +21,7 @@
 
 #define MAX_HIGH_SCORES 10
 
-#define TABLE_X 11
+#define TABLE_X 9
 #define TABLE_Y 1
 
 struct high_score {
@@ -53,6 +53,10 @@ void DrawHighScoreTable(void)
 		high_scores[i].score.medals_nr = 2;
 		high_scores[i].score.medals[0] = MEDAL_COMPETENCE;
 		high_scores[i].score.medals[1] = MEDAL_VALOUR;
+		for (m = 0; m < 6; ++m) {
+			high_scores[i].score.ribbons[m] = m;
+		}
+		high_scores[i].score.ribbons_nr = 6;
 	}
 #endif
 
@@ -85,6 +89,11 @@ void DrawHighScoreTable(void)
 		// this by drawing a black box over the top of it.
 		Vid_Box(x, y, 32, 4, 0);
 
-		// TODO: Show ribbons? Might be too much clutter...
+		for (m = 0; m < hs->score.ribbons_nr; ++m) {
+			symset_t *ss = &symbol_ribbon[hs->score.ribbons[m]];
+			int rx = (m / 2) * 8, ry = (m % 2) * 4 + 6;
+			Vid_DispSymbol(x + 18 + rx, y - ry, &ss->sym[0],
+			               FACTION_PLAYER1);
+		}
 	}
 }
