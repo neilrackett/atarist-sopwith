@@ -18,6 +18,7 @@
 #include "sw.h"
 
 #include "hiscore.h"
+#include "swgames.h"
 #include "swmain.h"
 #include "swsound.h"
 #include "swtext.h"
@@ -183,6 +184,7 @@ bool NewHighScore(score_t *s)
 
 	// High scores only apply to the default version of the game.
 	if (playmode != PLAYMODE_COMPUTER
+	 || currgame != &original_level
 	 || conf_missiles || conf_wounded || !conf_animals
 	 || !conf_big_explosions) {
 		return false;
