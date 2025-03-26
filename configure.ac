@@ -80,6 +80,8 @@ AC_ARG_WITH([hiscores-group],
 AC_SUBST(HISCORES_GROUP)
 
 AM_CONDITIONAL(GLOBAL_HISCORES, test "$HISCORES_PATH" != "")
+AC_DEFINE_UNQUOTED(HISCORES_PATH, "$HISCORES_PATH",
+                   [Path to directory containing high scores file.])
 
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 AM_CONDITIONAL(HAVE_CONVERT, test "$CONVERT" != "")
