@@ -27,6 +27,7 @@ extern void sound(int type, int parm, OBJECTS *ob);
 extern void swsound(void);
 extern void initsound(OBJECTS *obp, int type);
 extern void stopsound(OBJECTS *ob);
+extern void soundoff(void);
 extern void swsndupdate(void);
 
 extern OBJECTS *ob;

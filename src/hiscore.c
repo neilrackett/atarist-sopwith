@@ -19,6 +19,7 @@
 
 #include "hiscore.h"
 #include "swmain.h"
+#include "swsound.h"
 #include "swtext.h"
 #include "swtitle.h"
 #include "video.h"
@@ -146,6 +147,9 @@ static bool IsNewHighScore(const struct high_score *hs)
 static bool EnterHighScore(struct high_score *hs)
 {
 	char *p;
+
+	// TODO: Add a new music track for the high score screen?
+	soundoff();
 
 	Vid_ClearBuf();
 	DrawHighScoreTable();

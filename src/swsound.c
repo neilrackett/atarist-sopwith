@@ -211,7 +211,7 @@ void stopsound(OBJECTS * ob)
 	ob->ob_sound = NULL;
 }
 
-static void soundoff(void)
+void soundoff(void)
 {
 	if (lastfreq) {
 
