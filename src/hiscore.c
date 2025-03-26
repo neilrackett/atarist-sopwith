@@ -58,6 +58,10 @@ static void DrawHighScore(const struct high_score *hs, int x, int y)
 	         hs->name, hs->score.score);
 	swputs(buf);
 
+	if (!conf_medals) {
+		return;
+	}
+
 	px = (x + 16) * 8 + 4;
 	py = (SCR_HGHT - 1) - y * 8 + 5;
 
