@@ -13,6 +13,11 @@ dist_metainfo_DATA = io.github.fragglet.sdl_sopwith.metainfo.xml
 iconsdir = $(prefix)/share/icons/hicolor/128x128/apps
 dist_icons_DATA = sopwith.png
 
+if GLOBAL_HISCORES
+hiscoresdir = $(HISCORES_PATH)
+hiscores_DATA = hiscores.txt
+endif
+
 bindir=$(prefix)/bin
 
 SUBDIRS = sdl

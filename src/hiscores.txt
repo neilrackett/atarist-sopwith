@@ -1,0 +1,11 @@
+# Sopwith high scores file (default scores)
+DLC    6500 6 63
+DG     6000 6 63
+JHC    5500 6 43
+JS     5000 6 59
+JH     4500 6 46
+CR     4000 4  5
+AMJ    3500 6 49
+HJM    3000 4 52
+BMB    2500 2  7
+SDH    2000 2 56

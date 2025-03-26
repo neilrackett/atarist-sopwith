@@ -58,6 +58,22 @@ case "$host" in
         ;;
 esac
 
+case "$host" in
+    *cygwin* | *mingw* | *emscripten* | *haiku*)
+        HISCORES_PATH=
+        ;;
+    *)
+        HISCORES_PATH=/var/games/sopwith
+        ;;
+esac
+AC_ARG_WITH([hiscores-path],
+            [AS_HELP_STRING([--with-hiscores-path=dir],
+                            [directory for system-wide high scores file])],
+            [HISCORES_PATH=${with_hiscores_path}], [])
+AC_SUBST(HISCORES_PATH)
+
+AM_CONDITIONAL(GLOBAL_HISCORES, test "$HISCORES_PATH" != "")
+
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 AM_CONDITIONAL(HAVE_CONVERT, test "$CONVERT" != "")
 AC_CONFIG_HEADERS([config.h:config.hin])
