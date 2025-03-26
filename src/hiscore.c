@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "sw.h"
 
@@ -25,6 +26,7 @@
 #include "swtitle.h"
 #include "video.h"
 
+#define HISCORE_FILENAME "hiscores.txt"
 #define MAX_HIGH_SCORES 10
 
 #define TABLE_X 9
@@ -139,15 +141,37 @@ static bool SaveHighScores(const char *filename)
 	return true;
 }
 
+static const char *HighScoreFilePath(void)
+{
+	static char *hiscore_file = NULL;
+	size_t len;
+	char *pref_path;
+
+	if (hiscore_file != NULL) {
+		return hiscore_file;
+	}
+
+	pref_path = Vid_GetPrefPath();
+	if (pref_path == NULL) {
+		return HISCORE_FILENAME;
+	}
+
+	len = strlen(pref_path) + strlen(HISCORE_FILENAME) + 1;
+	hiscore_file = calloc(1, len);
+	assert(hiscore_file != NULL);
+	snprintf(hiscore_file, len, "%s%s", pref_path, HISCORE_FILENAME);
+	return hiscore_file;
+}
+
 void LoadHighScoreTable(void)
 {
-	// TODO: Pick a better place to save the file
-	LoadHighScores("hiscore.txt");
+	LoadHighScores(HighScoreFilePath());
 }
 
 void SaveHighScoreTable(void)
 {
-	SaveHighScores("hiscore.txt");
+	// TODO: System-wide high score file for all users
+	SaveHighScores(HighScoreFilePath());
 }
 
 static void DrawHighScore(const struct high_score *hs, int x, int y)
