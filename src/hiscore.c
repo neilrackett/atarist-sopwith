@@ -106,7 +106,7 @@ static bool LoadHighScores(const char *filename)
 		hs->score.medals_nr =
 			UnpackMedals(medals, hs->score.medals, 3);
 		hs->score.ribbons_nr =
-			UnpackMedals(ribbons, hs->score.ribbons, 3);
+			UnpackMedals(ribbons, hs->score.ribbons, 6);
 		++idx;
 	}
 
