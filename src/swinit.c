@@ -1246,7 +1246,7 @@ void swinit(int argc, char *argv[])
 	Timer_Init();
 	Vid_Init();
 	Vid_SetVideoPalette(conf_video_palette);
-	LoadHighScoreTable();
+	InitHighScores();
 
 	// Don't init speaker if started with -q (quiet)
 	if (soundflg) {

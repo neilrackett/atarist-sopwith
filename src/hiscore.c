@@ -182,6 +182,35 @@ void SaveHighScoreTable(void)
 	SaveHighScores(HighScoreFilePath());
 }
 
+void InitHighScores(void)
+{
+	score_t *s;
+	int i, m, cnt;
+
+	// At startup, every entry in the high score table gets assigned
+	// a smattering of random medals and ribbons:
+	for (i = 0; i < MAX_HIGH_SCORES; ++i) {
+		s = &high_scores[i].score;
+		for (m = 0, cnt = 0; m < 2; ++m) {
+			if (s->score > rand() % 4500) {
+				s->medals[cnt] = m + 1;
+				++cnt;
+			}
+		}
+		s->medals_nr = cnt;
+		for (m = 0, cnt = 0; m < 6; ++m) {
+			if (s->score > rand() % 6500) {
+				s->ribbons[cnt] = m;
+				++cnt;
+			}
+		}
+		s->ribbons_nr = cnt;
+	}
+
+	// Try to load the high score table file, if one exists.
+	LoadHighScoreTable();
+}
+
 static void DrawHighScore(const struct high_score *hs, int x, int y)
 {
 	int px, py, m;
