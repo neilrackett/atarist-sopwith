@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "sw.h"
 
@@ -144,6 +145,8 @@ static bool IsNewHighScore(const struct high_score *hs)
 
 static bool EnterHighScore(struct high_score *hs)
 {
+	char *p;
+
 	Vid_ClearBuf();
 	DrawHighScoreTable();
 
@@ -159,6 +162,10 @@ static bool EnterHighScore(struct high_score *hs)
 	clrprmpt();
 	swposcur(TABLE_X, 17);
 	swgets(hs->name, sizeof(hs->name) - 1);
+
+	for (p = hs->name; *p != '\0'; ++p) {
+		*p = toupper(*p);
+	}
 
 	return strlen(hs->name) > 0;
 }
