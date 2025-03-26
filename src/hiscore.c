@@ -64,6 +64,22 @@ static int UnpackMedals(int input, int *medals, int max_medals)
 	return result;
 }
 
+static bool ReadLine(FILE *fs, char *buf, size_t buf_len)
+{
+	char tmpbuf[8];
+
+	if (feof(fs) || fgets(buf, buf_len, fs) == NULL) {
+		return false;
+	}
+	// Long line? Keep reading chunks until we reach the end
+	if (strchr(buf, '\n') == NULL) {
+		do {
+			fgets(tmpbuf, sizeof(tmpbuf), fs);
+		} while (!feof(fs) && strchr(tmpbuf, '\n') == NULL);
+	}
+	return true;
+}
+
 static bool LoadHighScores(const char *filename)
 {
 	struct high_score *hs;
@@ -77,17 +93,14 @@ static bool LoadHighScores(const char *filename)
 	}
 
 	idx = 0;
-	while (!feof(fs) && idx < MAX_HIGH_SCORES) {
+	while (idx < MAX_HIGH_SCORES && ReadLine(fs, line, sizeof(line))) {
 		hs = &high_scores[idx];
-		if (fgets(line, sizeof(line), fs) == NULL) {
-			break;
+		// Comment?
+		if (line[0] == '#') {
+			continue;
 		}
 		if (sscanf(line, "%3s %d %d %d", hs->name,
 		           &hs->score.score, &medals, &ribbons) < 4) {
-			continue;
-		}
-		// Comment?
-		if (hs->name[0] == '#') {
 			continue;
 		}
 		hs->score.medals_nr =
@@ -95,11 +108,6 @@ static bool LoadHighScores(const char *filename)
 		hs->score.ribbons_nr =
 			UnpackMedals(ribbons, hs->score.ribbons, 3);
 		++idx;
-
-		// Long line? Keep reading chunks until we reach the end
-		while (!feof(fs) && strchr(line, '\n') == NULL) {
-			fgets(line, sizeof(line), fs);
-		}
 	}
 
 	fclose(fs);
