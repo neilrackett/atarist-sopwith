@@ -21,6 +21,7 @@
 
 #include "video.h"
 
+#include "hiscore.h"
 #include "sw.h"
 #include "swasynio.h"
 #include "swconf.h"
@@ -34,20 +35,19 @@
 #include "swsound.h"
 #include "swsymbol.h"
 #include "swtitle.h"
+#include "timer.h"
+
+// How many milliseconds from when the title screen appears to when the high
+// score table gets shown?
+#define HIGH_SCORE_PERIOD 10000
 
 #define X_OFFSET ((SCR_WDTH/2)-160)
 
-void swtitln(void)
+static int title_screen_start;
+
+static void DrawTitleScreenContent(void)
 {
 	const char *version_string;
-	GRNDTYPE *orground = original_level.gm_ground;
-
-	int i, h;
-
-	sound(S_TITLE, 0, NULL);
-
-	// clear the screen
-	Vid_ClearBuf();
 
 	swcolor(2);
 	swposcur(18+X_OFFSET/8, 2);
@@ -85,6 +85,26 @@ void swtitln(void)
 	swputs("GNU");
 	swcolor(3);
 	swputs(" GPL");
+}
+
+void swtitln(void)
+{
+	GRNDTYPE *orground = original_level.gm_ground;
+	int i, h;
+
+	sound(S_TITLE, 0, NULL);
+
+	// clear the screen
+	Vid_ClearBuf();
+
+	// We show the title screen, but after five seconds it switches to the
+	// high score table instead.
+	i = Timer_GetMS() - title_screen_start;
+	if ((i / HIGH_SCORE_PERIOD) % 2 == 0) {
+		DrawTitleScreenContent();
+	} else {
+		DrawHighScoreTable();
+	}
 
 	swground(orground, 507 - X_OFFSET);
 
@@ -257,6 +277,7 @@ static const struct menu main_menu = {
 
 void getgamemode(void)
 {
+	title_screen_start = Timer_GetMS();
 	playmode = PLAYMODE_UNSET;
 	while (playmode == PLAYMODE_UNSET) {
 		RunMenu(&main_menu);

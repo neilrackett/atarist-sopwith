@@ -17,6 +17,7 @@
 #include <time.h>
 #include <assert.h>
 
+#include "hiscore.h"
 #include "pcsound.h"
 #include "timer.h"
 #include "video.h"
@@ -1120,12 +1121,11 @@ void swinitlevel(void)
 
 void swrestart(void)
 {
-	OBJECTS *ob;
+	OBJECTS *ob = planes[player];
 	int inc;
 	int time;
-		
+
 	if (consoleplayer->ob_endsts == WINNER) {
-		ob = planes[player];
 		inc = 0;
 
 		GetEndLevel(ob);
@@ -1147,6 +1147,8 @@ void swrestart(void)
 		savescore = ob->ob_score;
 		have_savescore = true;
 	} else {
+		NewHighScore(&ob->ob_score);
+
 		// gamenum = 0;
 		// allow variable start level -- Jesse
 		gamenum = starting_level;
