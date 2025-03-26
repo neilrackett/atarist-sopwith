@@ -120,14 +120,36 @@ quit
 Ctrl+C Ctrl+C Ctrl+C
 quit immediately
 .
+.SH SCORING
+.PP
+Playing the game, you can rack up a score based on targets destroyed. You
+\fIlose\fR the same number of points if your own targets get destroyed. The
+scoring is as follows:
+.TP
+Enemy Plane
+50 points
+.TP
+Ground target
+100 points
+.TP
+Oil tank
+200 points
+.TP
+Planes left over when completing a level
+25 points each
+.PP
+If you do very well, you may obtain a high score! The high score is shown on
+the title screen of the game after 10 seconds. High scores are stored in the
+high score file: \fI~/.local/share/SDL Sopwith/hiscores.txt\fR
+.
 .SH DASHBOARD
 At the bottom of the screen, the plane's dashboard is shown. This consists of
 several components:
 .TP
 Score
 Your current score, which is accumulated from the enemy targets and planes you
-have successfully destroyed. In multiplayer two scores are shown, so that both
-players can see each others' scores.
+have successfully destroyed (see \fBSCORING\fR above). In multiplayer two
+scores are shown, so that both players can see each others' scores.
 .TP
 Lives (Cyan)
 Number of lives remaining. You have five lives.
