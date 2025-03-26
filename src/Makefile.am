@@ -13,11 +13,6 @@ dist_metainfo_DATA = io.github.fragglet.sdl_sopwith.metainfo.xml
 iconsdir = $(prefix)/share/icons/hicolor/128x128/apps
 dist_icons_DATA = sopwith.png
 
-if GLOBAL_HISCORES
-hiscoresdir = $(HISCORES_PATH)
-hiscores_DATA = hiscores.txt
-endif
-
 bindir=$(prefix)/bin
 
 SUBDIRS = sdl
@@ -77,5 +72,18 @@ resource.rc: sopwith.ico
 if HAVE_CONVERT
 sopwith.ico: ../icon.png
 	convert $< $@
+endif
+
+if GLOBAL_HISCORES
+hiscoresdir = $(HISCORES_PATH)
+hiscores_DATA = hiscores.txt
+
+install-data-hook:
+	chgrp $(HISCORES_GROUP) "$(DESTDIR)$(HISCORES_PATH)"
+	chmod 775 "$(DESTDIR)$(HISCORES_PATH)"
+	chgrp $(HISCORES_GROUP) "$(DESTDIR)$(HISCORES_PATH)"
+	chmod 775 "$(DESTDIR)$(HISCORES_PATH)/hiscores.txt"
+	chgrp $(HISCORES_GROUP) "$(DESTDIR)$(bindir)/sopwith"
+	chmod g+s "$(DESTDIR)$(bindir)/sopwith"
 endif
 
