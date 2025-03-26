@@ -65,6 +65,7 @@ static int UnpackMedals(int input, int *medals, int max_medals)
 static bool LoadHighScores(const char *filename)
 {
 	struct high_score *hs;
+	char line[64];
 	FILE *fs;
 	int idx, medals, ribbons;
 
@@ -76,7 +77,10 @@ static bool LoadHighScores(const char *filename)
 	idx = 0;
 	while (!feof(fs) && idx < MAX_HIGH_SCORES) {
 		hs = &high_scores[idx];
-		if (fscanf(fs, "%3s %d %d %d\n", hs->name,
+		if (fgets(line, sizeof(line), fs) == NULL) {
+			break;
+		}
+		if (sscanf(line, "%3s %d %d %d", hs->name,
 		           &hs->score.score, &medals, &ribbons) < 4) {
 			continue;
 		}
@@ -89,6 +93,11 @@ static bool LoadHighScores(const char *filename)
 		hs->score.ribbons_nr =
 			UnpackMedals(ribbons, hs->score.ribbons, 3);
 		++idx;
+
+		// Long line? Keep reading chunks until we reach the end
+		while (!feof(fs) && strchr(line, '\n') == NULL) {
+			fgets(line, sizeof(line), fs);
+		}
 	}
 
 	fclose(fs);
