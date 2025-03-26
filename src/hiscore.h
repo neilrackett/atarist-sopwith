@@ -17,6 +17,8 @@
 #include "sw.h"
 
 extern void DrawHighScoreTable(void);
+extern void LoadHighScoreTable(void);
+extern void SaveHighScoreTable(void);
 extern bool NewHighScore(score_t *s);
 
 #endif /* #ifndef __HISCORE_H__ */
