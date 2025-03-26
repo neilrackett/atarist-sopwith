@@ -14,6 +14,9 @@
 #ifndef __HISCORE_H__
 #define __HISCORE_H__
 
+#include "sw.h"
+
 extern void DrawHighScoreTable(void);
+extern bool NewHighScore(score_t *s);
 
 #endif /* #ifndef __HISCORE_H__ */

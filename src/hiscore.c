@@ -12,11 +12,14 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 
 #include "sw.h"
 
 #include "hiscore.h"
+#include "swmain.h"
 #include "swtext.h"
+#include "swtitle.h"
 #include "video.h"
 
 #define MAX_HIGH_SCORES 10
@@ -104,17 +107,73 @@ void DrawHighScoreTable(void)
 	}
 }
 
-		// Medal symbols are 12 characters tall, but each line is
-		// only 8 characters tall. The top part of the medal symbol
-		// gets cut off so that we can pack all the medals in; we do
-		// this by drawing a black box over the top of it.
-		Vid_Box(x, y, 32, 4, 0);
+static int CompareHighScores(const struct high_score *a,
+                             const struct high_score *b)
+{
+	if (a->score.score != b->score.score) {
+		return a->score.score - b->score.score;
+	}
+	if (a->score.medals_nr != b->score.medals_nr) {
+		return a->score.medals_nr - b->score.medals_nr;
+	}
+	if (a->score.ribbons_nr != b->score.ribbons_nr) {
+		return a->score.ribbons_nr - b->score.ribbons_nr;
+	}
+	return 0;
+}
 
-		for (m = 0; m < hs->score.ribbons_nr; ++m) {
-			symset_t *ss = &symbol_ribbon[hs->score.ribbons[m]];
-			int rx = (m / 2) * 8, ry = (m % 2) * 4 + 6;
-			Vid_DispSymbol(x + 18 + rx, y - ry, &ss->sym[0],
-			               FACTION_PLAYER1);
+static bool IsNewHighScore(const struct high_score *hs)
+{
+	int i;
+
+	for (i = 0; i < MAX_HIGH_SCORES; ++i) {
+		if (CompareHighScores(hs, &high_scores[i]) > 0) {
+			return true;
 		}
 	}
+
+	return false;
+}
+
+static bool EnterHighScore(struct high_score *hs)
+{
+	Vid_ClearBuf();
+	DrawHighScoreTable();
+
+	swcolor(2);
+	swposcur(2, 15);
+	swputs("NEW HIGH SCORE!");
+	swcolor(3);
+	swposcur(2, 17);
+	DrawHighScore(hs, TABLE_X, 17);
+
+	swposcur(TABLE_X - 1, 17);
+	swputs("[    ]");
+	clrprmpt();
+	swposcur(TABLE_X, 17);
+	swgets(hs->name, sizeof(hs->name) - 1);
+
+	return strlen(hs->name) > 0;
+}
+
+// NewHighScore checks if the given score is actually a new high score, and if
+// so: prompts the user for their name and adds it.
+bool NewHighScore(score_t *s)
+{
+	struct high_score new_hs = {"", *s};
+
+	// High scores only apply to the default version of the game.
+	if (playmode != PLAYMODE_COMPUTER
+	 || conf_missiles || conf_wounded || !conf_animals
+	 || !conf_big_explosions) {
+		return false;
+	}
+	if (!IsNewHighScore(&new_hs)) {
+		return false;
+	}
+	if (!EnterHighScore(&new_hs)) {
+		return false;
+	}
+
+	return true;
 }
