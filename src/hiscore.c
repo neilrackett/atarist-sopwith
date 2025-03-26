@@ -122,17 +122,24 @@ static int CompareHighScores(const struct high_score *a,
 	return 0;
 }
 
-static bool IsNewHighScore(const struct high_score *hs)
+// NewHighScoreIndex returns the index in the high_scores[] array where the
+// new high score should be inserted, or -1 if it is not a new high score.
+static int NewHighScoreIndex(const struct high_score *hs)
 {
 	int i;
 
 	for (i = 0; i < MAX_HIGH_SCORES; ++i) {
 		if (CompareHighScores(hs, &high_scores[i]) > 0) {
-			return true;
+			return i;
 		}
 	}
 
-	return false;
+	return -1;
+}
+
+static bool IsNewHighScore(const struct high_score *hs)
+{
+	return NewHighScoreIndex(hs) >= 0;
 }
 
 static bool EnterHighScore(struct high_score *hs)
@@ -161,6 +168,7 @@ static bool EnterHighScore(struct high_score *hs)
 bool NewHighScore(score_t *s)
 {
 	struct high_score new_hs = {"", *s};
+	int idx;
 
 	// High scores only apply to the default version of the game.
 	if (playmode != PLAYMODE_COMPUTER
@@ -174,6 +182,14 @@ bool NewHighScore(score_t *s)
 	if (!EnterHighScore(&new_hs)) {
 		return false;
 	}
+
+	idx = NewHighScoreIndex(&new_hs);
+	if (idx < 0) {
+		return false;
+	}
+	memmove(&high_scores[idx + 1], &high_scores[idx],
+	        sizeof(struct high_score) * (MAX_HIGH_SCORES - 1 - idx));
+	high_scores[idx] = new_hs;
 
 	return true;
 }
