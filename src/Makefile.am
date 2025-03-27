@@ -2,7 +2,7 @@ IWYU = iwyu
 IWYU_FLAGS = --error --mapping_file=.iwyu-overrides.imp
 IWYU_TRANSFORMED_FLAGS = $(patsubst %,-Xiwyu %,$(IWYU_FLAGS)) $(CFLAGS)
 
-EXTRA_DIST = sopwith.ico
+EXTRA_DIST = sopwith.ico hiscores.txt
 
 appdir = $(prefix)/share/applications
 dist_app_DATA = sopwith.desktop
