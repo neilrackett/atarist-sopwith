@@ -15,6 +15,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "sw.h"
 
@@ -170,6 +171,15 @@ static const char *HighScoreFilePath(void)
 			fclose(fs);
 			hiscore_file = p;
 			return hiscore_file;
+		}
+		// We print a warning message if the file does appear to
+		// exist but we can't write to it for some reason.
+		if (errno != ENOENT) {
+			fprintf(stderr, "Error opening the system-wide high "
+			        "scores file (%s): %s. The file might not "
+			        "have the necessary permissions set for this "
+			        "program to write to it.\n",
+			        p, strerror(errno));
 		}
 	}
 
