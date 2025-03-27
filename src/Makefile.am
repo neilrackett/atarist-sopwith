@@ -79,11 +79,18 @@ hiscoresdir = $(HISCORES_PATH)
 hiscores_DATA = hiscores.txt
 
 install-data-hook:
-	chgrp $(HISCORES_GROUP) "$(DESTDIR)$(HISCORES_PATH)"
-	chmod 775 "$(DESTDIR)$(HISCORES_PATH)"
-	chgrp $(HISCORES_GROUP) "$(DESTDIR)$(HISCORES_PATH)"
-	chmod 775 "$(DESTDIR)$(HISCORES_PATH)/hiscores.txt"
-	chgrp $(HISCORES_GROUP) "$(DESTDIR)$(bindir)/sopwith"
-	chmod g+s "$(DESTDIR)$(bindir)/sopwith"
+	@chgrp $(HISCORES_GROUP) \
+	    "$(DESTDIR)$(HISCORES_PATH)" \
+	    "$(DESTDIR)$(HISCORES_PATH)/hiscores.txt" && \
+	chmod 775 \
+	    "$(DESTDIR)$(HISCORES_PATH)" \
+	    "$(DESTDIR)$(HISCORES_PATH)/hiscores.txt" || \
+	echo "*** WARNING: Failed to set permissions for system-wide high" \
+	     "scores file. High scores will have to be per-user."
+	@chgrp $(HISCORES_GROUP) "$(DESTDIR)$(bindir)/sopwith" && \
+	chmod g+s "$(DESTDIR)$(bindir)/sopwith" || \
+	echo "*** WARNING: Failed to make the installed sopwith binary" \
+	     "setgid to the $(HISCORES_GROUP) group. It won't be able to" \
+	     "update the system-wide high scores file."
 endif
 
