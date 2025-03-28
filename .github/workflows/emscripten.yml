@@ -5,7 +5,11 @@ on: [push, pull_request]
 jobs:
   emscripten_build:
     name: Emscripten build
-    runs-on: ubuntu-latest
+    # We are deliberately sticking back to Ubuntu 22.04 because the
+    # version of Emscripten from 24.04 (3.1.6) doesn't build properly;
+    # the more recent version from Debian testing does work, so when
+    # Ubuntu catches up with that we can switch back to ubuntu-latest.
+    runs-on: ubuntu-22.04
     concurrency:
       group: emscripten-build
 
