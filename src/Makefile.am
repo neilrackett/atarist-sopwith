@@ -59,7 +59,7 @@ else
 sopwith_SOURCES = $(COMMON_SOURCES)
 endif
 
-sopwith_LDADD = sdl/libsdlsopwith.a sdl/libsdlsopmain.a @SDL_LIBS@ \
+sopwith_LDADD = sdl/libsdlsopwith.a @SDL_LIBS@ sdl/libsdlsopmain.a \
                 $(SOCKET_LIBS)
 
 .rc.o:
