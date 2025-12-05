@@ -78,19 +78,12 @@ if GLOBAL_HISCORES
 hiscoresdir = $(HISCORES_PATH)
 hiscores_DATA = hiscores.txt
 
+# Note: we install the high scores file as world-writable; we used to install
+# it as owned by the `games` user, with the Sopwith binary installed as setgid
+# `games`. However, we can't do this because the Gtk+ team have an ideological
+# opposition to the setgid mechanism (bug #57).
 install-data-hook:
-	@chgrp $(HISCORES_GROUP) \
-	    "$(DESTDIR)$(HISCORES_PATH)" \
-	    "$(DESTDIR)$(HISCORES_PATH)/hiscores.txt" && \
-	chmod 775 \
-	    "$(DESTDIR)$(HISCORES_PATH)" \
-	    "$(DESTDIR)$(HISCORES_PATH)/hiscores.txt" || \
+	@chmod 666 "$(DESTDIR)$(HISCORES_PATH)/hiscores.txt" || \
 	echo "*** WARNING: Failed to set permissions for system-wide high" \
 	     "scores file. High scores will have to be per-user."
-	@chgrp $(HISCORES_GROUP) "$(DESTDIR)$(bindir)/sopwith" && \
-	chmod g+s "$(DESTDIR)$(bindir)/sopwith" || \
-	echo "*** WARNING: Failed to make the installed sopwith binary" \
-	     "setgid to the $(HISCORES_GROUP) group. It won't be able to" \
-	     "update the system-wide high scores file."
 endif
-

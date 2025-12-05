@@ -72,13 +72,6 @@ AC_ARG_WITH([hiscores-path],
             [HISCORES_PATH=${with_hiscores_path}], [])
 AC_SUBST(HISCORES_PATH)
 
-AC_ARG_WITH([hiscores-group],
-            [AS_HELP_STRING([--with-hiscores-group=name],
-                            [group name for high scores directory])],
-            [HISCORES_GROUP=${with_hiscores_group}],
-            [HISCORES_GROUP=games])
-AC_SUBST(HISCORES_GROUP)
-
 AM_CONDITIONAL(GLOBAL_HISCORES, test "$HISCORES_PATH" != "")
 AC_DEFINE_UNQUOTED(HISCORES_PATH, "$HISCORES_PATH",
                    [Path to directory containing high scores file.])
