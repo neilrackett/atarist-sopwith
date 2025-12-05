@@ -460,7 +460,7 @@ static bool movepln(OBJECTS *ob)
 				} else if (ob->ob_dx > 0) {
 					--ob->ob_dx;
 				} else {
-					ob->ob_orient = !ob->ob_orient;
+					++ob->ob_orient;
 				}
 			}
 
@@ -622,7 +622,7 @@ static bool movepln(OBJECTS *ob)
 	} else if (ob->ob_state == FINISHED) {
 		ob->ob_symbol = NULL;
 	} else if (ob->ob_state == FALLING && !ob->ob_dx && ob->ob_dy < 0) {
-		ob->ob_symbol = &symbol_plane_hit[ob->ob_orient].sym[0];
+		ob->ob_symbol = &symbol_plane_hit[ob->ob_orient % 4].sym[0];
 	} else if (ob->ob_orient) {
 		// Flipped:
 		int a = (16 - ob->ob_angle) % 16;

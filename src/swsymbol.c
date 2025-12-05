@@ -127,6 +127,40 @@ static const char *swhitsym[] = {
 	"            - * *   -           \n"
 	"            * * *   -           \n"
 	"            * * *               \n",
+	// -------------------------------
+	"  - - - - * * - - - -           \n"
+	"    - - - * * - - -             \n"
+	"      - - * * - -               \n"
+	"          * *                   \n"
+	"          * *                   \n"
+	"          * *                   \n"
+	"        * * * *                 \n"
+	"        * * * *                 \n"
+	"        * * * *                 \n"
+	"        * * * *                 \n"
+	"- - - - - - - - - - - - - -     \n"
+	"  - - - - - - - - - - - - - - - \n"
+	"- - - - - - - - - - - - - - - - \n"
+	"-   - - - - - - - - - - - - - - \n"
+	"        * * * *                 \n"
+	"        * * * *                 \n",
+	// -------------------------------
+	"        * * * -                 \n"
+	"        * * * - *               \n"
+	"        * * * - * * *           \n"
+	"          * * - * *             \n"
+	"            * - * *             \n"
+	"              * * *             \n"
+	"              * * *             \n"
+	"              * * *             \n"
+	"          -   * * -             \n"
+	"          -   * * -             \n"
+	"          - - - - -   *         \n"
+	"          -   * * - * * *       \n"
+	"          - - - - -   *         \n"
+	"          -   * * -             \n"
+	"          -   * * *             \n"
+	"              * * *             \n",
 };
 
 static const char *swwinsym[] = {  /*  Win plane pixel array  */
@@ -1172,7 +1206,7 @@ symset_t symbol_birdsplat[1];            // swsplsym
 symset_t symbol_missile[4];              // swmscsym
 symset_t symbol_burst[2];                // swbstsym
 symset_t symbol_plane[4];                // swplnsym
-symset_t symbol_plane_hit[2];            // swhitsym
+symset_t symbol_plane_hit[4];            // swhitsym
 symset_t symbol_plane_win[4];            // swwinsym
 symset_t symbol_medal[3];                // swmedalsym
 symset_t symbol_ribbon[6];               // swribbonsym
