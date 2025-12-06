@@ -24,7 +24,7 @@ on run argv
     tell application "Finder"
         --activate
         open dmgFile
-        delay 1
+        delay 3
         set theDisk to disk diskName
         open POSIX file "/"
 
