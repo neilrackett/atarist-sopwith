@@ -130,8 +130,7 @@ static OBJECTS *GetScoreObject(OBJECTS *ob, int *reverse)
 		        || ob->ob_faction == FACTION_NONE;
 	} else {
 		// TODO: Support more than two factions.
-		retval = planes[ob->ob_faction == FACTION_PLAYER1 ?
-		                FACTION_PLAYER2 : FACTION_PLAYER1];
+		retval = planes[ob->ob_faction == FACTION_PLAYER1 ? 1 : 0];
 	}
 
 	return retval;
