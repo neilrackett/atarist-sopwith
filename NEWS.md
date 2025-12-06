@@ -1,3 +1,16 @@
+# Latest
+
+ * A crash was fixed when any object was destroyed in multiplayer (thanks to
+   @alphanumericcharter and @scandox for reporting this bug).
+ * Scoring has been fixed when killing animals (it is supposed to be negative,
+   but because of a bug, accidentally became positive).
+ * The game now saves high scores to a system-wide high scores table (if
+   possible; or a per-user one otherwise).
+ * The "tailspin" animation when a plane is crashing and in a nosedive was
+   tweaked to add two additional frames of animation.
+ * Various Emscripten fixes were made; the previous release had to be rolled
+   back from the website because of them.
+
 # v2.8.0 (2025-03-21)
 
 * Gamepad support was added. This uses the SDL Game Controller API, so it
