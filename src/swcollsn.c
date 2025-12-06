@@ -122,7 +122,6 @@ bool CollisionTest(OBJECTS *ob1, OBJECTS *ob2)
 static OBJECTS *GetScoreObject(OBJECTS *ob, int *reverse)
 {
 	OBJECTS *retval;
-	*reverse = 0;
 
 	if (playmode != PLAYMODE_ASYNCH) {
 		retval = planes[0];
@@ -131,6 +130,9 @@ static OBJECTS *GetScoreObject(OBJECTS *ob, int *reverse)
 	} else {
 		// TODO: Support more than two factions.
 		retval = planes[ob->ob_faction == FACTION_PLAYER1 ? 1 : 0];
+		// TODO: This always penalizes player 1 when animals are
+		// killed, even if it was player 2 that killed the animal.
+		*reverse = ob->ob_faction == FACTION_NONE;
 	}
 
 	return retval;
