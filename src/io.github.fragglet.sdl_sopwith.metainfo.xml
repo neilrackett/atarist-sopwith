@@ -40,6 +40,21 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2.9.0" date="2025-12-06">
+      <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.9.0</url>
+      <description>
+        <p>A crash was fixed when any object was destroyed in multiplayer (thanks to
+           @alphanumericcharter and @scandox for reporting this bug).</p>
+        <p>Scoring has been fixed when killing animals (it is supposed to be negative,
+           but because of a bug, accidentally became positive).</p>
+        <p>The game now saves high scores to a system-wide high scores table (if
+           possible; or a per-user one otherwise).</p>
+        <p>The "tailspin" animation when a plane is crashing and in a nosedive was
+           tweaked to add two additional frames of animation.</p>
+        <p>Various Emscripten fixes were made; the previous release had to be rolled
+           back from the website because of them.</p>
+      </description>
+    </release>
     <release version="2.8.0" date="2025-03-21">
       <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.8.0</url>
       <description>
@@ -116,24 +131,6 @@
         <p>Out of tree builds were fixed (thanks Will Thompson)</p>
         <p>The close button now quits the game (thanks Will Thompson)</p>
         <p>The help screen is no longer shown when aborting the game.</p>
-      </description>
-    </release>
-    <release version="2.2.0" date="2023-05-17">
-      <url>https://github.com/fragglet/sdl-sopwith/releases/tag/sdl-sopwith-2.2.0</url>
-      <description>
-        <p>Help text is now shown for new players. This is shown on game start in
-novice mode, but won't be shown again after a successful flight. The help
-text will also appear in other single player modes, but only if it looks
-like you're really struggling to get the plane off the ground.</p>
-        <p>It's no longer possible to flip the plane upside down while sitting
-motionless on the runway (a bug since the original DOS versions).</p>
-        <p>It's no longer possible to get wounded on the ground. If a plane shoots
-another on the ground, that's a successful raid. This fixes a bug where
-a wounded plane on the runway would still be damaged after takeoff.</p>
-        <p>The game no longer freezes up in multiplayer mode if the other player
-quits. When establishing a connection, a helpful message is shown about how
-to abort.</p>
-        <p>If the game quits with an error, a friendly dialog box now shows the error.</p>
       </description>
     </release>
   </releases>

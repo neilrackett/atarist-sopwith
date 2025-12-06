@@ -1,4 +1,4 @@
-# Latest
+# v2.9.0 (2025-12-06)
 
  * A crash was fixed when any object was destroyed in multiplayer (thanks to
    @alphanumericcharter and @scandox for reporting this bug).
