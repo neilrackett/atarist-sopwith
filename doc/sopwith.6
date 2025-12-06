@@ -313,8 +313,14 @@ https://github.com/fragglet/sdl-sopwith
 ~/.local/share/SDL Sopwith/sopwith.cfg
 Configuration file. See \fBsopwith.cfg\fR(5).
 .TP
+/var/games/sopwith/hiscores.txt
+High scores file. This is shared between all users on the system. However, the
+file is usually installed world-writable, so be aware that it's possible for
+others to cheat and edit their names into the list.
+.TP
 ~/.local/share/SDL Sopwith/hiscores.txt
-High scores file.
+Alternate high scores file. If the system-wide high scores file doesn't exist,
+the game will save one here instead.
 .SH SEE ALSO
 \fBsopwith.cfg\fR(5),
 \fBsopwith-mission\fR(5),
