@@ -202,7 +202,6 @@ void LoadHighScoreTable(void)
 
 void SaveHighScoreTable(void)
 {
-	// TODO: System-wide high score file for all users
 	SaveHighScores(HighScoreFilePath());
 }
 
