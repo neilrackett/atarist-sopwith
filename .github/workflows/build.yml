@@ -153,17 +153,3 @@ jobs:
       with:
         path: "pkg/win32/staging"
         name: sdl-sopwith-${{steps.version.outputs.SUFFIXED_VERSION}}
-
-    - name: Build package (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        cd pkg/macos
-        make PACKAGE_VERSION=${{steps.version.outputs.SUFFIXED_VERSION}} \
-             PACKAGE_STRING="Sopwith build ${{steps.version.outputs.VERSION}}"
-
-    - name: Upload build (macOS)
-      if: runner.os == 'macOS'
-      uses: actions/upload-artifact@v4
-      with:
-        path: "pkg/macos/sdl-sopwith-${{steps.version.outputs.SUFFIXED_VERSION}}.dmg"
-        name: sdl-sopwith-${{steps.version.outputs.SUFFIXED_VERSION}}
