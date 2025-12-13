@@ -148,6 +148,8 @@ static bool SaveHighScores(const char *filename)
 		        PackMedals(hs->score.ribbons, hs->score.ribbons_nr));
 	}
 
+	fclose(fs);
+
 	return true;
 }
 
