@@ -18,6 +18,55 @@
 #include "swmain.h"
 #include "swtext.h"
 
+#ifdef PLATFORM_ATARI_TOS
+/*
+ * Fast minimap pixel plotting - avoids Vid_PlotPixel overhead.
+ * The minimap area is small and always in-bounds, so we skip all
+ * bounds checks and compute addresses incrementally.
+ *
+ * Atari ST low-res: 4 bitplanes, 16 pixels per word group (8 bytes).
+ * Screen stride = 160 bytes per row. Row 0 in screen memory = top.
+ * Game Y=0 is bottom of screen, so game Y maps to screen row (199 - Y).
+ */
+#define MAP_SCREEN_STRIDE 160
+
+/* Division by 13 via multiply-shift: floor(x / 13) = (x * 5042) >> 16
+   Exact for 0 <= x <= 200 (our max ground height). */
+static inline int div13(int x)
+{
+	return (int)(((unsigned int)x * 5042U) >> 16);
+}
+
+/* Plot a single pixel at known-good minimap coordinates.
+   clr is 0-15. x,y are in game coords (y=0 is bottom). */
+static inline void map_plot(uint8_t *screen_base, int x, int y, int clr)
+{
+	uint16_t *words;
+	uint16_t mask;
+
+	words = (uint16_t *)(screen_base + (199 - y) * MAP_SCREEN_STRIDE
+	                     + (x >> 4) * 8);
+	mask = 0x8000U >> (x & 15);
+
+	if (clr & 1) words[0] |= mask; else words[0] &= ~mask;
+	if (clr & 2) words[1] |= mask; else words[1] &= ~mask;
+	if (clr & 4) words[2] |= mask;
+	if (clr & 8) words[3] |= mask;
+}
+
+/* Plot pixel using incremental offset from previous column.
+   'words' points to the current word group. Returns updated pointer
+   if we cross a 16-pixel word boundary. */
+static inline void map_plot_same_col(uint16_t *words, uint16_t mask, int clr)
+{
+	if (clr & 1) words[0] |= mask; else words[0] &= ~mask;
+	if (clr & 2) words[1] |= mask; else words[1] &= ~mask;
+	if (clr & 4) words[2] |= mask;
+	if (clr & 8) words[3] |= mask;
+}
+
+#endif /* PLATFORM_ATARI_TOS */
+
 static void dispribbonrow (int *ribbonid, int ribbons_nr, int y)
 {
 	int i;
@@ -58,6 +107,35 @@ static void dispmedals(OBJECTS *ob)
 	}
 }
 
+/* Fast integer-to-string for score display, avoids heavyweight snprintf */
+static void itoa_score(int val, char *buf, int bufsz)
+{
+	char tmp[12];
+	int i = 0, neg = 0;
+
+	if (bufsz <= 0) return;
+
+	if (val < 0) {
+		neg = 1;
+		val = -val;
+	}
+	do {
+		tmp[i++] = '0' + (val % 10);
+		val /= 10;
+	} while (val > 0 && i < (int)sizeof(tmp));
+
+	if (neg && i < (int)sizeof(tmp)) tmp[i++] = '-';
+
+	/* Reverse into buf */
+	{
+		int j = 0;
+		while (i > 0 && j < bufsz - 1) {
+			buf[j++] = tmp[--i];
+		}
+		buf[j] = '\0';
+	}
+}
+
 static void dispscore(OBJECTS * ob)
 {
 	char buf[10];
@@ -76,7 +154,7 @@ static void dispscore(OBJECTS * ob)
 	}
 	swposcur(x, 24);
 	swcolor(ob->ob_clr);
-	snprintf(buf, sizeof(buf), "%d", ob->ob_score.score);
+	itoa_score(ob->ob_score.score, buf, sizeof(buf));
 	swputs(buf);
 }
 
@@ -120,36 +198,50 @@ static void dispgauges(OBJECTS *ob)
 	}
 }
 
-static void dispmapobjects(void)
+static void dispmapobjects(int wrld_rsx
+#ifndef PLATFORM_ATARI_TOS
+                           , int wrld_rsy
+#else
+                           , int wrld_rsy __attribute__((unused))
+#endif
+                           )
 {
 	int mapx, mapy, x, y, groundy;
 	OBJECTS *ob;
+	int max_x = currgame->gm_max_x;
+#ifdef PLATFORM_ATARI_TOS
+	extern uint8_t *vid_vram;
+	uint8_t *scr = vid_vram;
+#endif
 
 	for (ob=objtop; ob; ob=ob->ob_next) {
 		if (!ob->ob_onmap
-		 || ob->ob_x < 0 || ob->ob_x >= currgame->gm_max_x) {
+		 || ob->ob_x < 0 || ob->ob_x >= max_x) {
 			continue;
 		}
 
 		mapx = ob->ob_x + (ob->ob_symbol->w / 2);
 
-		// We usually draw the dot at the map location of the
-		// center of the sprite. However, if the object is
-		// sitting on the ground (eg. target) we want to make
-		// sure it is never floating above the ground.
 		groundy = ground[ob->ob_x];
 		if (ob->ob_y - ob->ob_symbol->h <= groundy) {
-			// on ground
 			mapy = ob->ob_y - ob->ob_symbol->h + 8;
 		} else {
 			mapy = ob->ob_y - (ob->ob_symbol->h / 2);
 		}
-		x = SCR_CENTR + mapx / WRLD_RSX;
-		y = mapy / WRLD_RSY;
+		x = SCR_CENTR + mapx / wrld_rsx;
+#ifdef PLATFORM_ATARI_TOS
+		y = div13(mapy);
+#else
+		y = mapy / wrld_rsy;
+#endif
 
 		if (y < SCR_MNSH-1) {
+#ifdef PLATFORM_ATARI_TOS
+			map_plot(scr, x, y, Vid_FuselageColor(ob->ob_clr));
+#else
 			Vid_PlotPixel(x, y,
 				      Vid_FuselageColor(ob->ob_clr));
+#endif
 		}
 	}
 }
@@ -157,21 +249,135 @@ static void dispmapobjects(void)
 static void dispmap(void)
 {
 	int x, y, dx, maxh, sx;
+	const int wrld_rsx = WRLD_RSX;
+	const int wrld_rsy = WRLD_RSY;
+	const int max_x = currgame->gm_max_x;
+	const GRNDTYPE *gnd = ground;
 
+#ifdef PLATFORM_ATARI_TOS
+	/* Fast Atari path: inline pixel plotting, no function call overhead,
+	   multiply-shift division instead of __divsi3.
+	   Restructured as nested loop: outer loop per map column,
+	   inner loop finds max of wrld_rsx ground samples. */
+	extern uint8_t *vid_vram;
+	uint8_t *scr = vid_vram;
+	uint16_t *col_words;   /* word group for current sx column */
+	uint16_t col_mask;     /* pixel mask for current sx column */
+	int num_cols;          /* number of map columns to draw */
+
+	(void)dx;
+
+	sx = SCR_CENTR;
+	col_words = (uint16_t *)(scr + 199 * MAP_SCREEN_STRIDE
+	                         + (sx >> 4) * 8);
+	col_mask = 0x8000U >> (sx & 15);
+
+	y = 0;
+	num_cols = max_x / wrld_rsx;
+
+	for (x = 0; x < num_cols; ++x) {
+		/* Find max ground height in this chunk */
+		const GRNDTYPE *chunk = gnd;
+		int i;
+		maxh = chunk[0];
+		for (i = 1; i < wrld_rsx; ++i) {
+			int g = chunk[i];
+			if (g > maxh) maxh = g;
+		}
+		gnd += wrld_rsx;
+
+		maxh = div13(maxh);
+
+		/* Draw ground trace - only the pixels that changed */
+		if (maxh != y) {
+			uint16_t *w;
+			if (maxh > y) {
+				int yy;
+				for (yy = y + 1; yy <= maxh; ++yy) {
+					w = (uint16_t *)((uint8_t *)col_words
+					    - yy * MAP_SCREEN_STRIDE);
+					w[0] |= col_mask;
+					w[1] |= col_mask;
+					w[2] |= col_mask;
+				}
+			} else {
+				int yy;
+				for (yy = y - 1; yy >= maxh; --yy) {
+					w = (uint16_t *)((uint8_t *)col_words
+					    - yy * MAP_SCREEN_STRIDE);
+					w[0] |= col_mask;
+					w[1] |= col_mask;
+					w[2] |= col_mask;
+				}
+			}
+			y = maxh;
+		}
+		/* Single pixel at current height */
+		{
+			uint16_t *w = (uint16_t *)((uint8_t *)col_words
+			              - y * MAP_SCREEN_STRIDE);
+			w[0] |= col_mask;
+			w[1] |= col_mask;
+			w[2] |= col_mask;
+		}
+
+		/* Plot sky marker at y=0, color 11 = planes 0,1,3 */
+		col_words[0] |= col_mask;
+		col_words[1] |= col_mask;
+		col_words[3] |= col_mask;
+
+		/* Advance to next map column */
+		++sx;
+		col_mask >>= 1;
+		if (col_mask == 0) {
+			col_mask = 0x8000U;
+			col_words = (uint16_t *)((uint8_t *)col_words + 8);
+		}
+	}
+
+	/* Map border - color 11 */
+	{
+		int border_h = div13(MAX_Y);
+		uint16_t *left_words = (uint16_t *)(scr + 199 * MAP_SCREEN_STRIDE
+		                       + (SCR_CENTR >> 4) * 8);
+		uint16_t left_mask = 0x8000U >> (SCR_CENTR & 15);
+		uint16_t *right_words = (uint16_t *)(scr + 199 * MAP_SCREEN_STRIDE
+		                        + (sx >> 4) * 8);
+		uint16_t right_mask = 0x8000U >> (sx & 15);
+
+		for (y = 0; y <= border_h; ++y) {
+			uint16_t *lw = (uint16_t *)((uint8_t *)left_words
+			               - y * MAP_SCREEN_STRIDE);
+			uint16_t *rw = (uint16_t *)((uint8_t *)right_words
+			               - y * MAP_SCREEN_STRIDE);
+			lw[0] |= left_mask;
+			lw[1] |= left_mask;
+			lw[3] |= left_mask;
+			rw[0] |= right_mask;
+			rw[1] |= right_mask;
+			rw[3] |= right_mask;
+		}
+	}
+
+	dispmapobjects(wrld_rsx, wrld_rsy);
+
+	Vid_HLine(SCR_MNSH + 2, 7);
+
+#else
+	/* Generic path */
 	dx = 0;
 	sx = SCR_CENTR;
-
 	maxh = 0;
 	y = 0;
 
-	// draw ground
-	for (x = 0; x < currgame->gm_max_x; ++x) {
-		maxh = imax(maxh, ground[x]);
+	for (x = 0; x < max_x; ++x) {
+		int g = gnd[x];
+		if (g > maxh) maxh = g;
 
 		++dx;
 
-		if (dx == WRLD_RSX) {
-			maxh /= WRLD_RSY;
+		if (dx == wrld_rsx) {
+			maxh /= wrld_rsy;
 			if (maxh == y) {
 				Vid_PlotPixel(sx, maxh, 7);
 			} else if (maxh > y) {
@@ -190,28 +396,50 @@ static void dispmap(void)
 		}
 	}
 
-	// map border
-	maxh = MAX_Y / WRLD_RSY;
+	maxh = MAX_Y / wrld_rsy;
 	for (y = 0; y <= maxh; ++y) {
 		Vid_PlotPixel(SCR_CENTR, y, 11);
 		Vid_PlotPixel(sx, y, 11);
 	}
 
-	dispmapobjects();
+	dispmapobjects(wrld_rsx, wrld_rsy);
 
-	// border of status bar
 	for (x = 0; x < SCR_WDTH; ++x) {
 		Vid_PlotPixel(x, (SCR_MNSH + 2), 7);
 	}
+#endif
 }
+
+#ifdef PLATFORM_ATARI_TOS
+#include "timer.h"
+int _prof_map, _prof_score, _prof_gauge, _prof_medal;
+#endif
 
 void dispstatusbar(void)
 {
+#ifdef PLATFORM_ATARI_TOS
+	int _t0 = Timer_GetMS();
+#endif
 	dispmap();
+#ifdef PLATFORM_ATARI_TOS
+	int _t1 = Timer_GetMS();
+#endif
 	dispscore(consoleplayer);
+#ifdef PLATFORM_ATARI_TOS
+	int _t2 = Timer_GetMS();
+#endif
 	dispgauges(consoleplayer);
+#ifdef PLATFORM_ATARI_TOS
+	int _t3 = Timer_GetMS();
+#endif
 
 	if (conf_medals) {
 		dispmedals(consoleplayer);
 	}
+#ifdef PLATFORM_ATARI_TOS
+	_prof_map = _t1 - _t0;
+	_prof_score = _t2 - _t1;
+	_prof_gauge = _t3 - _t2;
+	_prof_medal = Timer_GetMS() - _t3;
+#endif
 }

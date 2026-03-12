@@ -51,7 +51,11 @@ static void DrawTitleScreenContent(void)
 
 	swcolor(2);
 	swposcur(18+X_OFFSET/8, 2);
+#ifdef PLATFORM_ATARI_TOS
+	swputs("ATARI ST");
+#else
 	swputs("SDL");
+#endif
 
 	swcolor(3);
 	swposcur(13+X_OFFSET/8, 4);

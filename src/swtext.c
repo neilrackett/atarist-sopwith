@@ -32,6 +32,11 @@ static int cur_color;		// text color
 
 static inline void drawchar(int x, int y, int c)
 {
+#ifdef PLATFORM_ATARI_TOS
+	/* Fast path: write glyph directly to planar framebuffer.
+	   x,y are in pixel coords (x = char_col*8, y = char_row*8). */
+	Vid_DrawChar(x / 8, y / 8, c, cur_color);
+#else
 	uint8_t *p;
 	int x2, y2;
 
@@ -54,6 +59,7 @@ static inline void drawchar(int x, int y, int c)
 			m >>= 1;
 		}
 	}
+#endif
 }
 
 void swputc(char c)

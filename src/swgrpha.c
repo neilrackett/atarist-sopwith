@@ -13,6 +13,7 @@
 //
 
 #include <stdarg.h>
+#include <stdio.h>
 
 #include "timer.h"
 #include "video.h"
@@ -28,6 +29,7 @@
 #include "swtext.h"
 
 #define NOTIFICATION_BUF_SIZE ((SCR_WDTH / 8) + 1)
+#define SHOW_FPS 1
 #define NOTIFICATION_TIME_MS  2000
 
 static char notification_buf[NOTIFICATION_BUF_SIZE] = "";
@@ -136,11 +138,23 @@ static void PrintHelp(void)
 void swdisp(void)
 {
 	OBJECTS *ob;
+#if SHOW_FPS
+	int t0, t_clr, t1, t2, t3, t4;
+	t0 = Timer_GetMS();
+#endif
 
 	Vid_ClearBuf();
 
+#if SHOW_FPS
+	t_clr = Timer_GetMS();
+#endif
+
 	// display the status bar
 	dispstatusbar();
+
+#if SHOW_FPS
+	t1 = Timer_GetMS();
+#endif
 
 	// heads up splats
 	if (conf_hudsplats) {
@@ -181,13 +195,58 @@ void swdisp(void)
 		}
 	}
 
+#if SHOW_FPS
+	t2 = Timer_GetMS();
+#endif
+
 	swground(ground, displx);
+
+#if SHOW_FPS
+	t3 = Timer_GetMS();
+#endif
 
 	if (Timer_GetMS() - notification_time < NOTIFICATION_TIME_MS) {
 		swposcur(0, 0);
 		swcolor(3);
 		swputs(notification_buf);
 	}
+
+#if SHOW_FPS
+	{
+		static int fps_frames;
+		static int fps_last_time;
+		static int fps_display;
+		static int fps_t_clr, fps_t_bar, fps_t_obj, fps_t_gnd, fps_t_tot;
+		char fps_buf[40];
+		int now;
+
+		t4 = Timer_GetMS();
+
+		++fps_frames;
+		fps_t_clr += t_clr - t0;
+		fps_t_bar += t1 - t_clr;
+		fps_t_obj += t2 - t1;
+		fps_t_gnd += t3 - t2;
+		fps_t_tot += t4 - t0;
+
+		now = Timer_GetMS();
+		if (now - fps_last_time >= 1000) {
+			{
+				extern int _prof_map, _prof_score, _prof_gauge, _prof_medal;
+				snprintf(fps_buf, sizeof(fps_buf),
+					"%dfps m%d s%d g%d M%d",
+					fps_frames,
+					_prof_map, _prof_score,
+					_prof_gauge, _prof_medal);
+			}
+			fps_display = fps_frames;
+			fps_frames = 0;
+			fps_last_time = now;
+			fps_t_clr = fps_t_bar = fps_t_obj = fps_t_gnd = fps_t_tot = 0;
+			Notification("%s", fps_buf);
+		}
+	}
+#endif
 
 	// need to update the screen as we arent writing
 	// directly into vram any more
@@ -196,6 +255,9 @@ void swdisp(void)
 
 void colorscreen(int color)
 {
+#ifdef PLATFORM_ATARI_TOS
+	Vid_ColorScreen(color);
+#else
 	int x, y;
 
 	for (y=19; y<SCR_HGHT; ++y) {
@@ -203,6 +265,7 @@ void colorscreen(int color)
 			Vid_PlotPixel(x, y, color);
 		}
 	}
+#endif
 }
 
 //

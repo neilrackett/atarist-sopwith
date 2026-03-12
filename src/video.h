@@ -115,6 +115,13 @@ extern int Vid_FuselageColor(faction_t f);
 
 void Vid_ClearBuf(void);
 
+// Platform-accelerated text rendering (Atari ST)
+#ifdef PLATFORM_ATARI_TOS
+void Vid_DrawChar(int x, int y, int ch, int color);
+void Vid_HLine(int y, int color);
+void Vid_ColorScreen(int color);
+#endif
+
 char *Vid_GetPrefPath(void);
 
 void ErrorExit(char *s, ...);
