@@ -1,4 +1,4 @@
-SDL Sopwith FAQ
+ST Sopwith FAQ
 ===============
 
 - **Q**: What is this? What is Sopwith?
@@ -11,28 +11,15 @@ SDL Sopwith FAQ
   In 2000, Dave L. Clark, the original programmer behind Sopwith,
   released the source code to Sopwith. This is an updated version based
   on his released sources; it is not a rewrite or recreation. It is
-  named SDL Sopwith as it makes use of the LibSDL multimedia library to
-  access the screen and the sound device.
+  named ST Sopwith as it's the first version to run on the Atari ST, 
+  finally implementing the port that the source code indicates was planned
+  nearly 40 years ago.
 
-- **Q**: What is SDL?
+- **Q**: What is an Atari ST?
 
-  **A**: LibSDL is a multimedia library designed for portability.
-  Instead of coding for a particular platform (such as Windows, Linux
-  etc.), you use the SDL interface. Your program can then be ported to
-  many different platforms with only minor changes. There is more
-  information at http://www.libsdl.org/
-
-- **Q**: What platforms does it run on?
-
-  **A**: I have compiled and run it successfully on Windows, Linux,
-  macOS, OpenBSD and NetBSD, for a variety of different CPU
-  architectures. Others have done ports to AmigaOS, and the Nintendo DS
-  and Wii.
-
-  As it uses LibSDL for video and sound, it *ought to* compile "out of
-  the box" on any platform supported by SDL. Other platforms supported
-  by SDL include Haiku, RISC OS, iOS and Android. If you're able to get
-  it running on new platforms, pleas let me know!
+  **A**: An Atari ST is a 16/32 bit computer released by Atari in the
+  mid 1980s. It was a popular computer in Europe and was used for
+  business and education as well as for games.
 
 - **Q**: This is different to the original Sopwith!
 
@@ -49,7 +36,7 @@ SDL Sopwith FAQ
     appear on the screen. These were added in the "Author's Edition"
     release made by Sopwith's original author, Dave Clark.
 
-  In general, SDL Sopwith tries hard to avoid making any large changes
+  In general, ST Sopwith tries hard to avoid making any large changes
   to the original gameplay. The default settings emulate the behavior
   of "Sopwith 2" but it can be reconfigured to behave like "Sopwith 1"
   if that's what you prefer.
@@ -61,13 +48,7 @@ SDL Sopwith FAQ
 
 - **Q**: Does it have multiplayer support?
 
-  **A**: Yes! Classic Sopwith had support for multiplayer as well, but
-  it used a proprietary networking system (which Sopwith was made to
-  demonstrate). Sopwith 2 also had support for "2 players over an
-  asynchronous line", presumably for playing over a serial cable,
-  although this did not seem to work either. I have replaced the serial
-  code with code to use TCP/IP.  This means that you can play 2 player
-  SDL Sopwith over a LAN with TCP/IP or even over the Internet.
+  **A**: No, but please feel free to add it!
 
 - **Q**: How do I play this through a firewall?
 

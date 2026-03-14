@@ -18,6 +18,7 @@
 #include "swinit.h"
 #include "swmain.h"
 #include "swmove.h"
+#include "swstbar.h"
 #include "swobject.h"
 #include "swsound.h"
 #include "swsplat.h"
@@ -249,6 +250,7 @@ static void crater(OBJECTS * ob)
 		}
 		ground[x] = ymin - 1;
 	}
+	minimap_invalidate();
 }
 
 /* Determine whether the parameter is a shot and hasn't moved very much yet;

@@ -4,5 +4,6 @@ long _stksize = 65536L;
 
 int main(int argc, char *argv[])
 {
+	printf("Loading ST Sopwith...\n");
 	return swmain(argc, argv);
 }

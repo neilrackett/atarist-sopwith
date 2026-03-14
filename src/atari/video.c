@@ -83,26 +83,76 @@ struct palette
 };
 
 static const struct palette video_palettes[] = {
-		{"CGA",
-		 {0x000, 0x077, 0x707, 0x777,
-			0x700, 0x070, 0x770, 0x555,
-			0x333, 0x007, 0x070, 0x077,
-			0x700, 0x707, 0x770, 0x777}},
-		{"Atari",
-		 {0x000, 0x007, 0x700, 0x777,
-			0x070, 0x707, 0x770, 0x555,
-			0x333, 0x007, 0x070, 0x077,
-			0x700, 0x707, 0x770, 0x777}},
-		{"Green",
-		 {0x000, 0x020, 0x040, 0x070,
-			0x010, 0x030, 0x050, 0x060,
-			0x010, 0x020, 0x030, 0x040,
-			0x050, 0x060, 0x070, 0x070}},
-		{"Amber",
-		 {0x000, 0x210, 0x430, 0x760,
-			0x110, 0x320, 0x540, 0x650,
-			0x110, 0x210, 0x320, 0x430,
-			0x540, 0x650, 0x760, 0x760}},
+	{"Atari",       /* Originally planned Atari port colors from swgrapha.c */
+	 {0x000, 0x007, 0x700, 0x777,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"CGA 1",       /* CGA black, cyan, magenta, white */
+	 {0x000, 0x077, 0x707, 0x777,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"CGA 2",       /* CGA black, green, red, yellow */
+	 {0x000, 0x070, 0x700, 0x770,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"CGA 3",       /* CGA black, cyan, red, white (mode 5) */
+	 {0x000, 0x077, 0x700, 0x777,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Mono Amber",
+	 {0x000, 0x750, 0x730, 0x771,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Mono Green",
+	 {0x000, 0x071, 0x061, 0x172,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Mono Grey",
+	 {0x000, 0x666, 0x555, 0x777,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Tosh LCD 1",
+	 {0x674, 0x454, 0x335, 0x006,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Tosh LCD 2",
+	 {0x006, 0x335, 0x454, 0x674,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Tosh LCD 3",
+	 {0x343, 0x233, 0x223, 0x123,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"IBM LCD",
+	 {0x344, 0x233, 0x222, 0x111,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Tandy LCD",
+	 {0x253, 0x143, 0x132, 0x022,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Gas Plasma",
+	 {0x300, 0x620, 0x510, 0x720,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
+	{"Muted",
+	 {0x000, 0x366, 0x626, 0x666,
+	  0x700, 0x070, 0x770, 0x555,
+	  0x333, 0x007, 0x070, 0x077,
+	  0x700, 0x707, 0x770, 0x777}},
 };
 
 static const uint8_t color_mappings[][4] = {
@@ -570,7 +620,7 @@ void Vid_Init(void)
 
 	(void)Setscreen(original_logbase, original_physbase, SCREEN_REZ_LOW);
 	vid_vram = draw_page;
-	active_palette = 1;
+	active_palette = 0;
 	ApplyPalette();
 
 	/* Fast repeat helps the first-pass polling input path feel sane. */
@@ -788,47 +838,6 @@ void Vid_Box(int x, int y, int w, int h, int c)
 	}
 }
 
-/* Helper: XOR a vertical line into planes 0+1 using blitter.
-   Blitter must already be set up with static registers (call
-   ground_blitter_setup first). Only dst address, source mask,
-   and Y count change per call. */
-static uint16_t blitter_mask_source;
-
-static void ground_blitter_setup(void)
-{
-	*(volatile short *)0xFF8A20 = 0;              /* Src X Inc */
-	*(volatile short *)0xFF8A22 = 0;              /* Src Y Inc */
-	*(volatile short *)0xFF8A2E = 0;              /* Dst X Inc */
-	*(volatile short *)0xFF8A30 = -SCREEN_STRIDE; /* Dst Y Inc */
-	*(volatile short *)0xFF8A28 = 0xFFFF;         /* Endmask 1 */
-	*(volatile short *)0xFF8A2A = 0xFFFF;         /* Endmask 2 */
-	*(volatile short *)0xFF8A2C = 0xFFFF;         /* Endmask 3 */
-	*(volatile long  *)0xFF8A24 = (long)&blitter_mask_source;
-	*(volatile char  *)0xFF8A3A = 0;              /* HOP=0 (source only) */
-	*(volatile char  *)0xFF8A3B = 6;              /* OP=6 (XOR) */
-	*(volatile short *)0xFF8A36 = 1;              /* X count = 1 word */
-}
-
-static inline void ground_blit_vline(uint8_t *dst, uint16_t mask, int height)
-{
-	volatile char *ctrl = (volatile char *)0xFF8A3CL;
-
-	blitter_mask_source = mask;
-	*(volatile short *)0xFF8A38 = (short)height;
-
-	/* Blit plane 0 */
-	*(volatile long *)0xFF8A32 = (long)dst;
-	*ctrl = 0xC0;
-	while (*ctrl & 0x80)
-		;
-
-	/* Blit plane 1 */
-	*(volatile long *)0xFF8A32 = (long)(dst + 2);
-	*ctrl = 0xC0;
-	while (*ctrl & 0x80)
-		;
-}
-
 static inline void cpu_xor_vline(uint8_t *row_base, uint16_t mask, int height)
 {
 	/* XOR both planes 0+1 simultaneously using a longword operation.
@@ -848,10 +857,18 @@ void Vid_DispGround(GRNDTYPE *gptr)
 {
 	int x;
 	int hl, hc, hr, y0;
-	int use_blitter = has_blitter && IS_ST_RAM(draw_page);
 
-	if (use_blitter)
-		ground_blitter_setup();
+	/* Since we clear the buffer every frame, XOR == OR for ground pixels.
+	   Process 16 columns at a time: accumulate a word mask for planes 0+1,
+	   then flush with longword writes when we cross a word boundary.
+	   This avoids per-column blitter overhead and exploits 32-bit bus width. */
+
+	/* We process columns in groups of 16 (one word group).
+	   For each row within a group, accumulate which columns are set,
+	   then write the whole word at once. */
+
+	/* Simpler approach: cpu_xor_vline for all columns - the longword XOR
+	   path is fast enough and avoids blitter start/poll overhead per column. */
 
 	hc = clamp_max(*gptr, SCR_HGHT - 1);
 	hl = hc;
@@ -878,11 +895,7 @@ void Vid_DispGround(GRNDTYPE *gptr)
 			{
 				uint16_t mask = pixel_mask_table[x & 15];
 				uint8_t *row_base = draw_page + (SCR_HGHT - 1 - y_start) * SCREEN_STRIDE + (x >> 4) * 8;
-
-				if (use_blitter && line_height >= 4)
-					ground_blit_vline(row_base, mask, line_height);
-				else
-					cpu_xor_vline(row_base, mask, line_height);
+				cpu_xor_vline(row_base, mask, line_height);
 			}
 		}
 
@@ -894,28 +907,65 @@ void Vid_DispGround(GRNDTYPE *gptr)
 
 void Vid_DispGround_Solid(GRNDTYPE *gptr)
 {
-	int x;
-	int gc;
-	int use_blitter = has_blitter && IS_ST_RAM(draw_page);
+	/* Process 16 columns at a time (one word group).
+	   Build a height_to_mask[] lookup (indexed by row height) so each row
+	   just ORs one precomputed value — no per-row inner loop of comparisons.
+	   Then sweep top-down accumulating the mask with a single word write per row.
+	   Total work: O(16 + group_max) per group. */
+	int grp;
 
-	if (use_blitter)
-		ground_blitter_setup();
+	/* Lookup table: for each possible height value, which column bits activate */
+	uint16_t height_to_mask[SCR_HGHT];
 
-	for (x = 0; x < SCR_WDTH; ++x, ++gptr)
+	for (grp = 0; grp < SCR_WDTH / 16; ++grp)
 	{
-		gc = clamp_max(*gptr, SCR_HGHT - 1);
+		const GRNDTYPE *col = gptr + grp * 16;
+		int group_max = SBAR_HGHT - 1;
+		int i, row;
 
-		if (gc >= SBAR_HGHT - 1)
+		/* Clear only the entries we'll use (SBAR_HGHT-1 .. max) — lazy clear
+		   by using memset of a small range after we know group_max */
+
+		/* First pass: find group_max */
+		for (i = 0; i < 16; ++i)
 		{
-			int y_start = SBAR_HGHT - 1;
-			int line_height = gc - y_start + 1;
-			uint16_t mask = pixel_mask_table[x & 15];
-			uint8_t *row_base = draw_page + (SCR_HGHT - 1 - y_start) * SCREEN_STRIDE + (x >> 4) * 8;
+			int h = (int)col[i];
+			if (h >= SCR_HGHT) h = SCR_HGHT - 1;
+			if (h > group_max) group_max = h;
+		}
 
-			if (use_blitter && line_height >= 4)
-				ground_blit_vline(row_base, mask, line_height);
-			else
-				cpu_xor_vline(row_base, mask, line_height);
+		if (group_max < SBAR_HGHT - 1)
+			continue;
+
+		/* Clear the range we'll use */
+		for (row = SBAR_HGHT - 1; row <= group_max; ++row)
+			height_to_mask[row] = 0;
+
+		/* Second pass: build height_to_mask */
+		{
+			uint16_t bit = 0x8000U;
+			for (i = 0; i < 16; ++i, bit >>= 1)
+			{
+				int h = (int)col[i];
+				if (h >= SCR_HGHT) h = SCR_HGHT - 1;
+				if (h >= SBAR_HGHT - 1)
+					height_to_mask[h] |= bit;
+			}
+		}
+
+		/* Sweep top-down: accumulate mask, write one word per row */
+		{
+			uint16_t mask = 0;
+			uint8_t *p = draw_page + (SCR_HGHT - 1 - group_max) * SCREEN_STRIDE
+			             + grp * 8;
+
+			for (row = group_max; row >= SBAR_HGHT - 1; --row)
+			{
+				mask |= height_to_mask[row];
+				((uint16_t *)p)[0] |= mask;
+				((uint16_t *)p)[1] |= mask;
+				p += SCREEN_STRIDE;
+			}
 		}
 	}
 }

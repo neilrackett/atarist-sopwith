@@ -19,6 +19,61 @@
 #include "swtext.h"
 
 #ifdef PLATFORM_ATARI_TOS
+/* Division by 13 via multiply-shift: floor(x / 13) = (x * 5042) >> 16
+   Exact for 0 <= x <= 200 (our max ground height). */
+static inline int div13(int x)
+{
+	return (int)(((unsigned int)x * 5042U) >> 16);
+}
+#endif
+
+/* --- Cached minimap heights ------------------------------------------ */
+/* The minimap scans 3000 ground samples per frame to find 158 column maxima.
+   Since ground rarely changes (only on bomb craters), cache the downsampled
+   heights and invalidate when ground is modified. */
+
+#define MINIMAP_MAX_COLS 320  /* max possible map columns */
+static uint8_t minimap_cache[MINIMAP_MAX_COLS];
+static bool minimap_dirty = true;
+static int minimap_num_cols;   /* actual number of columns (= max_x/wrld_rsx) */
+static int minimap_wrld_rsx;   /* wrld_rsx when cache was built */
+
+void minimap_invalidate(void)
+{
+	minimap_dirty = true;
+}
+
+static void minimap_rebuild(void)
+{
+	const int wrld_rsx = WRLD_RSX;
+	const int max_x = currgame->gm_max_x;
+	const GRNDTYPE *gnd = ground;
+	int num_cols = max_x / wrld_rsx;
+	int x, i;
+
+	if (num_cols > MINIMAP_MAX_COLS)
+		num_cols = MINIMAP_MAX_COLS;
+
+	for (x = 0; x < num_cols; ++x) {
+		unsigned int maxh = gnd[0];
+		for (i = 1; i < wrld_rsx; ++i) {
+			unsigned int g = gnd[i];
+			if (g > maxh) maxh = g;
+		}
+		gnd += wrld_rsx;
+#ifdef PLATFORM_ATARI_TOS
+		minimap_cache[x] = (uint8_t)div13((int)maxh);
+#else
+		minimap_cache[x] = (uint8_t)(maxh / (unsigned)WRLD_RSY);
+#endif
+	}
+
+	minimap_num_cols = num_cols;
+	minimap_wrld_rsx = wrld_rsx;
+	minimap_dirty = false;
+}
+
+#ifdef PLATFORM_ATARI_TOS
 /*
  * Fast minimap pixel plotting - avoids Vid_PlotPixel overhead.
  * The minimap area is small and always in-bounds, so we skip all
@@ -29,13 +84,6 @@
  * Game Y=0 is bottom of screen, so game Y maps to screen row (199 - Y).
  */
 #define MAP_SCREEN_STRIDE 160
-
-/* Division by 13 via multiply-shift: floor(x / 13) = (x * 5042) >> 16
-   Exact for 0 <= x <= 200 (our max ground height). */
-static inline int div13(int x)
-{
-	return (int)(((unsigned int)x * 5042U) >> 16);
-}
 
 /* Plot a single pixel at known-good minimap coordinates.
    clr is 0-15. x,y are in game coords (y=0 is bottom). */
@@ -252,41 +300,30 @@ static void dispmap(void)
 	const int wrld_rsx = WRLD_RSX;
 	const int wrld_rsy = WRLD_RSY;
 	const int max_x = currgame->gm_max_x;
-	const GRNDTYPE *gnd = ground;
+
+	/* Rebuild minimap cache if dirty or parameters changed */
+	if (minimap_dirty || minimap_wrld_rsx != wrld_rsx) {
+		minimap_rebuild();
+	}
 
 #ifdef PLATFORM_ATARI_TOS
-	/* Fast Atari path: inline pixel plotting, no function call overhead,
-	   multiply-shift division instead of __divsi3.
-	   Restructured as nested loop: outer loop per map column,
-	   inner loop finds max of wrld_rsx ground samples. */
+	/* Fast Atari path: iterate cached heights, inline pixel plotting */
 	extern uint8_t *vid_vram;
 	uint8_t *scr = vid_vram;
-	uint16_t *col_words;   /* word group for current sx column */
-	uint16_t col_mask;     /* pixel mask for current sx column */
-	int num_cols;          /* number of map columns to draw */
+	uint16_t *col_words;
+	uint16_t col_mask;
+	int num_cols = minimap_num_cols;
 
-	(void)dx;
+	(void)dx; (void)max_x; (void)wrld_rsx; (void)wrld_rsy;
 
 	sx = SCR_CENTR;
 	col_words = (uint16_t *)(scr + 199 * MAP_SCREEN_STRIDE
 	                         + (sx >> 4) * 8);
 	col_mask = 0x8000U >> (sx & 15);
-
 	y = 0;
-	num_cols = max_x / wrld_rsx;
 
 	for (x = 0; x < num_cols; ++x) {
-		/* Find max ground height in this chunk */
-		const GRNDTYPE *chunk = gnd;
-		int i;
-		maxh = chunk[0];
-		for (i = 1; i < wrld_rsx; ++i) {
-			int g = chunk[i];
-			if (g > maxh) maxh = g;
-		}
-		gnd += wrld_rsx;
-
-		maxh = div13(maxh);
+		maxh = minimap_cache[x];
 
 		/* Draw ground trace - only the pixels that changed */
 		if (maxh != y) {
@@ -364,36 +401,29 @@ static void dispmap(void)
 	Vid_HLine(SCR_MNSH + 2, 7);
 
 #else
-	/* Generic path */
+	/* Generic path using cached heights */
+	{
+	int num_cols = minimap_num_cols;
 	dx = 0;
 	sx = SCR_CENTR;
-	maxh = 0;
 	y = 0;
 
-	for (x = 0; x < max_x; ++x) {
-		int g = gnd[x];
-		if (g > maxh) maxh = g;
-
-		++dx;
-
-		if (dx == wrld_rsx) {
-			maxh /= wrld_rsy;
-			if (maxh == y) {
-				Vid_PlotPixel(sx, maxh, 7);
-			} else if (maxh > y) {
-				for (++y; y <= maxh; ++y) {
-					Vid_PlotPixel(sx, y, 7);
-				}
-			} else {
-				for (--y; y >= maxh; --y) {
-					Vid_PlotPixel(sx, y, 7);
-				}
+	for (x = 0; x < num_cols; ++x) {
+		maxh = minimap_cache[x];
+		if (maxh == y) {
+			Vid_PlotPixel(sx, maxh, 7);
+		} else if (maxh > y) {
+			for (++y; y <= maxh; ++y) {
+				Vid_PlotPixel(sx, y, 7);
 			}
-			y = maxh;
-			Vid_PlotPixel(sx, 0, 11);
-			++sx;
-			dx = maxh = 0;
+		} else {
+			for (--y; y >= maxh; --y) {
+				Vid_PlotPixel(sx, y, 7);
+			}
 		}
+		y = maxh;
+		Vid_PlotPixel(sx, 0, 11);
+		++sx;
 	}
 
 	maxh = MAX_Y / wrld_rsy;
@@ -403,6 +433,7 @@ static void dispmap(void)
 	}
 
 	dispmapobjects(wrld_rsx, wrld_rsy);
+	}
 
 	for (x = 0; x < SCR_WDTH; ++x) {
 		Vid_PlotPixel(x, (SCR_MNSH + 2), 7);

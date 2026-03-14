@@ -34,6 +34,7 @@
 #include "swobject.h"
 #include "swsound.h"
 #include "swsplat.h"
+#include "swstbar.h"
 #include "swsymbol.h"
 #include "swtitle.h"
 

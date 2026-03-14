@@ -16,5 +16,6 @@
 #define __SWSOUND_H__
 
 extern void dispstatusbar(void);
+extern void minimap_invalidate(void);
 
 #endif

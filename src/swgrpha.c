@@ -234,10 +234,13 @@ void swdisp(void)
 			{
 				extern int _prof_map, _prof_score, _prof_gauge, _prof_medal;
 				snprintf(fps_buf, sizeof(fps_buf),
-					"%dfps m%d s%d g%d M%d",
+					"%dfps c%d b%d o%d g%d m%d",
 					fps_frames,
-					_prof_map, _prof_score,
-					_prof_gauge, _prof_medal);
+					fps_t_clr / fps_frames,
+					fps_t_bar / fps_frames,
+					fps_t_obj / fps_frames,
+					fps_t_gnd / fps_frames,
+					_prof_map);
 			}
 			fps_display = fps_frames;
 			fps_frames = 0;

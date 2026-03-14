@@ -1,3 +1,6 @@
+// Networking is not implemented for the Atari ST port. If you'd like to add
+// it, you're welcome to do so and send a pull request!
+
 #include "std.h"
 #include "tcpcomm.h"
 
