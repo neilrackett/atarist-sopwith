@@ -151,12 +151,17 @@ bool ctlbreak(void)
 // clear bottom of screen
 void clrprmpt(void)
 {
+#ifdef PLATFORM_ATARI_TOS
+	/* Vid_Box clears the area in one pass rather than pixel-by-pixel. */
+	Vid_Box(0, 43, SCR_WDTH, 44, 0);
+#else
 	int x, y;
 
 	for (y = 0; y <= 43; ++y)
 		for (x = 0; x < SCR_WDTH; ++x) {
 			Vid_PlotPixel(x, y, 0);
 		}
+#endif
 
 	swposcur(0, 20);
 }

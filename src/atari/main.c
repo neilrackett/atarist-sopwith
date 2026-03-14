@@ -13,12 +13,13 @@ int main(int argc, char *argv[])
 	printf("Loading ST Sopwith...");
 
 	/* Enter supervisor mode for the lifetime of the program.
-	   This allows direct access to low-memory system variables
-	   (joystick state, hardware registers, etc.) without per-call
-	   Supexec overhead. Super(0) switches to supervisor mode and
-	   returns the old SSP; we don't need to restore it since the
-	   program will exit normally via TOS. */
-	Super(0L);
+		 This allows direct access to low-memory system variables
+		 (joystick state, hardware registers, etc.) without per-call
+		 Supexec overhead. We do not switch back to user mode at exit;
+		 Pterm() handles cleanup regardless of the current mode.
+		 Switching back via an atexit handler would corrupt the stack,
+		 since Super() changes the active stack pointer mid-call-chain. */
+	long old_ssp = Super(0L);
 
 	/* Disable keyboard click (bit 0 of conterm at 0x0484) */
 	*((volatile uint8_t *)0x0484) &= ~0x01;

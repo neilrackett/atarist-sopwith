@@ -443,20 +443,21 @@ static enum gamekey TranslateKeycode(int keycode)
 /* Named HandleCtrlChord to match the SDL version where these required Ctrl
    to be held. On Atari ST, GEMDOS swallows Ctrl+Q (XON) before it reaches
    the application, so these are triggered by the plain key instead. */
-static void HandleCtrlChord(int scan)
+static bool HandleCtrlChord(int scan)
 {
 	switch (scan)
 	{
 #ifndef NO_EXIT
 	case ATARI_SCANCODE_C:
 		ctrlbreak = true;
-		break;
+		return true;
 #endif
 	case ATARI_SCANCODE_R:
 		if (!isNetworkGame())
 		{
 			gamenum = starting_level;
 			swinitlevel();
+			return true;
 		}
 		break;
 
@@ -464,12 +465,14 @@ static void HandleCtrlChord(int scan)
 		if (!isNetworkGame())
 		{
 			swrestart();
+			return true;
 		}
 		break;
 
 	default:
 		break;
 	}
+	return false;
 }
 
 static int NormalizeKeycode(int scan, int ch)
@@ -543,9 +546,9 @@ static void PollInput(void)
 		now = (uint32_t)Timer_GetMS();
 		keycode = NormalizeKeycode(scan, ch);
 
-		if (playmode != PLAYMODE_UNSET)
+		if (playmode != PLAYMODE_UNSET && HandleCtrlChord(scan))
 		{
-			HandleCtrlChord(scan);
+			continue;
 		}
 
 		if (ch == '\r')
@@ -652,6 +655,11 @@ void Vid_Update(void)
 	{
 		Vid_Init();
 	}
+
+	/* Poll input immediately after the previous frame completes so events
+	   are queued before the next frame starts rendering. This minimises
+	   the latency between a keypress and the game acting on it. */
+	PollInput();
 
 	/* Page flip: set the hardware to display the page we just drew,
 		 then switch to drawing on the other page. Setscreen with -1
