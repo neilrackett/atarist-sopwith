@@ -32,6 +32,7 @@ COMMON_SOURCES = \
 	src/yocton.c
 
 ATARI_SOURCES = \
+	src/atari/controller.c \
 	src/atari/main.c \
 	src/atari/pcsound.c \
 	src/atari/tcpcomm_stub.c \

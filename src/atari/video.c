@@ -275,6 +275,7 @@ static bool ctrlbreak;
 static bool initted;
 static bool text_input_mode;
 static uint32_t key_expiry[NUM_KEYS];
+
 static int active_palette;
 static short saved_palette[16];
 static short original_rez;
@@ -295,6 +296,7 @@ static const uint16_t pixel_mask_table[16] = {
 		0x0008, 0x0004, 0x0002, 0x0001};
 
 extern bool isNetworkGame(void);
+extern void PollJoystick(void);
 
 static void PollInput(void);
 static int NormalizeKeycode(int scan, int ch);
@@ -438,6 +440,9 @@ static enum gamekey TranslateKeycode(int keycode)
 	return KEY_UNKNOWN;
 }
 
+/* Named HandleCtrlChord to match the SDL version where these required Ctrl
+   to be held. On Atari ST, GEMDOS swallows Ctrl+Q (XON) before it reaches
+   the application, so these are triggered by the plain key instead. */
 static void HandleCtrlChord(int scan)
 {
 	switch (scan)
@@ -534,11 +539,11 @@ static void PollInput(void)
 		}
 
 		ch = (int)(raw & 0xff);
-		scan = (int)((raw >> 8) & 0xff);
+		scan = (int)((raw >> 16) & 0xff);
 		now = (uint32_t)Timer_GetMS();
 		keycode = NormalizeKeycode(scan, ch);
 
-		if ((Kbshift(-1) & K_CTRL) != 0)
+		if (playmode != PLAYMODE_UNSET)
 		{
 			HandleCtrlChord(scan);
 		}
@@ -552,6 +557,7 @@ static void PollInput(void)
 	}
 
 	ExpireGameKeys((uint32_t)Timer_GetMS());
+	PollJoystick();
 }
 
 static void ApplyPalette(void)
@@ -1446,18 +1452,3 @@ void ErrorExit(char *s, ...)
 	exit(1);
 }
 
-enum menukey Vid_ControllerMenuKey(void)
-{
-	return MENUKEY_NONE;
-}
-
-bool Vid_HaveController(void)
-{
-	return false;
-}
-
-const char *Vid_ControllerButtonName(enum gamekey key)
-{
-	(void)key;
-	return NULL;
-}

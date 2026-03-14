@@ -29,7 +29,7 @@
 #include "swtext.h"
 
 #define NOTIFICATION_BUF_SIZE ((SCR_WDTH / 8) + 1)
-#define SHOW_FPS 1
+#define SHOW_FPS 0
 #define NOTIFICATION_TIME_MS  2000
 
 static char notification_buf[NOTIFICATION_BUF_SIZE] = "";
@@ -125,12 +125,20 @@ static void PrintHelp(void)
 			}
 		}
 	}
+#ifdef PLATFORM_ATARI_TOS
+	snprintf(buf, sizeof(buf), "%-11s- %s", "Restart", "R");
+#else
 	snprintf(buf, sizeof(buf), "%-11s- %s", "Restart", "Ctrl-R");
+#endif
 	swposcur(1, i + 3);
 	swputs(buf);
 	++i;
 
+#ifdef PLATFORM_ATARI_TOS
+	snprintf(buf, sizeof(buf), "%-11s- %s", "End Game", "Q");
+#else
 	snprintf(buf, sizeof(buf), "%-11s- %s", "End Game", "Ctrl-Q");
+#endif
 	swposcur(1, i + 3);
 	swputs(buf);
 }
