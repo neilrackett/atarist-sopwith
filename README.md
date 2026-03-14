@@ -17,10 +17,10 @@ Features:
 
 - Uses native ST C and ASM to match original performance
 - Support for loading custom levels
-- ~TCP/IP multiplayer~
 - PC speaker emulation
 - Multiple palettes that emulate a selection of old monitors
 - Medals feature
+- ~~Network multiplayer~~
 
 ## More Info
 

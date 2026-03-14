@@ -50,10 +50,11 @@ static void DrawTitleScreenContent(void)
 	const char *version_string;
 
 	swcolor(2);
-	swposcur(18+X_OFFSET/8, 2);
 #ifdef PLATFORM_ATARI_TOS
-	swputs("ATARI ST");
+	swposcur(12+X_OFFSET/8, 2);
+	swputs("A T A R I   S T");
 #else
+	swposcur(18+X_OFFSET/8, 2);
 	swputs("SDL");
 #endif
 
@@ -66,7 +67,7 @@ static void DrawTitleScreenContent(void)
 	swputs(version_string);
 
 	swcolor(3);
-	swposcur(0+X_OFFSET/8, 9);
+	swposcur(0+X_OFFSET/8, 8);
 	swputs("(c) 1984, 1985, 1987 ");
 
 	swcolor(1);
@@ -75,12 +76,16 @@ static void DrawTitleScreenContent(void)
 	swputs("Compuscience");
 
 	swcolor(3);
-	swposcur(0+X_OFFSET/8, 10);
+	swposcur(0+X_OFFSET/8, 9);
 	swputs("(c) 1984-2000 David L. Clark");
 
 	swcolor(3);
-	swposcur(0+X_OFFSET/8, 11);
+	swposcur(0+X_OFFSET/8, 10);
 	swputs("(c) 2001-2024 Simon Howard, Jesse Smith");
+
+	swcolor(3);
+	swposcur(0+X_OFFSET/8, 11);
+	swputs("(c) 2026 Neil Rackett");
 
 	swcolor(3);
 	swposcur(0+X_OFFSET/8, 12);
