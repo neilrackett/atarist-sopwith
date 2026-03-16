@@ -23,6 +23,9 @@
 #define KEY_HOLD_MS 120
 #define SBAR_HGHT 19
 
+/* Both buffers must be in ST-RAM for blitter DMA access. */
+#define IS_ST_RAM(p) ((unsigned long)(p) < 0x01000000UL)
+
 /* --- Blitter acceleration (optional, runtime detected) -------------- */
 
 static int has_blitter = -1;
@@ -33,35 +36,29 @@ static void detect_blitter(void)
 	has_blitter = (mode & 1) != 0;
 }
 
-/* Both buffers must be in ST-RAM for blitter DMA access. */
-#define IS_ST_RAM(p) ((unsigned long)(p) < 0x01000000UL)
-
-/* Blitter zero-fill: clears 'n' bytes at dst (must be word-aligned). */
+/* Blitter zero-fill: clears 'n' bytes at dst (must be word-aligned).
+   Uses HOP=1 (all-ones source), OP=0 (zero dest), single-row mode so
+   the full 32000-byte screen fits in one pass (16000 words < 65535). */
 static void blitter_clear(void *dst, size_t n)
 {
 	volatile char *ctrl = (volatile char *)0xFF8A3CL;
 
-	/* Source X/Y inc don't matter for HOP=1 (all-ones); dest inc = 2 */
-	*(volatile short *)0xFF8A20 = 0; /* Src X Inc (unused) */
-	*(volatile short *)0xFF8A22 = 0; /* Src Y Inc (unused) */
-	*(volatile short *)0xFF8A2E = 2; /* Dst X Inc */
-	*(volatile short *)0xFF8A30 = 2; /* Dst Y Inc */
+	*(volatile short *)0xFF8A20 = 0;     /* Src X Inc (unused for HOP=1) */
+	*(volatile short *)0xFF8A22 = 0;     /* Src Y Inc (unused for HOP=1) */
+	*(volatile short *)0xFF8A2E = 2;     /* Dst X Inc */
+	*(volatile short *)0xFF8A30 = 0;     /* Dst Y Inc (single row, no wrap) */
 
-	/* No masking */
 	*(volatile short *)0xFF8A28 = 0xFFFF;
 	*(volatile short *)0xFF8A2A = 0xFFFF;
 	*(volatile short *)0xFF8A2C = 0xFFFF;
 
 	*(volatile long *)0xFF8A32 = (long)dst;
 
-	/* HOP=1 (all-ones), OP=0 (zero / clear dest) */
-	*(volatile char *)0xFF8A3A = 1;
-	*(volatile char *)0xFF8A3B = 0;
+	*(volatile char *)0xFF8A3A = 1;      /* HOP=1 (all-ones) */
+	*(volatile char *)0xFF8A3B = 0;      /* OP=0 (zero dest) */
 
-	/* Blitter X count is 16-bit, max 65535 words = 128KB.
-		 32000 bytes = 16000 words, fits in one pass. */
-	*(volatile short *)0xFF8A36 = (short)(n >> 1);
-	*(volatile short *)0xFF8A38 = 1;
+	*(volatile short *)0xFF8A36 = (short)(n >> 1); /* X count in words */
+	*(volatile short *)0xFF8A38 = 1;               /* Y count = 1 row */
 
 	*ctrl = 0xC0;
 	while (*ctrl & 0x80)
@@ -156,94 +153,94 @@ static const struct palette video_palettes[] = {
 };
 
 static const uint8_t color_mappings[][4] = {
-		{0, 3, 3, 3},
-		{0, 1, 2, 3},
-		{0, 2, 1, 3},
-		{0, 1, 3, 2},
-		{0, 2, 3, 1},
-		{0, 3, 1, 2},
-		{0, 3, 2, 1},
-		{0, 1, 1, 3},
-		{0, 2, 2, 3},
+	{0, 3, 3, 3},
+	{0, 1, 2, 3},
+	{0, 2, 1, 3},
+	{0, 1, 3, 2},
+	{0, 2, 3, 1},
+	{0, 3, 1, 2},
+	{0, 3, 2, 1},
+	{0, 1, 1, 3},
+	{0, 2, 2, 3},
 };
 
 static const char *const key_names[128] = {
-		[ATARI_SCANCODE_ESCAPE] = "Escape",
-		[ATARI_SCANCODE_1] = "1",
-		[ATARI_SCANCODE_2] = "2",
-		[ATARI_SCANCODE_3] = "3",
-		[ATARI_SCANCODE_4] = "4",
-		[ATARI_SCANCODE_5] = "5",
-		[ATARI_SCANCODE_6] = "6",
-		[ATARI_SCANCODE_7] = "7",
-		[ATARI_SCANCODE_8] = "8",
-		[ATARI_SCANCODE_9] = "9",
-		[ATARI_SCANCODE_0] = "0",
-		[ATARI_SCANCODE_MINUS] = "-",
-		[ATARI_SCANCODE_EQUALS] = "=",
-		[ATARI_SCANCODE_BACKSPACE] = "Backspace",
-		[ATARI_SCANCODE_TAB] = "Tab",
-		[ATARI_SCANCODE_Q] = "Q",
-		[ATARI_SCANCODE_W] = "W",
-		[ATARI_SCANCODE_E] = "E",
-		[ATARI_SCANCODE_R] = "R",
-		[ATARI_SCANCODE_T] = "T",
-		[ATARI_SCANCODE_Y] = "Y",
-		[ATARI_SCANCODE_U] = "U",
-		[ATARI_SCANCODE_I] = "I",
-		[ATARI_SCANCODE_O] = "O",
-		[ATARI_SCANCODE_P] = "P",
-		[ATARI_SCANCODE_LBRACKET] = "[",
-		[ATARI_SCANCODE_RBRACKET] = "]",
-		[ATARI_SCANCODE_RETURN] = "Return",
-		[ATARI_SCANCODE_CTRL] = "Control",
-		[ATARI_SCANCODE_A] = "A",
-		[ATARI_SCANCODE_S] = "S",
-		[ATARI_SCANCODE_D] = "D",
-		[ATARI_SCANCODE_F] = "F",
-		[ATARI_SCANCODE_G] = "G",
-		[ATARI_SCANCODE_H] = "H",
-		[ATARI_SCANCODE_J] = "J",
-		[ATARI_SCANCODE_K] = "K",
-		[ATARI_SCANCODE_L] = "L",
-		[ATARI_SCANCODE_SEMICOLON] = ";",
-		[ATARI_SCANCODE_APOSTROPHE] = "'",
-		[ATARI_SCANCODE_GRAVE] = "`",
-		[ATARI_SCANCODE_LSHIFT] = "Left Shift",
-		[ATARI_SCANCODE_BACKSLASH] = "\\",
-		[ATARI_SCANCODE_Z] = "Z",
-		[ATARI_SCANCODE_X] = "X",
-		[ATARI_SCANCODE_C] = "C",
-		[ATARI_SCANCODE_V] = "V",
-		[ATARI_SCANCODE_B] = "B",
-		[ATARI_SCANCODE_N] = "N",
-		[ATARI_SCANCODE_M] = "M",
-		[ATARI_SCANCODE_COMMA] = ",",
-		[ATARI_SCANCODE_PERIOD] = ".",
-		[ATARI_SCANCODE_SLASH] = "/",
-		[ATARI_SCANCODE_RSHIFT] = "Right Shift",
-		[ATARI_SCANCODE_ALT] = "Alternate",
-		[ATARI_SCANCODE_SPACE] = "Space",
-		[ATARI_SCANCODE_CAPSLOCK] = "Caps Lock",
-		[ATARI_SCANCODE_F1] = "F1",
-		[ATARI_SCANCODE_F2] = "F2",
-		[ATARI_SCANCODE_F3] = "F3",
-		[ATARI_SCANCODE_F4] = "F4",
-		[ATARI_SCANCODE_F5] = "F5",
-		[ATARI_SCANCODE_F6] = "F6",
-		[ATARI_SCANCODE_F7] = "F7",
-		[ATARI_SCANCODE_F8] = "F8",
-		[ATARI_SCANCODE_F9] = "F9",
-		[ATARI_SCANCODE_F10] = "F10",
-		[ATARI_SCANCODE_HOME] = "Home",
-		[ATARI_SCANCODE_UP] = "Up",
-		[ATARI_SCANCODE_LEFT] = "Left",
-		[ATARI_SCANCODE_RIGHT] = "Right",
-		[ATARI_SCANCODE_DOWN] = "Down",
-		[ATARI_SCANCODE_INSERT] = "Insert",
-		[ATARI_SCANCODE_DELETE] = "Delete",
-		[ATARI_SCANCODE_HELP] = "Help",
-		[ATARI_SCANCODE_UNDO] = "Undo",
+	[ATARI_SCANCODE_ESCAPE] = "Escape",
+	[ATARI_SCANCODE_1] = "1",
+	[ATARI_SCANCODE_2] = "2",
+	[ATARI_SCANCODE_3] = "3",
+	[ATARI_SCANCODE_4] = "4",
+	[ATARI_SCANCODE_5] = "5",
+	[ATARI_SCANCODE_6] = "6",
+	[ATARI_SCANCODE_7] = "7",
+	[ATARI_SCANCODE_8] = "8",
+	[ATARI_SCANCODE_9] = "9",
+	[ATARI_SCANCODE_0] = "0",
+	[ATARI_SCANCODE_MINUS] = "-",
+	[ATARI_SCANCODE_EQUALS] = "=",
+	[ATARI_SCANCODE_BACKSPACE] = "Backspace",
+	[ATARI_SCANCODE_TAB] = "Tab",
+	[ATARI_SCANCODE_Q] = "Q",
+	[ATARI_SCANCODE_W] = "W",
+	[ATARI_SCANCODE_E] = "E",
+	[ATARI_SCANCODE_R] = "R",
+	[ATARI_SCANCODE_T] = "T",
+	[ATARI_SCANCODE_Y] = "Y",
+	[ATARI_SCANCODE_U] = "U",
+	[ATARI_SCANCODE_I] = "I",
+	[ATARI_SCANCODE_O] = "O",
+	[ATARI_SCANCODE_P] = "P",
+	[ATARI_SCANCODE_LBRACKET] = "[",
+	[ATARI_SCANCODE_RBRACKET] = "]",
+	[ATARI_SCANCODE_RETURN] = "Return",
+	[ATARI_SCANCODE_CTRL] = "Control",
+	[ATARI_SCANCODE_A] = "A",
+	[ATARI_SCANCODE_S] = "S",
+	[ATARI_SCANCODE_D] = "D",
+	[ATARI_SCANCODE_F] = "F",
+	[ATARI_SCANCODE_G] = "G",
+	[ATARI_SCANCODE_H] = "H",
+	[ATARI_SCANCODE_J] = "J",
+	[ATARI_SCANCODE_K] = "K",
+	[ATARI_SCANCODE_L] = "L",
+	[ATARI_SCANCODE_SEMICOLON] = ";",
+	[ATARI_SCANCODE_APOSTROPHE] = "'",
+	[ATARI_SCANCODE_GRAVE] = "`",
+	[ATARI_SCANCODE_LSHIFT] = "Left Shift",
+	[ATARI_SCANCODE_BACKSLASH] = "\\",
+	[ATARI_SCANCODE_Z] = "Z",
+	[ATARI_SCANCODE_X] = "X",
+	[ATARI_SCANCODE_C] = "C",
+	[ATARI_SCANCODE_V] = "V",
+	[ATARI_SCANCODE_B] = "B",
+	[ATARI_SCANCODE_N] = "N",
+	[ATARI_SCANCODE_M] = "M",
+	[ATARI_SCANCODE_COMMA] = ",",
+	[ATARI_SCANCODE_PERIOD] = ".",
+	[ATARI_SCANCODE_SLASH] = "/",
+	[ATARI_SCANCODE_RSHIFT] = "Right Shift",
+	[ATARI_SCANCODE_ALT] = "Alternate",
+	[ATARI_SCANCODE_SPACE] = "Space",
+	[ATARI_SCANCODE_CAPSLOCK] = "Caps Lock",
+	[ATARI_SCANCODE_F1] = "F1",
+	[ATARI_SCANCODE_F2] = "F2",
+	[ATARI_SCANCODE_F3] = "F3",
+	[ATARI_SCANCODE_F4] = "F4",
+	[ATARI_SCANCODE_F5] = "F5",
+	[ATARI_SCANCODE_F6] = "F6",
+	[ATARI_SCANCODE_F7] = "F7",
+	[ATARI_SCANCODE_F8] = "F8",
+	[ATARI_SCANCODE_F9] = "F9",
+	[ATARI_SCANCODE_F10] = "F10",
+	[ATARI_SCANCODE_HOME] = "Home",
+	[ATARI_SCANCODE_UP] = "Up",
+	[ATARI_SCANCODE_LEFT] = "Left",
+	[ATARI_SCANCODE_RIGHT] = "Right",
+	[ATARI_SCANCODE_DOWN] = "Down",
+	[ATARI_SCANCODE_INSERT] = "Insert",
+	[ATARI_SCANCODE_DELETE] = "Delete",
+	[ATARI_SCANCODE_HELP] = "Help",
+	[ATARI_SCANCODE_UNDO] = "Undo",
 };
 
 uint8_t *vid_vram;
@@ -252,18 +249,18 @@ unsigned int vid_pitch = SCREEN_STRIDE;
 int keysdown[NUM_KEYS];
 int controller_bindings[NUM_KEYS];
 int keybindings[NUM_KEYS] = {
-		0,
-		',',
-		'/',
-		'.',
-		'B',
-		' ',
-		'H',
-		'V',
-		'C',
-		'X',
-		'Z',
-		'S',
+	0,
+	',',
+	'/',
+	'.',
+	'B',
+	' ',
+	'H',
+	'V',
+	'C',
+	'X',
+	'Z',
+	'S',
 };
 
 bool vid_fullscreen = false;
@@ -286,14 +283,13 @@ static uint8_t *draw_page;
 static uint8_t *page[2];
 static int draw_page_idx;
 
-static void free_blit_sym_cache(void);
-
 /* Pre-computed pixel masks for each x position (16 pixels per word) */
 static const uint16_t pixel_mask_table[16] = {
-		0x8000, 0x4000, 0x2000, 0x1000,
-		0x0800, 0x0400, 0x0200, 0x0100,
-		0x0080, 0x0040, 0x0020, 0x0010,
-		0x0008, 0x0004, 0x0002, 0x0001};
+	0x8000, 0x4000, 0x2000, 0x1000,
+	0x0800, 0x0400, 0x0200, 0x0100,
+	0x0080, 0x0040, 0x0020, 0x0010,
+	0x0008, 0x0004, 0x0002, 0x0001,
+};
 
 extern bool isNetworkGame(void);
 extern void PollJoystick(void);
@@ -374,12 +370,6 @@ int Vid_GetGameKeys(void)
 static inline uint8_t *Align256(uint8_t *p)
 {
 	return (uint8_t *)((((unsigned long)p) + 255UL) & ~255UL);
-}
-
-static inline uint16_t *PixelWordsForXY(int x, int y)
-{
-	int row = SCR_HGHT - 1 - y;
-	return (uint16_t *)(draw_page + row * SCREEN_STRIDE + (x >> 4) * 8);
 }
 
 static inline void PushInputEvent(int key, int ch)
@@ -587,7 +577,6 @@ static void RestoreVideo(void)
 	draw_page = NULL;
 	vid_vram = NULL;
 	initted = false;
-	free_blit_sym_cache();
 }
 
 static void SaveCurrentPalette(void)
@@ -613,8 +602,8 @@ void Vid_Init(void)
 	original_physbase = Physbase();
 	SaveCurrentPalette();
 	/* Allocate two screen buffers for double buffering (page flipping).
-		 Both must be 256-byte aligned for Setscreen. SCREEN_BYTES (32000)
-		 is already a multiple of 256, so aligning the base is sufficient. */
+	   Both must be 256-byte aligned for Setscreen. SCREEN_BYTES (32000)
+	   is already a multiple of 256, so aligning the base is sufficient. */
 	screen_alloc = malloc(SCREEN_BYTES * 2 + 255);
 	if (screen_alloc == NULL)
 	{
@@ -622,7 +611,7 @@ void Vid_Init(void)
 	}
 
 	page[0] = Align256(screen_alloc);
-	page[1] = page[0] + SCREEN_BYTES; /* 32000 is 256-aligned */
+	page[1] = page[0] + SCREEN_BYTES;
 	memset(page[0], 0, SCREEN_BYTES * 2);
 	draw_page_idx = 0;
 	draw_page = page[0];
@@ -662,13 +651,12 @@ void Vid_Update(void)
 	PollInput();
 
 	/* Page flip: set the hardware to display the page we just drew,
-		 then switch to drawing on the other page. Setscreen with -1
-		 means "don't change that parameter". Vsync ensures the flip
-		 takes effect on the next vertical blank. */
+	   then switch to drawing on the other page. Setscreen with -1
+	   means "don't change that parameter". Vsync ensures the flip
+	   takes effect on the next vertical blank. */
 	Setscreen(-1L, draw_page, -1);
 	Vsync();
 
-	/* Swap draw page */
 	draw_page_idx ^= 1;
 	draw_page = page[draw_page_idx];
 	vid_vram = draw_page;
@@ -754,7 +742,6 @@ const char *Vid_KeyName(int key)
 void Vid_StartTextInput(void)
 {
 	text_input_mode = true;
-	(void)text_input_mode;
 }
 
 void Vid_StopTextInput(void)
@@ -767,10 +754,9 @@ void Vid_InvalidateGroundCache(void)
 }
 
 /* Compute a contiguous bit mask from bit position 'from' to 'to' (inclusive).
-	 Bit 15 = leftmost pixel, bit 0 = rightmost. */
+   Bit 15 = leftmost pixel, bit 0 = rightmost. */
 static inline uint16_t range_mask(int from, int to)
 {
-	/* 0xFFFF >> from gives bits (15-from)..0, then mask off below 'to' */
 	return (uint16_t)((0xFFFFu >> from) & (0xFFFFu << (15 - to)));
 }
 
@@ -813,7 +799,6 @@ void Vid_Box(int x, int y, int w, int h, int c)
 		int end_x = x + w - 1;
 		int start_word = x >> 4;
 		int end_word = end_x >> 4;
-
 		uint8_t *row = draw_page + (SCR_HGHT - 1 - py) * SCREEN_STRIDE;
 
 		if (start_word == end_word)
@@ -872,18 +857,6 @@ void Vid_DispGround(GRNDTYPE *gptr)
 	int x;
 	int hl, hc, hr, y0;
 
-	/* Since we clear the buffer every frame, XOR == OR for ground pixels.
-	   Process 16 columns at a time: accumulate a word mask for planes 0+1,
-	   then flush with longword writes when we cross a word boundary.
-	   This avoids per-column blitter overhead and exploits 32-bit bus width. */
-
-	/* We process columns in groups of 16 (one word group).
-	   For each row within a group, accumulate which columns are set,
-	   then write the whole word at once. */
-
-	/* Simpler approach: cpu_xor_vline for all columns - the longword XOR
-	   path is fast enough and avoids blitter start/poll overhead per column. */
-
 	hc = clamp_max(*gptr, SCR_HGHT - 1);
 	hl = hc;
 	++gptr;
@@ -924,11 +897,8 @@ void Vid_DispGround_Solid(GRNDTYPE *gptr)
 	/* Process 16 columns at a time (one word group).
 	   Build a height_to_mask[] lookup (indexed by row height) so each row
 	   just ORs one precomputed value — no per-row inner loop of comparisons.
-	   Then sweep top-down accumulating the mask with a single word write per row.
-	   Total work: O(16 + group_max) per group. */
+	   Then sweep top-down accumulating the mask with a single word write per row. */
 	int grp;
-
-	/* Lookup table: for each possible height value, which column bits activate */
 	uint16_t height_to_mask[SCR_HGHT];
 
 	for (grp = 0; grp < SCR_WDTH / 16; ++grp)
@@ -937,10 +907,6 @@ void Vid_DispGround_Solid(GRNDTYPE *gptr)
 		int group_max = SBAR_HGHT - 1;
 		int i, row;
 
-		/* Clear only the entries we'll use (SBAR_HGHT-1 .. max) — lazy clear
-		   by using memset of a small range after we know group_max */
-
-		/* First pass: find group_max */
 		for (i = 0; i < 16; ++i)
 		{
 			int h = (int)col[i];
@@ -951,11 +917,9 @@ void Vid_DispGround_Solid(GRNDTYPE *gptr)
 		if (group_max < SBAR_HGHT - 1)
 			continue;
 
-		/* Clear the range we'll use */
 		for (row = SBAR_HGHT - 1; row <= group_max; ++row)
 			height_to_mask[row] = 0;
 
-		/* Second pass: build height_to_mask */
 		{
 			uint16_t bit = 0x8000U;
 			for (i = 0; i < 16; ++i, bit >>= 1)
@@ -967,11 +931,9 @@ void Vid_DispGround_Solid(GRNDTYPE *gptr)
 			}
 		}
 
-		/* Sweep top-down: accumulate mask, write one word per row */
 		{
 			uint16_t mask = 0;
-			uint8_t *p = draw_page + (SCR_HGHT - 1 - group_max) * SCREEN_STRIDE
-			             + grp * 8;
+			uint8_t *p = draw_page + (SCR_HGHT - 1 - group_max) * SCREEN_STRIDE + grp * 8;
 
 			for (row = group_max; row >= SBAR_HGHT - 1; --row)
 			{
@@ -998,8 +960,6 @@ void Vid_PlotPixel(int x, int y, int clr)
 	mask = pixel_mask_table[x & 15];
 	nm = ~mask;
 
-	/* Since we clear the entire buffer each frame, we only need to
-	   SET bits for active planes - no need to clear them. */
 	if (clr & 1) words[0] |= mask; else words[0] &= nm;
 	if (clr & 2) words[1] |= mask; else words[1] &= nm;
 	if (clr & 4) words[2] |= mask;
@@ -1019,135 +979,17 @@ void Vid_XorPixel(int x, int y, int clr)
 	words = (uint16_t *)(draw_page + (SCR_HGHT - 1 - y) * SCREEN_STRIDE + (x >> 4) * 8);
 	mask = pixel_mask_table[x & 15];
 
-	if (clr & 1)
-		words[0] ^= mask;
-	if (clr & 2)
-		words[1] ^= mask;
+	if (clr & 1) words[0] ^= mask;
+	if (clr & 2) words[1] ^= mask;
 }
 
-/* --- Blitter-accelerated symbol rendering --------------------------- */
-
-typedef struct
-{
-	int w_words; /* width in 16-pixel words */
-	int h;
-	void *data; /* Interleaved bitplane data for P0, P1 */
-} blit_sym_t;
-
-typedef struct blit_sym_cache_entry_s
-{
-	sopsym_t *original_sym;
-	faction_t faction;
-	blit_sym_t *blit_sym;
-	struct blit_sym_cache_entry_s *next;
-} blit_sym_cache_entry_t;
-
-static blit_sym_cache_entry_t *blit_sym_cache_head = NULL;
-
-static void free_blit_sym_cache(void)
-{
-	blit_sym_cache_entry_t *entry = blit_sym_cache_head;
-	while (entry)
-	{
-		blit_sym_cache_entry_t *next = entry->next;
-		if (entry->blit_sym)
-		{
-			free(entry->blit_sym->data);
-			free(entry->blit_sym);
-		}
-		free(entry);
-		entry = next;
-	}
-	blit_sym_cache_head = NULL;
-}
-
-static __attribute__((noinline)) blit_sym_t *find_or_create_blit_sym(sopsym_t *symbol, faction_t clr)
-{
-	blit_sym_cache_entry_t *entry;
-	blit_sym_t *bsym;
-	int w_words, h;
-	const uint8_t *color_mapping;
-	int y1, x1;
-
-	/* Search cache */
-	for (entry = blit_sym_cache_head; entry; entry = entry->next)
-	{
-		if (entry->original_sym == symbol && entry->faction == clr)
-		{
-			return entry->blit_sym;
-		}
-	}
-
-	/* Not found. Create a new one and render it. */
-	w_words = (symbol->w + 15) >> 4;
-	h = symbol->h;
-
-	bsym = malloc(sizeof(blit_sym_t));
-	if (!bsym)
-		return NULL;
-	/* 2 planes, 2 bytes per word */
-	bsym->data = malloc(w_words * h * 2 * 2);
-	if (!bsym->data)
-	{
-		free(bsym);
-		return NULL;
-	}
-
-	bsym->w_words = w_words;
-	bsym->h = h;
-	memset(bsym->data, 0, w_words * h * 4);
-
-	assert(clr < (int)(sizeof(color_mappings) / sizeof(color_mappings[0])));
-	color_mapping = color_mappings[clr];
-
-	for (y1 = 0; y1 < symbol->h; ++y1)
-	{
-		for (x1 = 0; x1 < symbol->w; ++x1)
-		{
-			int pixel = symbol->data[y1 * symbol->w + x1];
-			if (pixel != 0)
-			{
-				int color = color_mapping[pixel];
-				int word_idx = x1 >> 4;
-				uint16_t mask = pixel_mask_table[x1 & 15];
-				uint16_t *planes = (uint16_t *)((uint8_t *)bsym->data + y1 * w_words * 4 + word_idx * 4);
-
-				if (color & 1)
-					planes[0] |= mask;
-				if (color & 2)
-					planes[1] |= mask;
-			}
-		}
-	}
-
-	/* Add to cache */
-	entry = malloc(sizeof(blit_sym_cache_entry_t));
-	if (!entry)
-	{
-		free(bsym->data);
-		free(bsym);
-		return NULL;
-	}
-	entry->original_sym = symbol;
-	entry->faction = clr;
-	entry->blit_sym = bsym;
-	entry->next = blit_sym_cache_head;
-	blit_sym_cache_head = entry;
-
-	return bsym;
-}
-
-/* Optimized symbol display - uses pre-rendered bitplane data.
-   Blitter path when available, fast CPU word-XOR fallback otherwise. */
 void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 {
+	int left_skip = x < 0 ? -x : 0;
+	int dst_x = x + left_skip; /* screen x of first visible pixel, always >= 0 */
 	int w = symbol->w, h = symbol->h;
-	int left_skip_pixels = 0;
-	int left_skip_words = 0;
-	int x_off;
-	int dst_w_words;
-	blit_sym_t *bsym;
-	int y1;
+	const uint8_t *color_mapping;
+	int x1, y1;
 
 	if (x >= SCR_WDTH || y < 0 || y >= SCR_HGHT)
 	{
@@ -1160,128 +1002,36 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 		return;
 	}
 
-	bsym = find_or_create_blit_sym(symbol, clr);
-	if (!bsym)
-		return;
-
-	w = symbol->w;
-	h = symbol->h;
-
-	if (y - h + 1 < 0)
-	{
-		h = y + 1;
-	}
-
-	if (x < 0)
-	{
-		left_skip_pixels = -x;
-		w += x;
-		x = 0;
-	}
 	if (x + w > SCR_WDTH)
 	{
 		w = SCR_WDTH - x;
 	}
 
-	if (w <= 0 || h <= 0)
+	if (h > y + 1)
 	{
-		return;
+		h = y + 1;
 	}
 
-	x_off = x & 15;
-	dst_w_words = (x_off + w + 15) >> 4;
-	left_skip_words = left_skip_pixels >> 4;
+	assert(clr < (int)(sizeof(color_mappings) / sizeof(color_mappings[0])));
+	color_mapping = color_mappings[clr];
 
-	if (has_blitter && IS_ST_RAM(draw_page))
+	for (y1 = 0; y1 < h; ++y1)
 	{
-		volatile char *ctrl = (volatile char *)0xFF8A3CL;
-		uint8_t *dst_row;
+		const uint8_t *src = symbol->data + y1 * symbol->w + left_skip;
+		uint8_t *row = draw_page + (SCR_HGHT - 1 - (y - y1)) * SCREEN_STRIDE;
 
-		dst_row = draw_page + (SCR_HGHT - 1 - y) * SCREEN_STRIDE + (x >> 4) * 8;
-
-		*(volatile short *)0xFF8A3A = (short)((x_off) << 8) | 0; /* SKEW, HOP=0 */
-		*(volatile char *)0xFF8A3B = 6;															/* OP=6 (XOR) */
-
-		*(volatile short *)0xFF8A20 = 4; /* Src X Inc */
-		*(volatile short *)0xFF8A22 = (bsym->w_words * 4) - (dst_w_words * 4); /* Src Y Inc */
-
-		*(volatile short *)0xFF8A2E = 8; /* Dst X Inc */
-		*(volatile short *)0xFF8A30 = SCREEN_STRIDE - (dst_w_words * 8); /* Dst Y Inc */
-
-		*(volatile long *)0xFF8A24 = (long)bsym->data + left_skip_words * 4;
-		*(volatile long *)0xFF8A32 = (long)dst_row;
-
-		*(volatile short *)0xFF8A28 = 0xFFFF >> x_off;
-		*(volatile short *)0xFF8A2C = 0xFFFF << (15 - ((x + w - 1) & 15));
-
-		*(volatile short *)0xFF8A36 = dst_w_words;
-		*(volatile short *)0xFF8A38 = h;
-
-		*ctrl = 0xC0;
-		while (*ctrl & 0x80)
-			;
-		return;
-	}
-
-	/* CPU fallback using pre-rendered bitplane data.
-	   The blit_sym_t stores interleaved plane0/plane1 words.
-	   We shift and XOR them into the screen. */
-	{
-		int shift = x_off;
-		int src_row_words = bsym->w_words; /* words per plane per row in source */
-
-		for (y1 = 0; y1 < h; ++y1)
+		for (x1 = left_skip; x1 < w; ++x1, ++src)
 		{
-			int py = y - y1;
-			uint8_t *dst_row;
-			const uint16_t *src_planes;
-			int wi;
-
-			if ((unsigned)py >= SCR_HGHT)
-				continue;
-
-			dst_row = draw_page + (SCR_HGHT - 1 - py) * SCREEN_STRIDE + (x >> 4) * 8;
-			/* Source row: each row is w_words * 4 bytes (2 planes, 2 bytes each) */
-			src_planes = (const uint16_t *)((const uint8_t *)bsym->data
-				+ y1 * src_row_words * 4) + left_skip_words * 2;
-
-			if (shift == 0)
+			int ci = *src;
+			if (ci)
 			{
-				/* Aligned case: direct XOR, no shifting needed */
-				for (wi = 0; wi < dst_w_words; ++wi)
-				{
-					uint16_t s0 = src_planes[wi * 2];
-					uint16_t s1 = src_planes[wi * 2 + 1];
-					uint16_t *dst = (uint16_t *)(dst_row + wi * 8);
-					dst[0] ^= s0;
-					dst[1] ^= s1;
-				}
-			}
-			else
-			{
-				/* Unaligned: shift source words right by 'shift' bits
-				   and XOR into two destination word groups */
-				uint32_t carry0 = 0, carry1 = 0;
-				for (wi = 0; wi < src_row_words - left_skip_words; ++wi)
-				{
-					uint16_t s0 = src_planes[wi * 2];
-					uint16_t s1 = src_planes[wi * 2 + 1];
-					uint32_t wide0 = ((uint32_t)s0 << 16) >> shift;
-					uint32_t wide1 = ((uint32_t)s1 << 16) >> shift;
-					uint16_t *dst = (uint16_t *)(dst_row + wi * 8);
-
-					dst[0] ^= (uint16_t)(wide0 >> 16) | (uint16_t)carry0;
-					dst[1] ^= (uint16_t)(wide1 >> 16) | (uint16_t)carry1;
-					carry0 = wide0 & 0xFFFF;
-					carry1 = wide1 & 0xFFFF;
-				}
-				/* Flush remaining carry bits */
-				if (carry0 | carry1)
-				{
-					uint16_t *dst = (uint16_t *)(dst_row + wi * 8);
-					dst[0] ^= (uint16_t)carry0;
-					dst[1] ^= (uint16_t)carry1;
-				}
+				int color = color_mapping[ci];
+				int sx = dst_x + (x1 - left_skip);
+				uint16_t *words = (uint16_t *)(row + (sx >> 4) * 8);
+				uint16_t mask = pixel_mask_table[sx & 15];
+				uint16_t nm = ~mask;
+				if (color & 1) words[0] |= mask; else words[0] &= nm;
+				if (color & 2) words[1] |= mask; else words[1] &= nm;
 			}
 		}
 	}
@@ -1315,73 +1065,36 @@ void Vid_ClearBuf(void)
 void Vid_DrawChar(int x, int y, int ch, int color)
 {
 	const uint8_t *glyph;
-	uint8_t *row;
 	int screen_y, gy;
 	uint16_t fill0, fill1;
+	/* pixel X = x*8; word index = x/2; bit offset within word = (x&1)*8 */
+	int word_idx = x >> 1;
+	int byte_off = word_idx * 8;
+	int shift = (x & 1) ? 0 : 8; /* even col: high byte; odd col: low byte */
 
 	if (ch < 0 || ch > 255)
 		return;
 
-	/* Screen Y of top pixel row of this character.
-	   y is in character-cell coords (0 = top of screen).
-	   Each cell is 8 pixels. Screen memory row 0 is the top. */
 	screen_y = y * 8;
-
 	glyph = font_data + ch * 8;
 	fill0 = (color & 1) ? 0xFFFF : 0;
 	fill1 = (color & 2) ? 0xFFFF : 0;
 
-	/* Character is byte-aligned if x is a multiple of 8.
-	   Since x is in character cells (each 8 pixels wide),
-	   the pixel X = x*8. In low-res ST, 16 pixels per word,
-	   so pixel X = x*8 means word index = x/2, bit offset = (x&1)*8. */
-
-	if ((x & 1) == 0)
+	for (gy = 0; gy < 8; ++gy)
 	{
-		/* Even column: glyph byte goes into high byte of the word */
-		int word_idx = x >> 1;
-		int byte_off = word_idx * 8; /* offset in bytes to this word group */
+		int sy = screen_y + gy;
+		uint8_t *row;
+		uint16_t mask, nm;
 
-		for (gy = 0; gy < 8; ++gy)
-		{
-			int sy = screen_y + gy;
-			uint16_t mask;
-			uint16_t nm;
+		if (sy < 0 || sy >= SCR_HGHT)
+			continue;
 
-			if (sy < 0 || sy >= SCR_HGHT)
-				continue;
+		row = draw_page + sy * SCREEN_STRIDE + byte_off;
+		mask = (uint16_t)glyph[gy] << shift;
+		nm = ~mask;
 
-			row = draw_page + sy * SCREEN_STRIDE + byte_off;
-			mask = (uint16_t)glyph[gy] << 8;
-			nm = ~mask;
-
-			/* Write planes 0 and 1 */
-			*(uint16_t *)(row)     = (*(uint16_t *)(row)     & nm) | (fill0 & mask);
-			*(uint16_t *)(row + 2) = (*(uint16_t *)(row + 2) & nm) | (fill1 & mask);
-		}
-	}
-	else
-	{
-		/* Odd column: glyph byte goes into low byte of the word */
-		int word_idx = x >> 1;
-		int byte_off = word_idx * 8;
-
-		for (gy = 0; gy < 8; ++gy)
-		{
-			int sy = screen_y + gy;
-			uint16_t mask;
-			uint16_t nm;
-
-			if (sy < 0 || sy >= SCR_HGHT)
-				continue;
-
-			row = draw_page + sy * SCREEN_STRIDE + byte_off;
-			mask = (uint16_t)glyph[gy]; /* low byte of word */
-			nm = ~mask;
-
-			*(uint16_t *)(row)     = (*(uint16_t *)(row)     & nm) | (fill0 & mask);
-			*(uint16_t *)(row + 2) = (*(uint16_t *)(row + 2) & nm) | (fill1 & mask);
-		}
+		*(uint16_t *)(row)     = (*(uint16_t *)(row)     & nm) | (fill0 & mask);
+		*(uint16_t *)(row + 2) = (*(uint16_t *)(row + 2) & nm) | (fill1 & mask);
 	}
 }
 
@@ -1395,14 +1108,12 @@ void Vid_HLine(int y, int color)
 	if (y < 0 || y >= SCR_HGHT)
 		return;
 
-	/* y is in game coords (0=bottom), convert to screen row */
 	row = draw_page + (SCR_HGHT - 1 - y) * SCREEN_STRIDE;
 	fill0 = (color & 1) ? 0xFFFF : 0;
 	fill1 = (color & 2) ? 0xFFFF : 0;
 	fill2 = (color & 4) ? 0xFFFF : 0;
 	fill3 = (color & 8) ? 0xFFFF : 0;
 
-	/* 320 pixels = 20 word groups of 16 pixels each */
 	for (i = 0; i < 20; ++i)
 	{
 		uint16_t *words = (uint16_t *)(row + i * 8);
@@ -1413,7 +1124,7 @@ void Vid_HLine(int y, int color)
 	}
 }
 
-/* Fast colorscreen: fill screen area with solid color using word writes */
+/* Fast colorscreen: fill game area (above status bar) with solid color */
 void Vid_ColorScreen(int color)
 {
 	int y;
@@ -1422,11 +1133,9 @@ void Vid_ColorScreen(int color)
 	fill0 = (color & 1) ? 0xFFFF : 0;
 	fill1 = (color & 2) ? 0xFFFF : 0;
 
-	/* Fill from row 19 to 199 (game coords), which is screen rows 0..180 */
-	for (y = 0; y <= SCR_HGHT - SBAR_HGHT; ++y)
+	for (y = SBAR_HGHT; y < SCR_HGHT; ++y)
 	{
-		int screen_row = (SCR_HGHT - 1 - (y + SBAR_HGHT - 1));
-		uint8_t *row = draw_page + screen_row * SCREEN_STRIDE;
+		uint8_t *row = draw_page + (SCR_HGHT - 1 - y) * SCREEN_STRIDE;
 		int i;
 
 		for (i = 0; i < 20; ++i)
@@ -1459,4 +1168,3 @@ void ErrorExit(char *s, ...)
 	fputc('\n', stderr);
 	exit(1);
 }
-

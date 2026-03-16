@@ -20,7 +20,7 @@ Features:
 - PC speaker emulation
 - Multiple palettes that emulate a selection of old monitors
 - Medals feature
-- ~~Network multiplayer~~
+- ~~Magilink serial network multiplayer~~
 
 ## More Info
 

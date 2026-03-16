@@ -30,7 +30,7 @@
 
 #define NOTIFICATION_BUF_SIZE ((SCR_WDTH / 8) + 1)
 #define SHOW_FPS 0
-#define NOTIFICATION_TIME_MS  2000
+#define NOTIFICATION_TIME_MS 2000
 
 static char notification_buf[NOTIFICATION_BUF_SIZE] = "";
 static int notification_time;
@@ -46,9 +46,12 @@ void Notification(const char *s, ...)
 
 void swground(GRNDTYPE *gptr, int x)
 {
-	if (conf_solidground) {
+	if (conf_solidground)
+	{
 		Vid_DispGround_Solid(gptr + x);
-	} else {
+	}
+	else
+	{
 		Vid_DispGround(gptr + x);
 	}
 }
@@ -57,14 +60,17 @@ void swground(GRNDTYPE *gptr, int x)
 // always draw bullets white
 static inline int ob_color(OBJECTS *ob)
 {
-	if (ob->ob_type == SHOT) {
+	if (ob->ob_type == SHOT)
+	{
 		return 3;
-	} else {
+	}
+	else
+	{
 		return ob->ob_clr;
 	}
 }
 
-void swputsym(int x, int y, OBJECTS * ob)
+void swputsym(int x, int y, OBJECTS *ob)
 {
 	Vid_DispSymbol(x, y, ob->ob_symbol, ob_color(ob));
 }
@@ -74,52 +80,60 @@ static void PrintHelp(void)
 	const char *name;
 	char buf[64];
 	int i;
-	const struct {
-		char *name; int key;
+	const struct
+	{
+		char *name;
+		int key;
 	} items[] = {
-		{ "Accelerate",  KEY_ACCEL },
-		{ "Decelerate",  KEY_DECEL },
-		{ "Pull Up",     KEY_PULLUP },
-		{ "Pull Down",   KEY_PULLDOWN },
-		{ "Flip Plane",  KEY_FLIP },
-		{ "Fire Gun",    KEY_FIRE },
-		{ "Drop Bomb",   KEY_BOMB },
-		{ "Fly Home",    KEY_HOME },
+			{"Accelerate", KEY_ACCEL},
+			{"Decelerate", KEY_DECEL},
+			{"Pull Up", KEY_PULLUP},
+			{"Pull Down", KEY_PULLDOWN},
+			{"Flip Plane", KEY_FLIP},
+			{"Fire Gun", KEY_FIRE},
+			{"Drop Bomb", KEY_BOMB},
+			{"Fly Home", KEY_HOME},
 	};
 
 	// We usually only show the help text in novice mode. However, in
 	// other single player modes, we do show the help text if the
 	// player seems to be really struggling.
-	switch (playmode) {
-		case PLAYMODE_NOVICE:
-			break;
-		case PLAYMODE_SINGLE:
-		case PLAYMODE_COMPUTER:
-			if (consoleplayer->ob_crashcnt < 3) {
-				return;
-			}
-			break;
-		default:
+	switch (playmode)
+	{
+	case PLAYMODE_NOVICE:
+		break;
+	case PLAYMODE_SINGLE:
+	case PLAYMODE_COMPUTER:
+		if (consoleplayer->ob_crashcnt < 3)
+		{
 			return;
+		}
+		break;
+	default:
+		return;
 	}
 
 	swcolor(2);
 	swposcur(1, 2);
 	swputs("BEGINNER'S HELP");
-	if (Vid_HaveController()) {
+	if (Vid_HaveController())
+	{
 		swposcur(21, 2);
 		swputs("GAMEPAD CONTROLS:");
 	}
 
 	swcolor(3);
-	for (i = 0; i < arrlen(items); i++) {
+	for (i = 0; i < arrlen(items); i++)
+	{
 		snprintf(buf, sizeof(buf), "%-11s- %s",
-		        items[i].name, Vid_KeyName(keybindings[items[i].key]));
+						 items[i].name, Vid_KeyName(keybindings[items[i].key]));
 		swposcur(1, i + 3);
 		swputs(buf);
-		if (Vid_HaveController()) {
+		if (Vid_HaveController())
+		{
 			name = Vid_ControllerButtonName(items[i].key);
-			if (name != NULL) {
+			if (name != NULL)
+			{
 				swposcur(21, i + 3);
 				swputs(name);
 			}
@@ -165,7 +179,8 @@ void swdisp(void)
 #endif
 
 	// heads up splats
-	if (conf_hudsplats) {
+	if (conf_hudsplats)
+	{
 		swdispsplats();
 	}
 
@@ -175,30 +190,32 @@ void swdisp(void)
 	// Display help text if the player is just starting off. We only
 	// show this on the first level, and stop showing it once the
 	// player demonstrates the ability to take off successfully.
-	if (consoleplayer->ob_athome && !successful_flight && gamenum == 0
-	 && consoleplayer->ob_state == FLYING) {
+	if (consoleplayer->ob_athome && !successful_flight && gamenum == 0 && consoleplayer->ob_state == FLYING)
+	{
 		PrintHelp();
 	}
 
 	// calculate displx from the player position
 	// do sanity checks to make sure we never go out of range
 	displx = clamp_range(0, consoleplayer->ob_x - SCR_CENTR,
-	                     currgame->gm_max_x - SCR_WDTH - 1);
+											 currgame->gm_max_x - SCR_WDTH - 1);
 
 	// draw objects
-	for (ob = objtop; ob; ob = ob->ob_next) {
+	for (ob = objtop; ob; ob = ob->ob_next)
+	{
 		int x, y;
 
 		x = ob->ob_x;
 		y = ob->ob_y;
 
-		if (ob->ob_drwflg
-		 && in_range(displx - ob->ob_symbol->w, x,
-		             displx + SCR_WDTH - 1)) {
+		if (ob->ob_drwflg && in_range(displx - ob->ob_symbol->w, x,
+																	displx + SCR_WDTH - 1))
+		{
 			swputsym(x - displx, y, ob);
 
-			if (ob->ob_soundf) {
-				(*(ob->ob_soundf)) (ob);
+			if (ob->ob_soundf)
+			{
+				(*(ob->ob_soundf))(ob);
 			}
 		}
 	}
@@ -213,7 +230,8 @@ void swdisp(void)
 	t3 = Timer_GetMS();
 #endif
 
-	if (Timer_GetMS() - notification_time < NOTIFICATION_TIME_MS) {
+	if (Timer_GetMS() - notification_time < NOTIFICATION_TIME_MS)
+	{
 		swposcur(0, 0);
 		swcolor(3);
 		swputs(notification_buf);
@@ -238,17 +256,18 @@ void swdisp(void)
 		fps_t_tot += t4 - t0;
 
 		now = Timer_GetMS();
-		if (now - fps_last_time >= 1000) {
+		if (now - fps_last_time >= 1000)
+		{
 			{
 				extern int _prof_map, _prof_score, _prof_gauge, _prof_medal;
 				snprintf(fps_buf, sizeof(fps_buf),
-					"%dfps c%d b%d o%d g%d m%d",
-					fps_frames,
-					fps_t_clr / fps_frames,
-					fps_t_bar / fps_frames,
-					fps_t_obj / fps_frames,
-					fps_t_gnd / fps_frames,
-					_prof_map);
+								 "%dfps c%d b%d o%d g%d m%d",
+								 fps_frames,
+								 fps_t_clr / fps_frames,
+								 fps_t_bar / fps_frames,
+								 fps_t_obj / fps_frames,
+								 fps_t_gnd / fps_frames,
+								 _prof_map);
 			}
 			fps_display = fps_frames;
 			fps_frames = 0;
@@ -271,8 +290,10 @@ void colorscreen(int color)
 #else
 	int x, y;
 
-	for (y=19; y<SCR_HGHT; ++y) {
-		for (x=0; x<SCR_WDTH; ++x) {
+	for (y = 19; y < SCR_HGHT; ++y)
+	{
+		for (x = 0; x < SCR_WDTH; ++x)
+		{
 			Vid_PlotPixel(x, y, color);
 		}
 	}
