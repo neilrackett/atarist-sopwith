@@ -8,16 +8,16 @@ ST Sopwith is a port of the game "Sopwith", which was originally
 by BMB Compuscience Canada. The original author David L. Clark
 has kindly released the source code under the GNU GPL.
 
-The original version was for DOS, but had an Atari ST palette and 
-empty stubs in place for a planned Atari ST version that never 
-happened. So, nearly 40 years later, I decided it was about time
-to finally get this port done.
+When the source code for the original DOS game was released,
+it revealed a colour palette and stub functions for a planned
+Atari ST version that never happened. So, 40 years later, I decided
+it was finally time get this port done.
 
 Features:
 
-- Uses native ST C and ASM to match original performance
+- Native ST C and ASM to match original performance
 - Support for loading custom levels
-- PC speaker emulation
+- PC speaker style music and sound
 - Multiple palettes that emulate a selection of old monitors
 - Medals feature
 - ~~Magilink serial network multiplayer~~
@@ -25,8 +25,7 @@ Features:
 ## More Info
 
 A big thanks to [Fragglet](https://github.com/fragglet/sdl-sopwith),
-whos SDL port was used as the starting point for getting this to work 
-on Atari ST.
+whos SDL port was used as a starting point.
 
 More information about ST Sopwith is available in some of the files
 included here:

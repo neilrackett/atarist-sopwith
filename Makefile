@@ -3,7 +3,7 @@ TARGET ?= build/SOPWITH.TOS
 OBJDIR ?= obj
 BUILDDIR ?= build
 
-CPPFLAGS += -I. -Isrc
+CPPFLAGS += -I. -Isrc -DPLATFORM_ATARI_TOS
 CFLAGS ?= -O2 -m68000 -fomit-frame-pointer -ffast-math -Wall -Wextra
 LDFLAGS ?=
 LDLIBS ?= -lm

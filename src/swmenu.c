@@ -381,6 +381,7 @@ enum menu_action RunMenu(const struct menu *menu)
 		}
 
 		// Wait for a keypress:
+		swsndupdate();
 		Timer_Sleep(50);
 	}
 }

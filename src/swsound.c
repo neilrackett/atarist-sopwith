@@ -406,8 +406,17 @@ static void titlnote(void)
 	titltone = tunefreq;
 	titlticks += tunedura;
 	titloctv = octavefactor;
+#ifdef PLATFORM_ATARI_TOS
+	/* Skip soundoff() before tone(): the brief amplitude-zero gap creates
+	   an audible click on the YM2149. Write the frequency directly. */
+	if (soundflg) {
+		lastfreq = titltone;
+		Speaker_Output(titltone);
+	}
+#else
 	soundoff();
 	tone(titltone);
+#endif
 }
 
 static void adjtitl(void)

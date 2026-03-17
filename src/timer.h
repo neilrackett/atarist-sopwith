@@ -23,4 +23,8 @@ extern void Timer_Init(void);
 extern int Timer_GetMS(void);
 extern void Timer_Sleep(int usec);
 
+#ifdef PLATFORM_ATARI_TOS
+extern void Timer_Exit(void);
+#endif
+
 #endif

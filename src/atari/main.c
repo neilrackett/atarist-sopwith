@@ -1,6 +1,7 @@
 long _stksize = 65536L;
 
 #include "swmain.h"
+#include "timer.h"
 
 #include <osbind.h>
 #include <stdint.h>
@@ -19,13 +20,15 @@ int main(int argc, char *argv[])
 		 Pterm() handles cleanup regardless of the current mode.
 		 Switching back via an atexit handler would corrupt the stack,
 		 since Super() changes the active stack pointer mid-call-chain. */
-	long old_ssp = Super(0L);
+	Super(0L);
 
 	/* Disable keyboard click (bit 0 of conterm at 0x0484) */
 	*((volatile uint8_t *)0x0484) &= ~0x01;
 
 	JoystickInit();
 	atexit(JoystickExit);
+	Timer_Init();
+	atexit(Timer_Exit);
 
 	return swmain(argc, argv);
 }
