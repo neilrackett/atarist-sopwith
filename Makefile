@@ -9,6 +9,8 @@ ifeq ($(VARIANT),sdl)
 else
 SUB_MAKE := Makefile.$(VARIANT)
 
+.DEFAULT_GOAL := all
+
 # Fail early if file is missing
 $(SUB_MAKE):
 	$(error Variant file not found: $@. Available: atari sdl)
