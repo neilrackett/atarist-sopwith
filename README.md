@@ -2,7 +2,10 @@
 
 Ported to Atari ST by [Neil Rackett](https://x.com/neilrackett)
 
-<img width="681" height="423" alt="image" src="https://github.com/user-attachments/assets/072ca9d9-1d77-4d8d-b5aa-72e37c50f86b" />
+<video width="702" height="454" src="https://github.com/user-attachments/assets/69ba8bf4-9c00-4421-b54b-21a0d1f5d18c" inline muted autoplay loop>
+  <img width="681" height="423" alt="image" src="https://github.com/user-attachments/assets/072ca9d9-1d77-4d8d-b5aa-72e37c50f86b" />
+</video>
+
 
 ## About
 
