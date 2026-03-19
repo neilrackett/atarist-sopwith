@@ -4,6 +4,8 @@ Ported to Atari ST by [Neil Rackett](https://x.com/neilrackett)
 
 ## About
 
+<img width="681" height="423" alt="image" src="https://github.com/user-attachments/assets/072ca9d9-1d77-4d8d-b5aa-72e37c50f86b" />
+
 ST Sopwith is a port of the game "Sopwith", which was originally
 by BMB Compuscience Canada. The original author David L. Clark
 has kindly released the source code under the GNU GPL.
