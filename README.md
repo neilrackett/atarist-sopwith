@@ -24,10 +24,19 @@ Features:
 - Medals feature
 - ~~Magilink serial network multiplayer~~
 
-## More Info
+## Download
 
-A big thanks to [Fragglet](https://github.com/fragglet/sdl-sopwith),
-whos SDL port was used as a starting point.
+Download the latest release from the [releases page](https://github.com/neilrackett/atarist-sopwith/releases).
+
+## Build
+
+The quickest way to build ST Sopwith is to install [atarist-toolkit-docker](https://github.com/sidecartridge/atarist-toolkit-docker) and run:
+
+```sh
+stcmd make
+```
+
+## More Info
 
 More information about ST Sopwith is available in some of the files
 included here:
@@ -42,6 +51,9 @@ You can find lots more information about the original Sopwith here:
 - http://www.sopwith.org/
 - https://fragglet.github.io/sdl-sopwith
 - https://en.wikipedia.org/wiki/Sopwith_(video_game)
+
+A big thanks to [Fragglet](https://github.com/fragglet/sdl-sopwith),
+whos SDL port was used as a starting point.
 
 ## Feedback
 
