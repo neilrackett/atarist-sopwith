@@ -26,3 +26,4 @@ TAGS
 emscripten_cache
 build-sdl/
 memory/
+.DS_Store
