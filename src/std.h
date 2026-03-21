@@ -12,6 +12,7 @@
 #ifndef __STD_H__
 #define __STD_H__
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -29,7 +29,7 @@ void Timer_Exit(void)
 
 int Timer_GetMS(void)
 {
-	return (int) (get_sysvar(_hz_200) * 5UL);
+	return (int) (*_hz_200 * 5UL);
 }
 
 void Timer_Sleep(int msec)

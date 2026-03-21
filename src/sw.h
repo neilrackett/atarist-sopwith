@@ -195,7 +195,7 @@ typedef enum {
 #define K_MISSILE       0x1000
 #define K_STARBURST     0x2000
 
-typedef  unsigned int GRNDTYPE;
+typedef  uint8_t GRNDTYPE;
 
 struct tt {                     /*  Continuous tone table entry    */
 	unsigned  tt_tone;

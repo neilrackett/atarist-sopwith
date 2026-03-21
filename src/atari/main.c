@@ -1,4 +1,4 @@
-long _stksize = 65536L;
+long _stksize = 32768L;
 
 #include "swmain.h"
 #include "timer.h"

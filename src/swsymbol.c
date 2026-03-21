@@ -12,12 +12,65 @@
 // Sprites
 //
 
+#include <stddef.h>
 #include <string.h>
 
 #include "swsymbol.h"
 
 // Linked list of all symbols, to allow replacement in custom levels:
 symset_t *all_symsets = NULL;
+
+// Arena allocator for symbol pixel data. All symbol pixel bytes are packed
+// into one contiguous block, avoiding heap fragmentation from hundreds of
+// small mallocs that would prevent the 64KB screen buffer from being
+// allocated afterwards.
+#define SYM_ARENA_SIZE 159744
+static uint8_t *sym_arena = NULL;
+static size_t   sym_arena_used = 0;
+
+static uint8_t *ArenaAlloc(size_t n)
+{
+	uint8_t *p;
+	if (sym_arena == NULL) {
+		sym_arena = malloc(SYM_ARENA_SIZE);
+		if (sym_arena == NULL) {
+			return NULL;
+		}
+	}
+	if (sym_arena_used + n > SYM_ARENA_SIZE) {
+		return NULL;
+	}
+	p = sym_arena + sym_arena_used;
+	sym_arena_used += n;
+	return p;
+}
+
+// Cache the last symset generated from each source text pointer so that
+// duplicate source strings (e.g. destroyed_custom used 10 times) share
+// pixel data rather than allocating identical copies.
+#define SYM_CACHE_SIZE 32
+static struct { const char *text; symset_t *s; } sym_cache[SYM_CACHE_SIZE];
+static int sym_cache_len = 0;
+
+static symset_t *CacheLookup(const char *text)
+{
+	int i;
+	for (i = 0; i < sym_cache_len; i++) {
+		if (sym_cache[i].text == text) {
+			return sym_cache[i].s;
+		}
+	}
+	return NULL;
+}
+
+static void CacheInsert(const char *text, symset_t *s)
+{
+	if (sym_cache_len < SYM_CACHE_SIZE) {
+		sym_cache[sym_cache_len].text = text;
+		sym_cache[sym_cache_len].s    = s;
+		sym_cache_len++;
+	}
+}
 
 // Order here is counterintuitive: cyan (1) is brighter than magenta (2):
 static const char *color_chars = " *-#";
@@ -1135,7 +1188,10 @@ static void SopsymFromText(sopsym_t *sym, const char *text, int rotations,
 		sym->w = h;
 		sym->h = w;
 	}
-	sym->data = malloc(w * h);
+	sym->data = ArenaAlloc((size_t)(w * h));
+	if (sym->data == NULL) {
+		return;
+	}
 
 	x = 0; y = 0;
 	for (p = text; *p != '\0'; p++) {
@@ -1163,12 +1219,24 @@ static void SopsymFromText(sopsym_t *sym, const char *text, int rotations,
 void SymsetFromText(symset_t *s, const char *text)
 {
 	int r;
+	symset_t *cached = CacheLookup(text);
+
+	if (cached != NULL) {
+		// Reuse pixel data from the previously generated symset for
+		// this identical source string (e.g. destroyed_custom).
+		for (r = 0; r < 8; r++) {
+			s->sym[r] = cached->sym[r];
+		}
+		return;
+	}
 
 	for (r = 0; r < 4; r++)
 	{
 		SopsymFromText(&s->sym[r], text, r, false);
 		SopsymFromText(&s->sym[r + 4], text, r, true);
 	}
+
+	CacheInsert(text, s);
 }
 
 symset_t *LookupSymset(const char *name, int frame)

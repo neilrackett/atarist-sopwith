@@ -5,10 +5,11 @@ TARGET ?= build/SOPWITH.TOS
 OBJDIR ?= obj
 BUILDDIR ?= build
 
-CPPFLAGS += -I. -Isrc -DPLATFORM_ATARI_TOS
-CFLAGS ?= -O2 -m68000 -fomit-frame-pointer -ffast-math -Wall -Wextra
-LDFLAGS ?=
-LDLIBS ?= -lm
+LIBCMINI = /freemint/libcmini/lib
+CPPFLAGS += -I. -Isrc -Isrc/atari -DPLATFORM_ATARI_TOS -I/freemint/libcmini/include
+CFLAGS ?= -Os -m68000 -fomit-frame-pointer -ffast-math -Wall -Wextra -std=c99
+LDFLAGS ?= -nostdlib -L$(LIBCMINI)
+LDLIBS ?= -lcmini -lgcc
 
 COMMON_SOURCES = \
 	src/hiscore.c \
@@ -46,12 +47,12 @@ SOURCES = $(COMMON_SOURCES) $(ATARI_SOURCES)
 OBJECTS = $(patsubst %.c,$(OBJDIR)/%.o,$(SOURCES)) \
           $(patsubst %.S,$(OBJDIR)/%.o,$(ATARI_ASM))
 
-.PHONY: all clean run-st run-ste run-megaste
+.PHONY: all clean run-st run-st512 run-ste run-megaste
 
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS) | $(BUILDDIR)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $(LIBCMINI)/crt0.o $(OBJECTS) $(LDLIBS)
 
 $(OBJDIR)/%.o: %.c config.h | $(OBJDIR)
 	@mkdir -p $(dir $@)
@@ -72,6 +73,9 @@ clean:
 
 run-st: $(TARGET)
 	hatari --machine st $(TARGET)
+
+run-st512: $(TARGET)
+	hatari --machine st --memsize 512 $(TARGET)
 
 run-ste: $(TARGET)
 	hatari --machine ste $(TARGET)
