@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Neil Rackett
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 #ifndef ATARI_KEYS_H
 #define ATARI_KEYS_H
 

@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Neil Rackett
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 // Networking is not implemented for the Atari ST port. If you'd like to add
 // it, you're welcome to do so and send a pull request!
 
