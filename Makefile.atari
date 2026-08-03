@@ -1,15 +1,38 @@
-# Makefile for ST Sopwith 
+# Makefile for ST Sopwith
+#
+# Two interchangeable Atari backends:
+#   make -f Makefile.atari                 # BACKEND=atari (default)
+#   make -f Makefile.atari BACKEND=stdl    # STDL (atarist-stdl)
+#
+# The STDL build needs libstdl-cmini.a - libstdl.a compiled against
+# the libcmini headers, since this game links -nostdlib -lcmini:
+#   cd ../atarist-stdl && STCMD_NO_TTY=1 stcmd make cmini
+# Point STDL_DIR somewhere else if the library lives elsewhere.
+#
+# Benchmarking: add SHOW_FPS=1 for the on-screen render-time counter
+# and SOPWITH_STATS=1 for the STDL sprite-cache report at exit.
 
 CC = m68k-atari-mint-gcc
+BACKEND ?= atari
 TARGET ?= build/SOPWITH.TOS
-OBJDIR ?= obj
+OBJDIR ?= obj/$(BACKEND)
 BUILDDIR ?= build
+
+STDL_DIR ?= ../atarist-stdl
+STDL_LIB  = $(STDL_DIR)/libstdl-cmini.a
 
 LIBCMINI = /freemint/libcmini/lib
 CPPFLAGS += -I. -Isrc -Isrc/atari -DPLATFORM_ATARI_TOS -I/freemint/libcmini/include
 CFLAGS ?= -Os -m68000 -fomit-frame-pointer -ffast-math -Wall -Wextra -std=c99
 LDFLAGS ?= -nostdlib -L$(LIBCMINI)
 LDLIBS ?= -lcmini -lgcc
+
+ifdef SHOW_FPS
+CPPFLAGS += -DSHOW_FPS=$(SHOW_FPS)
+endif
+ifdef SOPWITH_STATS
+CPPFLAGS += -DSOPWITH_STATS
+endif
 
 COMMON_SOURCES = \
 	src/hiscore.c \
@@ -32,27 +55,43 @@ COMMON_SOURCES = \
 	src/swtext.c \
 	src/swtitle.c \
 	src/touch_area.c \
-	src/yocton.c
+	src/yocton.c \
+	src/atari/tcpcomm_stub.c
 
 ATARI_SOURCES = \
 	src/atari/controller.c \
 	src/atari/main.c \
 	src/atari/pcsound.c \
-	src/atari/tcpcomm_stub.c \
 	src/atari/timer.c \
 	src/atari/video.c
 
+STDL_SOURCES = \
+	src/stdl/controller.c \
+	src/stdl/main.c \
+	src/stdl/pcsound.c \
+	src/stdl/timer.c \
+	src/stdl/video.c
 
-SOURCES = $(COMMON_SOURCES) $(ATARI_SOURCES)
-OBJECTS = $(patsubst %.c,$(OBJDIR)/%.o,$(SOURCES)) \
-          $(patsubst %.S,$(OBJDIR)/%.o,$(ATARI_ASM))
+ifeq ($(BACKEND),stdl)
+BACKEND_SOURCES = $(STDL_SOURCES)
+CPPFLAGS += -I$(STDL_DIR)/include
+BACKEND_LIB = $(STDL_LIB)
+else ifeq ($(BACKEND),atari)
+BACKEND_SOURCES = $(ATARI_SOURCES)
+BACKEND_LIB =
+else
+$(error unknown BACKEND '$(BACKEND)': use atari or stdl)
+endif
+
+SOURCES = $(COMMON_SOURCES) $(BACKEND_SOURCES)
+OBJECTS = $(patsubst %.c,$(OBJDIR)/%.o,$(SOURCES))
 
 .PHONY: all clean run-st run-st512 run-ste run-megaste
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) | $(BUILDDIR)
-	$(CC) $(LDFLAGS) -o $@ $(LIBCMINI)/crt0.o $(OBJECTS) $(LDLIBS)
+$(TARGET): $(OBJECTS) $(BACKEND_LIB) | $(BUILDDIR)
+	$(CC) $(LDFLAGS) -o $@ $(LIBCMINI)/crt0.o $(OBJECTS) $(BACKEND_LIB) $(LDLIBS)
 
 $(OBJDIR)/%.o: %.c config.h | $(OBJDIR)
 	@mkdir -p $(dir $@)
@@ -69,7 +108,7 @@ $(BUILDDIR):
 	@mkdir -p $@
 
 clean:
-	rm -rf $(OBJDIR) $(BUILDDIR)
+	rm -rf obj $(BUILDDIR)
 
 run-st: $(TARGET)
 	hatari --machine st $(TARGET)

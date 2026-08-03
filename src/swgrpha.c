@@ -34,7 +34,10 @@
 #include "swtext.h"
 
 #define NOTIFICATION_BUF_SIZE ((SCR_WDTH / 8) + 1)
+// Build with -DSHOW_FPS=1 for the on-screen render-time counter.
+#ifndef SHOW_FPS
 #define SHOW_FPS 0
+#endif
 #define NOTIFICATION_TIME_MS 2000
 
 static char notification_buf[NOTIFICATION_BUF_SIZE] = "";
@@ -244,9 +247,13 @@ void swdisp(void)
 
 #if SHOW_FPS
 	{
+		// Raw accumulated milliseconds and the frame count over a
+		// fixed window, not per-frame averages: Timer_GetMS() only
+		// ticks every 5ms, so dividing per frame throws away most
+		// of the precision. F = frames, C = ClearBuf, B = status
+		// bar, O = objects, G = ground, T = total swdisp time.
 		static int fps_frames;
 		static int fps_last_time;
-		static int fps_display;
 		static int fps_t_clr, fps_t_bar, fps_t_obj, fps_t_gnd, fps_t_tot;
 		char fps_buf[40];
 		int now;
@@ -261,20 +268,13 @@ void swdisp(void)
 		fps_t_tot += t4 - t0;
 
 		now = Timer_GetMS();
-		if (now - fps_last_time >= 1000)
+		if (now - fps_last_time >= 2000)
 		{
-			{
-				extern int _prof_map, _prof_score, _prof_gauge, _prof_medal;
-				snprintf(fps_buf, sizeof(fps_buf),
-								 "%dfps c%d b%d o%d g%d m%d",
-								 fps_frames,
-								 fps_t_clr / fps_frames,
-								 fps_t_bar / fps_frames,
-								 fps_t_obj / fps_frames,
-								 fps_t_gnd / fps_frames,
-								 _prof_map);
-			}
-			fps_display = fps_frames;
+			snprintf(fps_buf, sizeof(fps_buf),
+							 "F%d C%d B%d O%d G%d T%d",
+							 fps_frames,
+							 fps_t_clr, fps_t_bar, fps_t_obj,
+							 fps_t_gnd, fps_t_tot);
 			fps_frames = 0;
 			fps_last_time = now;
 			fps_t_clr = fps_t_bar = fps_t_obj = fps_t_gnd = fps_t_tot = 0;
