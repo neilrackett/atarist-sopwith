@@ -1,0 +1,28 @@
+/*
+ * Copyright (C) 2026 Neil Rackett
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+/* Seed for config.h on the Atari build.
+ *
+ * The desktop build generates config.h with autotools; the Atari
+ * build has no configure step, so Makefile.atari copies this file
+ * into place when config.h is absent.  It is tracked because
+ * config.h itself is in .gitignore - without it a fresh clone has
+ * no rule to make any object file. */
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define HAVE_STDBOOL_H 1
+
+#define PACKAGE_NAME "Sopwith Atari ST"
+#define PACKAGE_STRING "Sopwith Atari ST 2.9.0"
+#define PACKAGE_TARNAME "sopwith-atari-st"
+#define PACKAGE_VERSION "2.9.0"
+
+#define HISCORES_PATH ""
+#define NO_FULLSCREEN 1
+#define PLATFORM_ATARI_TOS 1
+
+#endif

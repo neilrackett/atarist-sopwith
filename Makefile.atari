@@ -99,6 +99,13 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS) $(BACKEND_LIB) | $(BUILDDIR)
 	$(CC) $(LDFLAGS) -o $@ $(LIBCMINI)/crt0.o $(OBJECTS) $(BACKEND_LIB) $(LDLIBS)
 
+# The desktop build generates config.h with autotools and .gitignore
+# excludes it, so a fresh clone has none and no object can be made.
+# The Atari build has no configure step: seed it from the tracked
+# template. No prerequisite, so an existing config.h is never touched.
+config.h:
+	@cp src/atari/config.h.atari $@
+
 $(OBJDIR)/%.o: %.c config.h | $(OBJDIR)
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
