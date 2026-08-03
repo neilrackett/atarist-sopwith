@@ -1,13 +1,20 @@
 # Makefile for ST Sopwith
 #
 # Two interchangeable Atari backends:
-#   make -f Makefile.atari                 # BACKEND=atari (default)
-#   make -f Makefile.atari BACKEND=stdl    # STDL (atarist-stdl)
+#   STCMD_NO_TTY=1 stcmd make -f Makefile.atari              # BACKEND=atari
+#   STCMD_NO_TTY=1 stcmd make -f Makefile.atari BACKEND=stdl # STDL
 #
-# The STDL build needs libstdl-cmini.a - libstdl.a compiled against
-# the libcmini headers, since this game links -nostdlib -lcmini:
-#   cd ../atarist-stdl && STCMD_NO_TTY=1 stcmd make cmini
-# Point STDL_DIR somewhere else if the library lives elsewhere.
+# stcmd mounts the current directory into the toolkit container and
+# runs there, so everything the build touches has to live inside this
+# repository. STDL does: extern/stdl is a submodule, and the library
+# is built from it automatically when the archive is missing.
+#
+#   git clone --recurse-submodules <url>     # fresh clone
+#   git submodule update --init              # existing clone
+#
+# The STDL build wants libstdl-cmini.a - libstdl.a compiled against
+# the libcmini headers, since this game links -nostdlib -lcmini - so
+# the automatic build uses STDL's `cmini` target, not its default one.
 #
 # Benchmarking: add SHOW_FPS=1 for the on-screen render-time counter
 # and SOPWITH_STATS=1 for the STDL sprite-cache report at exit.
@@ -18,7 +25,10 @@ TARGET ?= build/SOPWITH.TOS
 OBJDIR ?= obj/$(BACKEND)
 BUILDDIR ?= build
 
-STDL_DIR ?= ../atarist-stdl
+# The submodule wins when it is present; a sibling checkout is the
+# fallback, so the library and the game can still be worked on
+# together. Override with STDL_DIR=<path>.
+STDL_DIR ?= $(firstword $(wildcard extern/stdl) ../atarist-stdl)
 STDL_LIB  = $(STDL_DIR)/libstdl-cmini.a
 
 LIBCMINI = /freemint/libcmini/lib
@@ -82,6 +92,13 @@ ifeq ($(BACKEND),stdl)
 BACKEND_SOURCES = $(STDL_SOURCES)
 CPPFLAGS += -I$(STDL_DIR)/include
 BACKEND_LIB = $(STDL_LIB)
+# Cloning without --recurse-submodules leaves extern/stdl an empty
+# directory; say so rather than failing on a missing STDL.h.
+ifeq ($(wildcard $(STDL_DIR)/include),)
+ifeq ($(filter clean run-%,$(MAKECMDGOALS)),)
+$(error STDL not found in $(STDL_DIR) - run: git submodule update --init)
+endif
+endif
 else ifeq ($(BACKEND),atari)
 BACKEND_SOURCES = $(ATARI_SOURCES)
 BACKEND_LIB =
@@ -98,6 +115,12 @@ all: $(TARGET)
 
 $(TARGET): $(OBJECTS) $(BACKEND_LIB) | $(BUILDDIR)
 	$(CC) $(LDFLAGS) -o $@ $(LIBCMINI)/crt0.o $(OBJECTS) $(BACKEND_LIB) $(LDLIBS)
+
+# Build the library from the submodule when its archive is missing,
+# so a fresh clone needs one command. An existing archive is left
+# alone - rebuild it deliberately with make -C $(STDL_DIR) cmini.
+$(STDL_LIB):
+	$(MAKE) -C $(STDL_DIR) cmini
 
 # The desktop build generates config.h with autotools and .gitignore
 # excludes it, so a fresh clone has none and no object can be made.

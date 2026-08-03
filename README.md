@@ -39,6 +39,29 @@ The quickest way to build ST Sopwith is to install [atarist-toolkit-docker](http
 stcmd make
 ```
 
+That builds the hand-written Atari backend, which needs nothing else.
+
+There is a second, interchangeable backend built on
+[STDL](https://github.com/neilrackett/atarist-stdl), a planar-native subset
+of SDL 1.2 for the Atari ST. STDL is a submodule at `extern/stdl`, pinned to
+a release tag, so clone with it:
+
+```sh
+git clone --recurse-submodules https://github.com/neilrackett/atarist-sopwith.git
+```
+
+In a clone that already exists, `git submodule update --init` fetches it.
+Then:
+
+```sh
+stcmd make -f Makefile.atari BACKEND=stdl
+```
+
+`libstdl-cmini.a` is built from the submodule as part of that. Set
+`STDL_DIR=/path/to/atarist-stdl` to build against a checkout of the library
+elsewhere; a sibling `../atarist-stdl` is picked up automatically when the
+submodule is absent.
+
 ## More Info
 
 More information about ST Sopwith is available in some of the files
