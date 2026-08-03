@@ -250,8 +250,12 @@ void swdisp(void)
 		// Raw accumulated milliseconds and the frame count over a
 		// fixed window, not per-frame averages: Timer_GetMS() only
 		// ticks every 5ms, so dividing per frame throws away most
-		// of the precision. F = frames, C = ClearBuf, B = status
-		// bar, O = objects, G = ground, T = total swdisp time.
+		// of the precision. F = frames, W = the actual length of
+		// the window in ms (it overruns 2000 by up to one frame,
+		// so raw fps is F * 1000 / W, not F / 2), C = ClearBuf,
+		// B = status bar, O = objects, G = ground, T = total
+		// swdisp time. W - T is everything outside swdisp: game
+		// logic, collisions, sound and the VBL-synced page flip.
 		static int fps_frames;
 		static int fps_last_time;
 		static int fps_t_clr, fps_t_bar, fps_t_obj, fps_t_gnd, fps_t_tot;
@@ -270,9 +274,11 @@ void swdisp(void)
 		now = Timer_GetMS();
 		if (now - fps_last_time >= 2000)
 		{
+			// no separators: the field letters delimit it, and the
+			// line has to stay inside 40 characters
 			snprintf(fps_buf, sizeof(fps_buf),
-							 "F%d C%d B%d O%d G%d T%d",
-							 fps_frames,
+							 "F%dW%dC%dB%dO%dG%dT%d",
+							 fps_frames, now - fps_last_time,
 							 fps_t_clr, fps_t_bar, fps_t_obj,
 							 fps_t_gnd, fps_t_tot);
 			fps_frames = 0;
