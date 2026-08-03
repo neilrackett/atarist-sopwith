@@ -864,11 +864,20 @@ void Vid_Box(int x, int y, int w, int h, int c)
 	STDL_FillRect(screen, &r, (uint8_t)c);
 }
 
+/*
+ * Span lists for the ground outline. Worst case is one entry per
+ * column in each list, which never both happen: a column is either
+ * a step (vertical) or part of a flat run (horizontal).
+ */
+static STDL_Span ground_vspans[SCR_WDTH];
+static STDL_Span ground_hspans[SCR_WDTH];
+
 void Vid_DispGround(GRNDTYPE *gptr)
 {
 	int x;
 	int hl, hc, hr, y0;
 	int run_x = -1, run_end = 0, run_h = 0;
+	int nv = 0, nh = 0;
 
 	hc = clamp_max(*gptr, SCR_HGHT - 1);
 	hl = hc;
@@ -877,12 +886,13 @@ void Vid_DispGround(GRNDTYPE *gptr)
 	/*
 	 * The outline is one pixel tall wherever the profile is flat or
 	 * at a local minimum, and a short vertical span only where it
-	 * steps. Emitting one STDL_XorVLine per column costs 320 calls
-	 * a frame; batching the flat stretches into horizontal runs
-	 * turns most of them into a handful of STDL_XorHLine spans,
-	 * which is the decomposition the library is built around.
-	 * (Each column contributes a distinct pixel, so a run XORs
-	 * exactly the same set of pixels.)
+	 * steps. Two things make that expensive one call at a time:
+	 * there are up to 320 of them a frame, and each is one to three
+	 * rows, so the call overhead dwarfs the pixels. So the whole
+	 * frame is collected into two span lists and handed to the
+	 * library in two calls - flat stretches as horizontal spans
+	 * (each column contributes a distinct pixel, so a run XORs
+	 * exactly the same set of pixels), steps as vertical ones.
 	 */
 	for (x = 0; x < SCR_WDTH; ++x)
 	{
@@ -899,8 +909,11 @@ void Vid_DispGround(GRNDTYPE *gptr)
 			{
 				if (run_x >= 0)
 				{
-					STDL_XorHLine(screen, run_x, run_end,
-					              SY(run_h), 3);
+					ground_hspans[nh].x = (int16_t)run_x;
+					ground_hspans[nh].y = (int16_t)SY(run_h);
+					ground_hspans[nh].len =
+						(int16_t)(run_end - run_x + 1);
+					++nh;
 				}
 				run_x = run_end = x;
 				run_h = hc;
@@ -910,11 +923,19 @@ void Vid_DispGround(GRNDTYPE *gptr)
 		{
 			if (run_x >= 0)
 			{
-				STDL_XorHLine(screen, run_x, run_end,
-				              SY(run_h), 3);
+				ground_hspans[nh].x = (int16_t)run_x;
+				ground_hspans[nh].y = (int16_t)SY(run_h);
+				ground_hspans[nh].len =
+					(int16_t)(run_end - run_x + 1);
+				++nh;
 				run_x = -1;
 			}
-			STDL_XorVLine(screen, x, SY(hc), SY(y0), 3);
+			/* SY() flips the axis, so the span starts at the
+			   higher ground level and runs down to the lower */
+			ground_vspans[nv].x = (int16_t)x;
+			ground_vspans[nv].y = (int16_t)SY(hc);
+			ground_vspans[nv].len = (int16_t)(hc - y0 + 1);
+			++nv;
 		}
 
 		hl = hc;
@@ -924,8 +945,14 @@ void Vid_DispGround(GRNDTYPE *gptr)
 
 	if (run_x >= 0)
 	{
-		STDL_XorHLine(screen, run_x, run_end, SY(run_h), 3);
+		ground_hspans[nh].x = (int16_t)run_x;
+		ground_hspans[nh].y = (int16_t)SY(run_h);
+		ground_hspans[nh].len = (int16_t)(run_end - run_x + 1);
+		++nh;
 	}
+
+	STDL_XorVSpans(screen, ground_vspans, nv, 3);
+	STDL_XorHSpans(screen, ground_hspans, nh, 3);
 }
 
 void Vid_DispGround_Solid(GRNDTYPE *gptr)
@@ -935,7 +962,15 @@ void Vid_DispGround_Solid(GRNDTYPE *gptr)
 	/* Run-length the height profile so flat stretches become one
 	   wide STDL_FillRect instead of 16 vertical spans. Filling
 	   colour 3 matches the native OR of planes 0+1, because planes
-	   2 and 3 are always clear in the play area. */
+	   2 and 3 are always clear in the play area.
+
+	   Deliberately NOT converted to STDL_VSpans: solid ground is
+	   whole columns from the profile down to the status bar, so
+	   the spans are ~150 rows and the per-call overhead the span
+	   lists remove is a few percent of them - and a tall fill is
+	   over the BLiTTER threshold, which STDL_FillRect can use and
+	   the CPU-only span calls cannot. The outline path above is
+	   the one whose spans are short enough for it to matter. */
 	while (x < SCR_WDTH)
 	{
 		int h = clamp_max((int)gptr[x], SCR_HGHT - 1);
