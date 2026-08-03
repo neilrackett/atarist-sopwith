@@ -693,6 +693,22 @@ void Vid_Init(void)
 		ErrorExit("STDL_SetVideoMode failed: %s", STDL_GetError());
 	}
 
+	/*
+	 * Sopwith draws in four colours. Every sprite, symbol, gauge,
+	 * line and character goes through color_mappings[][] or a
+	 * literal 0-3, so telling STDL to stop maintaining planes 2 and
+	 * 3 halves the memory every primitive touches.
+	 *
+	 * Two things in the status bar are outside that range and are
+	 * handled rather than ignored: swstbar.c's minimap pokes planes
+	 * 0/1/2 (colour 7) and 0/1/3 (colour 11) straight into the
+	 * framebuffer, which the budget does not affect because it is
+	 * not STDL doing the writing - and Vid_ClearBuf zeroes all four
+	 * planes every frame, so nothing accumulates; and Vid_HLine
+	 * below draws the colour-7 separator raw for the same reason.
+	 */
+	STDL_SetPlaneBudget(SOPWITH_PLANE_BUDGET);
+
 	/* Sopwith wants ASCII from keys; it does its own key-hold
 	   tracking, so STDL's auto-repeat would double up presses. */
 	STDL_EnableUNICODE(1);
@@ -1036,9 +1052,32 @@ void Vid_DrawChar(int x, int y, int ch, int color)
 	              (uint8_t)color);
 }
 
+/*
+ * The status-bar separator is colour 7, which the plane budget
+ * cannot express. It is full width, group aligned and drawn once a
+ * frame, so writing the span raw costs nothing and keeps the line
+ * the colour the native backend gives it - the same exception
+ * swstbar.c's minimap already takes.
+ */
 void Vid_HLine(int y, int color)
 {
-	STDL_HLine(screen, 0, SCR_WDTH - 1, SY(y), (uint8_t)color);
+	uint16_t *w;
+	int g;
+
+	if (color < (1 << SOPWITH_PLANE_BUDGET))
+	{
+		STDL_HLine(screen, 0, SCR_WDTH - 1, SY(y), (uint8_t)color);
+		return;
+	}
+	w = (uint16_t *)(vid_vram + (uint32_t)SY(y) * vid_pitch);
+	for (g = 0; g < SCR_WDTH / 16; ++g)
+	{
+		w[0] = (color & 1) ? 0xFFFFU : 0;
+		w[1] = (color & 2) ? 0xFFFFU : 0;
+		w[2] = (color & 4) ? 0xFFFFU : 0;
+		w[3] = (color & 8) ? 0xFFFFU : 0;
+		w += 4;
+	}
 }
 
 void Vid_ColorScreen(int color)

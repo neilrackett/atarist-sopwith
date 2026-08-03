@@ -27,6 +27,12 @@ CFLAGS ?= -Os -m68000 -fomit-frame-pointer -ffast-math -Wall -Wextra -std=c99
 LDFLAGS ?= -nostdlib -L$(LIBCMINI)
 LDLIBS ?= -lcmini -lgcc
 
+# STDL plane budget (BACKEND=stdl only): the number of bitplanes
+# STDL maintains. Sopwith draws in four colours, so 2 is right;
+# PLANE_BUDGET=4 restores the previous behaviour for A/B timing.
+PLANE_BUDGET ?= 2
+CPPFLAGS += -DSOPWITH_PLANE_BUDGET=$(PLANE_BUDGET)
+
 ifdef SHOW_FPS
 CPPFLAGS += -DSHOW_FPS=$(SHOW_FPS)
 endif
