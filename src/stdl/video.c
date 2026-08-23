@@ -246,7 +246,6 @@ uint8_t *vid_vram;
 unsigned int vid_pitch = 160;
 
 int keysdown[NUM_KEYS];
-int controller_bindings[NUM_KEYS];
 int keybindings[NUM_KEYS] = {
 	0,
 	',',
