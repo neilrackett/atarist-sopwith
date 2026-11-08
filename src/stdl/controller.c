@@ -10,9 +10,9 @@
 #include "sw.h"
 #include "video.h"
 
-/* STDL_GetJoyState() reports the IKBD joystick 1 byte directly, with
-   the same bit layout the native backend's IKBD handler used, so the
-   whole interrupt handler from src/atari/controller.c disappears. */
+/* STDL_GetJoystickState(0) reports the IKBD joystick 1 byte directly,
+   with the same bit layout the native backend's IKBD handler used, so
+   the whole interrupt handler from src/atari/controller.c disappears. */
 #define JOY_UP    0x01
 #define JOY_DOWN  0x02
 #define JOY_LEFT  0x04
@@ -37,17 +37,17 @@
    same as every other backend. */
 int controller_bindings[NUM_KEYS] = {
 	BIND_NONE,          /* KEY_UNKNOWN   */
-	STDL_JOYKEY_UP,     /* KEY_PULLUP    */
-	STDL_JOYKEY_DOWN,   /* KEY_PULLDOWN  */
-	STDL_JOYKEY_TL,     /* KEY_FLIP      */
-	STDL_JOYKEY_EAST,   /* KEY_BOMB      */
-	STDL_JOYKEY_FIRE,   /* KEY_FIRE      */
-	STDL_JOYKEY_START,  /* KEY_HOME      */
-	STDL_JOYKEY_WEST,   /* KEY_MISSILE   */
-	STDL_JOYKEY_NORTH,  /* KEY_STARBURST */
-	STDL_JOYKEY_RIGHT,  /* KEY_ACCEL     */
-	STDL_JOYKEY_LEFT,   /* KEY_DECEL     */
-	STDL_JOYKEY_SELECT, /* KEY_SOUND     */
+	STDL_JOYSTICK_UP,     /* KEY_PULLUP    */
+	STDL_JOYSTICK_DOWN,   /* KEY_PULLDOWN  */
+	STDL_JOYSTICK_TL,     /* KEY_FLIP      */
+	STDL_JOYSTICK_EAST,   /* KEY_BOMB      */
+	STDL_JOYSTICK_FIRE,   /* KEY_FIRE      */
+	STDL_JOYSTICK_START,  /* KEY_HOME      */
+	STDL_JOYSTICK_WEST,   /* KEY_MISSILE   */
+	STDL_JOYSTICK_NORTH,  /* KEY_STARBURST */
+	STDL_JOYSTICK_RIGHT,  /* KEY_ACCEL     */
+	STDL_JOYSTICK_LEFT,   /* KEY_DECEL     */
+	STDL_JOYSTICK_SELECT, /* KEY_SOUND     */
 };
 
 static uint8_t prev_joy;
@@ -60,7 +60,7 @@ void JoystickInit(void)
 	   reports joystick packets through the same queue as keys, and
 	   takes the vector back in STDL_Quit - so there is nothing to
 	   install here and no JoystickExit counterpart. */
-	prev_joy = STDL_GetJoyState();
+	prev_joy = STDL_GetJoystickState(0);
 }
 
 /* Called each game tick from PollInput(). Translates the current
@@ -68,9 +68,9 @@ void JoystickInit(void)
    (level-triggered), and menu keys on the leading edge. */
 void PollJoystick(void)
 {
-	uint8_t joy = STDL_GetJoyState();
+	uint8_t joy = STDL_GetJoystickState(0);
 	uint8_t newly = (uint8_t)(joy & ~prev_joy);
-	int back = STDL_JoyInputHeld(STDL_JOYKEY_EAST);
+	int back = STDL_JoystickInputHeld(0, STDL_JOYSTICK_EAST);
 	int i;
 
 	prev_joy = joy;
@@ -98,7 +98,7 @@ void PollJoystick(void)
 		if (input < 0)
 			continue;
 
-		if (STDL_JoyInputHeld(input))
+		if (STDL_JoystickInputHeld(0, input))
 			keysdown[i] |= KEYDOWN_GAMEPAD;
 		else
 			keysdown[i] &= ~KEYDOWN_GAMEPAD;
@@ -123,7 +123,7 @@ const char *Vid_ControllerButtonName(enum gamekey key)
 	   renames itself. Face buttons carry their Xbox letters, which
 	   are positions: STDL reports where a button sits, not what is
 	   printed on it, so B is the right-hand one on any pad. */
-	static const char *const names[STDL_JOYKEY_COUNT] = {
+	static const char *const names[STDL_JOYSTICK_INPUTS] = {
 		"Up", "Down", "Left", "Right", "Fire",
 		"B", "X", "Y", "L", "R", "LT", "RT",
 		"Select", "Start", "Guide", "L3", "R3"
@@ -134,12 +134,12 @@ const char *Vid_ControllerButtonName(enum gamekey key)
 		return NULL;
 
 	input = controller_bindings[key];
-	if (input < 0 || input >= STDL_JOYKEY_COUNT)
+	if (input < 0 || input >= STDL_JOYSTICK_INPUTS)
 		return NULL;
 
 	/* Without a controller only the joystick's five are reachable,
 	   so do not offer the player a button they have not got. */
-	if (input > STDL_JOYKEY_FIRE && !STDL_HavePad())
+	if (input > STDL_JOYSTICK_FIRE && !STDL_HasPad(0))
 		return NULL;
 
 	return names[input];
