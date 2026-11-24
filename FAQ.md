@@ -48,13 +48,17 @@ ST Sopwith FAQ
 
 - **Q**: Does it have multiplayer support?
 
-  **A**: No, but please feel free to add it!
+  **A**: Yes, over a network, using the STinG TCP/IP stack. You can play
+  against another ST, or against SDL Sopwith 2.9.0 on a PC. See "Network
+  play" in the README.
 
 - **Q**: How do I play this through a firewall?
 
   **A**: Most home routers require you to set up port forwarding to
   establish a connection for multiplayer. You'll need to forward TCP
-  port 3847.
+  port 3847 to the player who listens for the connection. With MD/Net,
+  the ST shares the SidecarTridge's address, so forward the port to
+  that.
 
   Alternatively, if you can run a TCP server that forwards data between
   clients that connect to it, two Sopwith players that connect to this

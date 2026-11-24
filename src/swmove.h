@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Neil Rackett
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 //
 // Copyright(C) 1984-2000 David L. Clark
 // Copyright(C) 2001-2005 Simon Howard
@@ -32,5 +37,8 @@ extern bool moveballoon(OBJECTS *ob);
 extern bool moveox(OBJECTS *ob);
 extern bool crashpln(OBJECTS *obp);
 extern bool hitpln(OBJECTS *obp);
+#ifdef PLATFORM_ATARI_TOS
+extern void forgetquit(void);
+#endif
 
 #endif

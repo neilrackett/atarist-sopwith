@@ -762,6 +762,11 @@ bool Vid_GetCtrlBreak(void)
 	return ctrlbreak;
 }
 
+void Vid_ClearCtrlBreak(void)
+{
+	ctrlbreak = false;
+}
+
 void Vid_SetVideoPalette(int palette)
 {
 	if (palette < 0)

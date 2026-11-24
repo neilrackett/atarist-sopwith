@@ -76,6 +76,11 @@ extern void Vid_Reset(void);
 extern void Vid_Update(void);
 
 extern bool Vid_GetCtrlBreak(void);
+#ifdef PLATFORM_ATARI_TOS
+// Forget a Ctrl-C that has been dealt with (a network game given up),
+// so the next game does not start out quitting.
+extern void Vid_ClearCtrlBreak(void);
+#endif
 
 // video palette
 

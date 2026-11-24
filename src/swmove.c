@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Neil Rackett
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 //
 // Copyright(C) 1984-2000 David L. Clark
 // Copyright(C) 2001-2005 Simon Howard
@@ -36,6 +41,15 @@ static void interpret(OBJECTS *ob, int key);
 static bool quit;
 static int last_ground_time = 0;
 bool successful_flight = false;
+
+#ifdef PLATFORM_ATARI_TOS
+// A network game on the ST ends back at the title screen rather than with
+// exit(), so a player who quit it must not still be quitting the next one.
+void forgetquit(void)
+{
+	quit = false;
+}
+#endif
 
 void swmove(void)
 {

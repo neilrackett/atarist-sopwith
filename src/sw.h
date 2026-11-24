@@ -51,9 +51,11 @@ typedef enum {
 #include "swsymbol.h"
 
 // We only enable TCP/IP support if we have the appropriate socket header
-// files. Emscripten doesn't get TCP/IP.
+// files. Emscripten doesn't get TCP/IP. The Atari ST has it through the
+// STinG stack (src/atari/tcpcomm_sting.c), found when the game starts.
 #if !defined(__EMSCRIPTEN__) && ( \
-    defined(HAVE_NETINET_IN_H) || defined(HAVE_WINSOCK_H))
+    defined(HAVE_NETINET_IN_H) || defined(HAVE_WINSOCK_H) \
+    || defined(PLATFORM_ATARI_TOS))
 #define TCPIP
 #endif
 

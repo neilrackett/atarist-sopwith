@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Neil Rackett
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 //
 // Copyright(C) 1984-2000 David L. Clark
 // Copyright(C) 2001-2005 Simon Howard
@@ -13,6 +18,7 @@
 //
 
 #include "sw.h"
+#include "swasynio.h"
 #include "swend.h"
 #include "swmain.h"
 #include "swtext.h"
@@ -26,6 +32,13 @@ void swend(char *msg, bool update)
 
 	sound(0, 0, NULL);
 	swsound();
+
+#ifdef PLATFORM_ATARI_TOS
+	// On the ST, a network game ends back at the title screen.
+	if (playmode == PLAYMODE_ASYNCH) {
+		asynend(msg);
+	}
+#endif
 
 	if (playmode == PLAYMODE_ASYNCH) {
 		closmsg = asynclos();

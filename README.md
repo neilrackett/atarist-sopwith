@@ -25,11 +25,42 @@ Features:
 - PC speaker style music and sound
 - Multiple palettes that emulate a selection of old monitors
 - Medals feature
-- ~~Magilink serial network multiplayer~~
+- Network multiplayer over TCP/IP with STinG: ST against ST, or against
+  SDL Sopwith on a PC
 
 ## Download
 
 Download the latest release from the [releases page](https://github.com/neilrackett/atarist-sopwith/releases).
+
+## Network play
+
+Two players can fly against each other over a network, using the
+[STinG](https://github.com/th-otto/STinG) TCP/IP stack. Any network
+connection STinG can use will do ([MD/Net](https://github.com/neilrackett/md-net)
+on a SidecarTridge Multi-device is the easiest), and the other player
+can be another ST or a computer running
+[SDL Sopwith](https://github.com/fragglet/sdl-sopwith) 2.9.0.
+
+1. Load STinG and get online. You'll need an ST with 1MB or more: STinG
+   and the game don't both fit in 512KB.
+2. One player chooses **N - network game**, then **L - listen for
+   connection**. The screen shows the ST's address, for example
+   `at 192.168.1.20 port 3847`.
+3. The other player chooses **N - network game**, then **C - connect to
+   remote host**, and types that address: an IP address or a host name,
+   with `:port` on the end if it isn't 3847. From SDL Sopwith, run
+   `sopwith -j 192.168.1.20`, or `sopwith -l` to have the ST connect to
+   the PC instead.
+
+The game uses the connecting player's options (missiles, wounded planes,
+animals, big explosions and starting level). Press Ctrl-C to stop
+waiting for the other player, or to quit during a game; either way,
+you're returned to the title screen.
+
+A stock ST takes longer to draw a frame than a PC does, so in a network
+game it skips drawing the odd frame to keep both players at the game's
+full speed. Over the internet, the listening player's router needs to
+forward TCP port 3847 to them (see the [FAQ](FAQ.md)).
 
 ## Build
 

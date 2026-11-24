@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Neil Rackett
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 //
 // Copyright(C) 1984-2000 David L. Clark
 // Copyright(C) 2001-2005 Simon Howard
@@ -271,6 +276,13 @@ void commterm(void)
 		server_sock = -1;
 	}
 #endif      /* #ifdef TCPIP */
+}
+
+// commin() exits the program when the connection closes, so here it is
+// never seen closed.
+bool commclosed(void)
+{
+	return false;
 }
 
 bool isNetworkGame(void)

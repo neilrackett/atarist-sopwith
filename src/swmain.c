@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Neil Rackett
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 //
 // Copyright(C) 1984-2000 David L. Clark
 // Copyright(C) 2001-2005 Simon Howard
@@ -166,6 +171,53 @@ static void DumpCmds(void)
 }
 #endif
 
+#ifdef PLATFORM_ATARI_TOS
+
+// A stock ST takes longer to draw a frame than the game allows for a
+// move (a tenth of a second). Alone, that only slows the game down, but
+// a network game moves in step: the other player is held to the ST's
+// pace while their moves keep coming at the full rate, and they pile up
+// waiting to be played, until each takes over a second to happen. So in
+// a network game the ST keeps time by not drawing the moves it is late
+// for - drawing has no effect on the game, so both sides still agree -
+// though never more than MAX_SKIPPED in a row.
+#define MAX_SKIPPED 3
+
+static bool SkipFrame(int nexttic)
+{
+	static int skipped;
+
+	if (playmode == PLAYMODE_ASYNCH && Timer_GetMS() > nexttic
+	 && skipped < MAX_SKIPPED) {
+		++skipped;
+		return true;
+	}
+	skipped = 0;
+	return false;
+}
+
+// The sounds of a move that is not drawn. Objects make their sounds as
+// swdisp() draws them, and swsound() plays the loudest every move; it
+// must, too, as the ST changes the tone from the vertical blank, through
+// the object last heard, and an object the game has since let go of can
+// come back as an explosion, whose tone is no pointer at all.
+static void FrameSounds(void)
+{
+	OBJECTS *ob;
+	int left = clamp_range(0, consoleplayer->ob_x - SCR_CENTR,
+	                       currgame->gm_max_x - SCR_WDTH - 1);
+
+	for (ob = objtop; ob; ob = ob->ob_next) {
+		if (ob->ob_drwflg && ob->ob_soundf != NULL
+		 && in_range(left - ob->ob_symbol->w, ob->ob_x,
+		             left + SCR_WDTH - 1)) {
+			(*ob->ob_soundf)(ob);
+		}
+	}
+}
+
+#endif
+
 int swmain(int argc, char *argv[])
 {
 	int nexttic;
@@ -174,6 +226,17 @@ int swmain(int argc, char *argv[])
 
 restart:
         restart_flag = false;
+
+#ifdef PLATFORM_ATARI_TOS
+	// A network game on the ST, over or failed, comes back here
+	// (asynend) to start again from the menu, as this player.
+	if (setjmp(asynreturn) != 0) {
+		restart_flag = false;
+		playmode = PLAYMODE_UNSET;
+		player = 0;
+		forgetquit();
+	}
+#endif
 
 	// sdh 28/10/2001: playmode is called from here now
 	// makes for a more coherent progression through the setup process
@@ -226,6 +289,14 @@ restart:
 			CalculateLag();
 			//DumpCmds();
 			swmove();
+#ifdef PLATFORM_ATARI_TOS
+			if (SkipFrame(nexttic)) {
+				FrameSounds();
+				swcollsn();
+				swsound();
+				continue;
+			}
+#endif
 			swdisp();
 			swcollsn();
 			swsound();
