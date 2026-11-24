@@ -19,7 +19,9 @@ extern void Vid_ReportSpriteCache(void);
 
 int main(int argc, char *argv[])
 {
-	printf("Loading ST Sopwith (STDL backend)...");
+	/* On a line of its own: STDL_Init writes its own after it. */
+	printf("Loading ST Sopwith (STDL backend)...\r\n");
+	fflush(stdout);
 
 	/*
 	 * libcmini runs atexit handlers in REGISTRATION order, not the
