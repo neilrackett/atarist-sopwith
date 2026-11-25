@@ -126,12 +126,17 @@ OBJECTS *allocobj(void)
 		ob = calloc(1, sizeof(OBJECTS));
 #ifdef PLATFORM_ATARI_TOS
 		// A 512KB ST's heap can run out in a busy scene: the reserve
-		// kept in the symbols' spare memory is for this.
+		// kept in the symbols' spare memory is for this. Past that,
+		// the shot, bomb, smoke or fragment asked for is left out,
+		// as the original game's 100-object limit left them out;
+		// their callers expect NULL. (Planes and targets come at a
+		// level's start, from the objects of the last.)
 		if (ob == NULL) {
 			ob = RenderCacheAlloc(sizeof(OBJECTS), RENDER_CACHE_RESERVE);
-			if (ob != NULL) {
-				memset(ob, 0, sizeof(OBJECTS));
+			if (ob == NULL) {
+				return NULL;
 			}
+			memset(ob, 0, sizeof(OBJECTS));
 		}
 #endif
 		assert(ob != NULL);

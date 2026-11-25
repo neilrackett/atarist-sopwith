@@ -276,6 +276,7 @@ OBJECTS *initpln(OBJECTS *obp, const original_ob_t *orig_ob)
 	if (!obp) {
 		assert(num_planes < MAX_PLANES);
 		ob = allocobj();
+		assert(ob != NULL);
 		ob->ob_original_ob = orig_ob;
 		planes[num_planes] = ob;
 		++num_planes;
@@ -692,6 +693,7 @@ static OBJECTS *inittarget(const original_ob_t *orig_ob)
 	int minh, maxh, aveh, minx, maxx;
 
 	ob = allocobj();
+	assert(ob != NULL);
 
 	// Initial symbol:
 	ob->ob_symbol = &symbol_targets[orig_ob->orient].sym[0];
