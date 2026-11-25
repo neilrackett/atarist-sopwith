@@ -27,10 +27,11 @@ int main(int argc, char *argv[])
 	 * libcmini runs atexit handlers in REGISTRATION order, not the
 	 * LIFO order the C standard specifies. STDL_Init registers its
 	 * own handler, which drops back out of supervisor mode - so
-	 * Timer_Exit, which pokes the VBL queue at $456, has to be
-	 * registered *before* Vid_Init or it runs in user mode and bus
-	 * errors on the way out. (Registering it early is harmless:
-	 * Timer_Init has always run by the time the program exits.)
+	 * Timer_Exit, which takes its routine out of the VBL queue in
+	 * low memory, has to be registered *before* Vid_Init or it runs
+	 * in user mode and bus errors on the way out. (Registering it
+	 * early is harmless: Timer_Init has always run by the time the
+	 * program exits.)
 	 */
 	atexit(Timer_Exit);
 

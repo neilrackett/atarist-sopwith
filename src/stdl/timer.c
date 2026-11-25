@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <mint/sysvars.h>
-
 #include <stdl/stdl.h>
 
 #include "swsound.h"
@@ -14,26 +12,19 @@
 
 /* Same arrangement as the native backend: swsndupdate() runs from the
    VBL queue at a rock-steady 50Hz so note timing does not depend on
-   how long drawing takes. STDL has no "call me every VBL" API - its
-   own YM tick claims a slot privately - so this uses the TOS VBL
-   queue directly. We are already in supervisor mode (STDL_Init), and
-   STDL picks a different free slot for its own tick.  */
-
-#define VBL_SLOT 0   /* _vblqueue slot to use (0 to nvbls-1, default 8 slots) */
-
-static void (*old_vbl)(void);
+   how long drawing takes. STDL_AddVBL gives it a free slot, ignores
+   the second call (main() and swinit() both call Timer_Init), and
+   takes it out again on every way out, abort() included - a slot left
+   behind is called in freed memory, which crashes TOS 1.04. */
 
 void Timer_Init(void)
 {
-	void (**vblq)(void) = *_vblqueue;
-	old_vbl = vblq[VBL_SLOT];
-	vblq[VBL_SLOT] = swsndupdate;
+	(void) STDL_AddVBL(swsndupdate);
 }
 
 void Timer_Exit(void)
 {
-	void (**vblq)(void) = *_vblqueue;
-	vblq[VBL_SLOT] = old_vbl;
+	STDL_RemoveVBL(swsndupdate);
 }
 
 int Timer_GetMS(void)

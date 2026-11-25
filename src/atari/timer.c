@@ -18,18 +18,34 @@
 #define VBL_SLOT 0   /* _vblqueue slot to use (0 to nvbls-1, default 8 slots) */
 
 static void (*old_vbl)(void);
+static int installed;
 
 void Timer_Init(void)
 {
 	void (**vblq)(void) = *_vblqueue;
+
+	// main() calls this and swinit() calls it again. A second
+	// install would keep swsndupdate itself as the routine to put
+	// back, and leave it in the queue after exit: TOS 1.04 then
+	// calls into freed memory at the next VBL and the ST crashes.
+	if (installed)
+	{
+		return;
+	}
 	old_vbl = vblq[VBL_SLOT];
 	vblq[VBL_SLOT] = swsndupdate;
+	installed = 1;
 }
 
 void Timer_Exit(void)
 {
 	void (**vblq)(void) = *_vblqueue;
-	vblq[VBL_SLOT] = old_vbl;
+
+	if (installed)
+	{
+		vblq[VBL_SLOT] = old_vbl;
+		installed = 0;
+	}
 }
 
 int Timer_GetMS(void)
