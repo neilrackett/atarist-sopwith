@@ -84,6 +84,10 @@ stcmd make BACKEND=stdl
 STDL is a submodule, so clone with `--recurse-submodules` (or run
 `git submodule update --init` in an existing clone) and it is built for you.
 
+The STDL build needs an ST with 1MB or more to play at full speed. On a
+512KB machine it runs at about a third of the speed, so a 520ST wants the
+default build, which plays at full speed there.
+
 ## More Info
 
 More information about ST Sopwith is available in some of the files
