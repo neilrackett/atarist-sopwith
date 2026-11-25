@@ -17,8 +17,8 @@
 // Status bar code
 //
 
-#ifndef __SWSOUND_H__
-#define __SWSOUND_H__
+#ifndef __SWSTBAR_H__
+#define __SWSTBAR_H__
 
 extern void dispstatusbar(void);
 extern void minimap_invalidate(void);
