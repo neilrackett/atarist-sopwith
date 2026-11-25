@@ -96,6 +96,9 @@ void initgrnd(void)
 	ground = calloc(currgame->gm_max_x, sizeof(GRNDTYPE));
 	memcpy(ground, currgame->gm_ground,
 	       sizeof(GRNDTYPE) * currgame->gm_max_x);
+	// The minimap keeps its own copy of the ground, which last level's
+	// craters may still be in.
+	minimap_invalidate();
 }
 
 static void initseed(void)

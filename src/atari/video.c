@@ -15,9 +15,11 @@
 
 #include "atari_keys.h"
 #include "font.h"
+#include "planar.h"
 #include "sw.h"
 #include "swinit.h"
 #include "swmain.h"
+#include "swsymbol.h"
 #include "timer.h"
 #include "video.h"
 
@@ -298,6 +300,34 @@ static const uint16_t pixel_mask_table[16] = {
 
 extern bool isNetworkGame(void);
 extern void PollJoystick(void);
+
+/* --- Screen rows and the page flip ----------------------------------- */
+
+/* Byte offset of screen row 'row' (0 = top), without a multiply. Game y
+   counts up from the bottom, so game y is screen row SCR_HGHT - 1 - y. */
+#define RowOffset(row) PlanarRowOffset(row)
+
+/* _vbclock: counted by the VBL handler when it does its work, which
+   includes handing Setscreen's new physbase to the video hardware. */
+#define VBCLOCK (*(volatile uint32_t *)0x462L)
+
+static bool flip_pending;
+static uint32_t flip_vbclock;
+
+/* The page about to be drawn on was the one on screen until the VBL
+   after the last Vid_Update. Vid_Update used to wait for that VBL
+   itself; waiting here instead, as drawing starts, lets the game's
+   logic run in the meantime, and the wait is often over by then. */
+static inline void WaitFlip(void)
+{
+	if (flip_pending)
+	{
+		while (VBCLOCK == flip_vbclock)
+		{
+		}
+		flip_pending = false;
+	}
+}
 
 static void PollInput(void);
 static int NormalizeKeycode(int scan, int ch);
@@ -657,10 +687,12 @@ void Vid_Update(void)
 
 	/* Page flip: set the hardware to display the page we just drew,
 	   then switch to drawing on the other page. Setscreen with -1
-	   means "don't change that parameter". Vsync ensures the flip
-	   takes effect on the next vertical blank. */
+	   means "don't change that parameter"; the new page is shown from
+	   the next vertical blank, which WaitFlip waits for before the
+	   other page is drawn on. */
 	Setscreen(-1L, draw_page, -1);
-	Vsync();
+	flip_vbclock = VBCLOCK;
+	flip_pending = true;
 
 	draw_page_idx ^= 1;
 	draw_page = page[draw_page_idx];
@@ -775,6 +807,7 @@ void Vid_Box(int x, int y, int w, int h, int c)
 {
 	int y1;
 	uint16_t fill0, fill1;
+	uint8_t *row;
 
 	if (w <= 0 || h <= 0)
 	{
@@ -795,21 +828,24 @@ void Vid_Box(int x, int y, int w, int h, int c)
 		return;
 	}
 
+	WaitFlip();
 	fill0 = (c & 1) ? 0xFFFF : 0;
 	fill1 = (c & 2) ? 0xFFFF : 0;
 
-	for (y1 = 0; y1 <= h; ++y1)
+	/* Rows go down the screen from y, so up through memory a row at a
+	   time from game row y. */
+	row = draw_page + RowOffset(SCR_HGHT - 1 - y);
+	for (y1 = 0; y1 <= h; ++y1, row += SCREEN_STRIDE)
 	{
 		int py = y - y1;
-		if (!in_range(0, py, SCR_HGHT - 1))
+		if (py < 0)
 		{
-			continue;
+			break;
 		}
 
 		int end_x = x + w - 1;
 		int start_word = x >> 4;
 		int end_word = end_x >> 4;
-		uint8_t *row = draw_page + (SCR_HGHT - 1 - py) * SCREEN_STRIDE;
 
 		if (start_word == end_word)
 		{
@@ -847,58 +883,85 @@ void Vid_Box(int x, int y, int w, int h, int c)
 	}
 }
 
-static inline void cpu_xor_vline(uint8_t *row_base, uint16_t mask, int height)
-{
-	/* XOR both planes 0+1 simultaneously using a longword operation.
-	   In ST low-res, planes 0+1 are adjacent words, so a single
-	   eor.l hits both planes at once - saves ~30% vs two eor.w ops. */
-	uint32_t lmask = ((uint32_t)mask << 16) | mask;
-	uint32_t *lp = (uint32_t *)row_base;
-	int yy;
-	for (yy = 0; yy < height; yy++)
-	{
-		*lp ^= lmask;
-		lp = (uint32_t *)((uint8_t *)lp - SCREEN_STRIDE);
-	}
-}
+/* The ground's outline: in each column, XOR from the lowest of it and
+   its neighbours up to its own height, in planes 0 and 1 at once (they
+   are adjacent words, so one eor.l covers both). 320 columns a frame,
+   each usually a pixel or two, so the work is in the bookkeeping: rows
+   come from a table, heights are 16-bit, and the columns go 16 to a
+   group with each one's mask from a table, rather than computing each
+   address and shifting and testing the mask every column. */
+static uint16_t *ground_rows;     /* game y * 160, SCR_HGHT of them */
+static bool ground_rows_failed;
+static const uint32_t ground_masks[16] = {
+	0x80008000UL, 0x40004000UL, 0x20002000UL, 0x10001000UL,
+	0x08000800UL, 0x04000400UL, 0x02000200UL, 0x01000100UL,
+	0x00800080UL, 0x00400040UL, 0x00200020UL, 0x00100010UL,
+	0x00080008UL, 0x00040004UL, 0x00020002UL, 0x00010001UL,
+};
 
 void Vid_DispGround(GRNDTYPE *gptr)
 {
-	int x;
-	int hl, hc, hr, y0;
+	uint8_t *group;
+	int16_t hl, hc, hr;
+	int g, k;
 
-	hc = clamp_max(*gptr, SCR_HGHT - 1);
-	hl = hc;
-	++gptr;
-
-	for (x = 0; x < SCR_WDTH; ++x)
+	WaitFlip();
+	if (ground_rows == NULL && !ground_rows_failed)
 	{
-		hr = clamp_max(*gptr, SCR_HGHT - 1);
-		y0 = imin(hl, imin(hc, hr));
-
-		if (y0 <= hc)
+		ground_rows = RenderCacheAlloc(SCR_HGHT * sizeof(uint16_t), RENDER_CACHE_ARENA);
+		if (ground_rows == NULL)
 		{
-			int y_start = y0;
-			int y_end = hc;
-			int line_height;
-
-			if (y_start < 0)
-				y_start = 0;
-			if (y_end >= SCR_HGHT)
-				y_end = SCR_HGHT - 1;
-			line_height = y_end - y_start + 1;
-
-			if (line_height > 0)
+			ground_rows_failed = true;
+		}
+		else
+		{
+			for (k = 0; k < SCR_HGHT; ++k)
 			{
-				uint16_t mask = pixel_mask_table[x & 15];
-				uint8_t *row_base = draw_page + (SCR_HGHT - 1 - y_start) * SCREEN_STRIDE + (x >> 4) * 8;
-				cpu_xor_vline(row_base, mask, line_height);
+				ground_rows[k] = (uint16_t)RowOffset(k);
 			}
 		}
+	}
+	group = draw_page + RowOffset(SCR_HGHT - 1); /* game y = 0 */
 
-		hl = hc;
-		hc = hr;
-		++gptr;
+	hc = *gptr++;
+	if (hc > SCR_HGHT - 1)
+	{
+		hc = SCR_HGHT - 1;
+	}
+	hl = hc;
+
+	for (g = 0; g < SCR_WDTH / 16; ++g, group += 8)
+	{
+		for (k = 0; k < 16; ++k)
+		{
+			uint32_t lmask = ground_masks[k];
+			uint32_t *p;
+			int16_t y0, n;
+
+			hr = *gptr++;
+			if (hr > SCR_HGHT - 1)
+			{
+				hr = SCR_HGHT - 1;
+			}
+			y0 = hl < hc ? hl : hc;
+			if (hr < y0)
+			{
+				y0 = hr;
+			}
+
+			p = (uint32_t *)(group - (ground_rows != NULL
+			                          ? ground_rows[y0]
+			                          : RowOffset(y0)));
+			n = hc - y0;
+			do
+			{
+				*p ^= lmask;
+				p = (uint32_t *)((uint8_t *)p - SCREEN_STRIDE);
+			} while (--n >= 0);
+
+			hl = hc;
+			hc = hr;
+		}
 	}
 }
 
@@ -910,6 +973,8 @@ void Vid_DispGround_Solid(GRNDTYPE *gptr)
 	   Then sweep top-down accumulating the mask with a single word write per row. */
 	int grp;
 	uint16_t height_to_mask[SCR_HGHT];
+
+	WaitFlip();
 
 	for (grp = 0; grp < SCR_WDTH / 16; ++grp)
 	{
@@ -943,7 +1008,7 @@ void Vid_DispGround_Solid(GRNDTYPE *gptr)
 
 		{
 			uint16_t mask = 0;
-			uint8_t *p = draw_page + (SCR_HGHT - 1 - group_max) * SCREEN_STRIDE + grp * 8;
+			uint8_t *p = draw_page + RowOffset(SCR_HGHT - 1 - group_max) + grp * 8;
 
 			for (row = group_max; row >= SBAR_HGHT - 1; --row)
 			{
@@ -966,7 +1031,8 @@ void Vid_PlotPixel(int x, int y, int clr)
 		return;
 	}
 
-	words = (uint16_t *)(draw_page + (SCR_HGHT - 1 - y) * SCREEN_STRIDE + (x >> 4) * 8);
+	WaitFlip();
+	words = (uint16_t *)(draw_page + RowOffset(SCR_HGHT - 1 - y) + (x >> 4) * 8);
 	mask = pixel_mask_table[x & 15];
 	nm = ~mask;
 
@@ -986,11 +1052,162 @@ void Vid_XorPixel(int x, int y, int clr)
 		return;
 	}
 
-	words = (uint16_t *)(draw_page + (SCR_HGHT - 1 - y) * SCREEN_STRIDE + (x >> 4) * 8);
+	WaitFlip();
+	words = (uint16_t *)(draw_page + RowOffset(SCR_HGHT - 1 - y) + (x >> 4) * 8);
 	mask = pixel_mask_table[x & 15];
 
 	if (clr & 1) words[0] ^= mask;
 	if (clr & 2) words[1] ^= mask;
+}
+
+/* --- Symbols ---------------------------------------------------------- */
+
+/*
+ * Symbols are byte-per-pixel images in colours 0-3, recoloured for each
+ * faction through color_mappings at draw time. Drawn a pixel at a time
+ * they took a third of a frame on a plain ST, so each symbol is turned,
+ * the first time it is drawn, into two bit planes a row: the pixels whose
+ * colour has bit 0 set, and those with bit 1. Drawing one is then a few
+ * logic operations a row for the faction's colours, and a masked write a
+ * screen word, 16 pixels at a time.
+ *
+ * The cache is keyed on the pixel data, which identical symbols share
+ * (swsymbol.c). Its memory comes from RenderCacheAlloc, so it costs a
+ * 512KB machine nothing it had: a symbol it has no room for, or one wider
+ * than 32 pixels, is drawn a pixel at a time as before.
+ */
+#define SYM_CACHE_SIZE 251      /* prime: open addressing */
+#define SYM_BUDGET     32768    /* bytes of converted rows, at most */
+
+struct sym_planes
+{
+	const uint8_t *data;    /* the symbol's pixels; NULL = free slot */
+	uint32_t *rows;         /* h pairs, bit 0 then bit 1; NULL = slow */
+};
+
+static struct sym_planes *sym_cache;   /* SYM_CACHE_SIZE, once there */
+static bool sym_cache_failed;
+static unsigned long sym_bytes;
+
+static uint32_t *BuildSymPlanes(const sopsym_t *sym)
+{
+	uint32_t *rows, *r;
+	const uint8_t *src = sym->data;
+	unsigned long cost = (unsigned long)sym->h * 8;
+	int x, y;
+
+	if (sym->w > 32 || sym_bytes + cost > SYM_BUDGET)
+	{
+		return NULL;
+	}
+	rows = RenderCacheAlloc(cost, RENDER_CACHE_ARENA);
+	if (rows == NULL)
+	{
+		return NULL;
+	}
+	sym_bytes += cost;
+
+	for (y = 0, r = rows; y < sym->h; ++y, r += 2)
+	{
+		uint32_t b0 = 0, b1 = 0, bit = 0x80000000UL;
+
+		for (x = 0; x < sym->w; ++x, bit >>= 1)
+		{
+			int c = *src++;
+			if (c & 1) b0 |= bit;
+			if (c & 2) b1 |= bit;
+		}
+		r[0] = b0;
+		r[1] = b1;
+	}
+	return rows;
+}
+
+static uint32_t *SymPlanes(const sopsym_t *sym)
+{
+	unsigned int slot;
+	int probes;
+
+	if (sym_cache == NULL)
+	{
+		if (sym_cache_failed)
+		{
+			return NULL;
+		}
+		sym_cache = RenderCacheAlloc(SYM_CACHE_SIZE * sizeof(*sym_cache),
+		                             RENDER_CACHE_ARENA);
+		if (sym_cache == NULL)
+		{
+			sym_cache_failed = true;
+			return NULL;
+		}
+		memset(sym_cache, 0, SYM_CACHE_SIZE * sizeof(*sym_cache));
+	}
+
+	slot = (unsigned int)(((uintptr_t)sym->data >> 1) % SYM_CACHE_SIZE);
+
+	for (probes = 0; probes < SYM_CACHE_SIZE; ++probes)
+	{
+		struct sym_planes *e = &sym_cache[slot];
+
+		if (e->data == sym->data)
+		{
+			return e->rows;
+		}
+		if (e->data == NULL)
+		{
+			e->data = sym->data;
+			e->rows = BuildSymPlanes(sym);
+			return e->rows;
+		}
+		if (++slot == SYM_CACHE_SIZE)
+		{
+			slot = 0;
+		}
+	}
+	return NULL;
+}
+
+/* One screen word group: the masked pixels take colours p0 and p1. */
+static inline void PutGroup(uint16_t *words, uint16_t m, uint16_t p0,
+                            uint16_t p1)
+{
+	if (m != 0)
+	{
+		uint16_t nm = ~m;
+		words[0] = (words[0] & nm) | p0;
+		words[1] = (words[1] & nm) | p1;
+	}
+}
+
+/* A pixel at a time, from the byte-per-pixel master. */
+static void DispSymbolSlow(int x, int y, const sopsym_t *symbol, int w,
+                           int h, int left_skip, const uint8_t *color_mapping)
+{
+	int dst_x = x + left_skip;
+	int x1, y1;
+	uint8_t *row = draw_page + RowOffset(SCR_HGHT - 1 - y);
+	const uint8_t *src_row = symbol->data + left_skip;
+
+	for (y1 = 0; y1 < h; ++y1, row += SCREEN_STRIDE, src_row += symbol->w)
+	{
+		const uint8_t *src = src_row;
+
+		for (x1 = left_skip; x1 < w; ++x1, ++src)
+		{
+			int ci = *src;
+			if (ci)
+			{
+				int color = color_mapping[ci];
+				int sx = dst_x + (x1 - left_skip);
+				uint16_t *words = (uint16_t *)(row + (sx >> 4) * 8);
+				uint16_t mask = pixel_mask_table[sx & 15];
+				uint16_t nm = ~mask;
+				if (color & 1) words[0] |= mask; else words[0] &= nm;
+				if (color & 2) words[1] |= mask; else words[1] &= nm;
+			}
+		}
+	}
 }
 
 void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
@@ -999,7 +1216,11 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 	int dst_x = x + left_skip; /* screen x of first visible pixel, always >= 0 */
 	int w = symbol->w, h = symbol->h;
 	const uint8_t *color_mapping;
-	int x1, y1;
+	const uint32_t *rows;
+	uint32_t a0, b0, c0, a1, b1, c1, keep;
+	uint8_t *row;
+	int shift, group, y1, visible;
+	bool second, third;
 
 	if (x >= SCR_WDTH || y < 0 || y >= SCR_HGHT)
 	{
@@ -1022,27 +1243,92 @@ void Vid_DispSymbol(int x, int y, sopsym_t *symbol, faction_t clr)
 		h = y + 1;
 	}
 
+	if (left_skip >= w)
+	{
+		return;
+	}
+
+	WaitFlip();
 	assert(clr < (int)(sizeof(color_mappings) / sizeof(color_mappings[0])));
 	color_mapping = color_mappings[clr];
 
-	for (y1 = 0; y1 < h; ++y1)
+	rows = SymPlanes(symbol);
+	if (rows == NULL)
 	{
-		const uint8_t *src = symbol->data + y1 * symbol->w + left_skip;
-		uint8_t *row = draw_page + (SCR_HGHT - 1 - (y - y1)) * SCREEN_STRIDE;
+		DispSymbolSlow(x, y, symbol, w, h, left_skip, color_mapping);
+		return;
+	}
 
-		for (x1 = left_skip; x1 < w; ++x1, ++src)
+	/* Each plane's bit for a pixel of colour q1q0 (1, 2 or 3) is the
+	   faction's colour's bit for it. Any such function with f(0,0) = 0
+	   is a XOR of q0, q1 and q0 AND q1, so for plane n it is
+	   (q0 & an) ^ (q1 & bn) ^ (q0 & q1 & cn), the masks all ones or all
+	   zeros: an the bit for colour 1, bn for colour 2, and cn the XOR of
+	   those two with colour 3's. */
+	{
+		uint32_t v1 = color_mapping[1], v2 = color_mapping[2];
+		uint32_t v3 = color_mapping[3];
+
+		a0 = (v1 & 1) ? ~0UL : 0;
+		b0 = (v2 & 1) ? ~0UL : 0;
+		c0 = ((v1 ^ v2 ^ v3) & 1) ? ~0UL : 0;
+		a1 = (v1 & 2) ? ~0UL : 0;
+		b1 = (v2 & 2) ? ~0UL : 0;
+		c1 = ((v1 ^ v2 ^ v3) & 2) ? ~0UL : 0;
+	}
+
+	shift = dst_x & 15;
+	group = dst_x >> 4;
+	row = draw_page + RowOffset(SCR_HGHT - 1 - y) + group * 8;
+	visible = w - left_skip;
+	keep = visible < 32 ? ~0UL << (32 - visible) : ~0UL;
+	/* Wider than 16 pixels, the row can reach a third group. */
+	third = visible > 16 && shift != 0 && group + 2 < SCR_WDTH / 16;
+	second = group + 1 < SCR_WDTH / 16;
+
+	for (y1 = 0; y1 < h; ++y1, rows += 2, row += SCREEN_STRIDE)
+	{
+		uint32_t q0 = rows[0], q1 = rows[1];
+		uint32_t q01, p0, p1, m;
+
+		if (left_skip != 0)
 		{
-			int ci = *src;
-			if (ci)
-			{
-				int color = color_mapping[ci];
-				int sx = dst_x + (x1 - left_skip);
-				uint16_t *words = (uint16_t *)(row + (sx >> 4) * 8);
-				uint16_t mask = pixel_mask_table[sx & 15];
-				uint16_t nm = ~mask;
-				if (color & 1) words[0] |= mask; else words[0] &= nm;
-				if (color & 2) words[1] |= mask; else words[1] &= nm;
-			}
+			q0 <<= left_skip;
+			q1 <<= left_skip;
+		}
+		/* Columns past the right edge of the screen (w was cut) */
+		q0 &= keep;
+		q1 &= keep;
+
+		m = q0 | q1;
+		if (m == 0)
+		{
+			continue;
+		}
+		q01 = q0 & q1;
+		p0 = (q0 & a0) ^ (q1 & b0) ^ (q01 & c0);
+		p1 = (q0 & a1) ^ (q1 & b1) ^ (q01 & c1);
+
+		/* The bits for a third group, before the shift loses them */
+		if (third)
+		{
+			PutGroup((uint16_t *)(row + 16),
+			         (uint16_t)(m << (16 - shift)),
+			         (uint16_t)(p0 << (16 - shift)),
+			         (uint16_t)(p1 << (16 - shift)));
+		}
+
+		/* 'shift' pixels into the first group: its word is the high
+		   half, the next group's the low half. */
+		m >>= shift;
+		p0 >>= shift;
+		p1 >>= shift;
+		PutGroup((uint16_t *)row, (uint16_t)(m >> 16),
+		         (uint16_t)(p0 >> 16), (uint16_t)(p1 >> 16));
+		if (second)
+		{
+			PutGroup((uint16_t *)(row + 8), (uint16_t)m,
+			         (uint16_t)p0, (uint16_t)p1);
 		}
 	}
 }
@@ -1053,6 +1339,34 @@ int Vid_FuselageColor(faction_t f)
 	return color_mappings[f][1];
 }
 
+/* Zeroes a page, 48 bytes a movem.l: 666 of them and 32 bytes more. */
+static void ClearPage(uint8_t *p)
+{
+	register uint8_t *end __asm__("a0") = p + SCREEN_BYTES;
+
+	__asm__ volatile(
+		"moveq	#0,%%d1\n\t"
+		"move.l	%%d1,%%d2\n\t"
+		"move.l	%%d1,%%d3\n\t"
+		"move.l	%%d1,%%d4\n\t"
+		"move.l	%%d1,%%d5\n\t"
+		"move.l	%%d1,%%d6\n\t"
+		"move.l	%%d1,%%d7\n\t"
+		"move.l	%%d1,%%a1\n\t"
+		"move.l	%%d1,%%a2\n\t"
+		"move.l	%%d1,%%a3\n\t"
+		"move.l	%%d1,%%a4\n\t"
+		"move.l	%%d1,%%a5\n\t"
+		"move.w	#665,%%d0\n"
+		"1:\tmovem.l	%%d1-%%d7/%%a1-%%a5,-(%%a0)\n\t"
+		"dbra	%%d0,1b\n\t"
+		"movem.l	%%d1-%%d7/%%a1,-(%%a0)"
+		: "+a"(end)
+		:
+		: "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7",
+		  "a1", "a2", "a3", "a4", "a5", "cc", "memory");
+}
+
 void Vid_ClearBuf(void)
 {
 	if (!initted)
@@ -1060,52 +1374,29 @@ void Vid_ClearBuf(void)
 		Vid_Init();
 	}
 
+	WaitFlip();
 	if (has_blitter && IS_ST_RAM(draw_page))
 	{
 		blitter_clear(draw_page, SCREEN_BYTES);
 	}
 	else
 	{
-		memset(draw_page, 0, SCREEN_BYTES);
+		ClearPage(draw_page);
 	}
 }
 
 /* --- Fast text rendering directly to planar framebuffer -------------- */
 
+/* x and y are text cells, top-down. A character is a byte of each plane
+   word: the high byte for an even column, the low byte for an odd one. */
 void Vid_DrawChar(int x, int y, int ch, int color)
 {
-	const uint8_t *glyph;
-	int screen_y, gy;
-	uint16_t fill0, fill1;
-	/* pixel X = x*8; word index = x/2; bit offset within word = (x&1)*8 */
-	int word_idx = x >> 1;
-	int byte_off = word_idx * 8;
-	int shift = (x & 1) ? 0 : 8; /* even col: high byte; odd col: low byte */
-
 	if (ch < 0 || ch > 255)
 		return;
 
-	screen_y = y * 8;
-	glyph = font_data + ch * 8;
-	fill0 = (color & 1) ? 0xFFFF : 0;
-	fill1 = (color & 2) ? 0xFFFF : 0;
-
-	for (gy = 0; gy < 8; ++gy)
-	{
-		int sy = screen_y + gy;
-		uint8_t *row;
-		uint16_t mask, nm;
-
-		if (sy < 0 || sy >= SCR_HGHT)
-			continue;
-
-		row = draw_page + sy * SCREEN_STRIDE + byte_off;
-		mask = (uint16_t)glyph[gy] << shift;
-		nm = ~mask;
-
-		*(uint16_t *)(row)     = (*(uint16_t *)(row)     & nm) | (fill0 & mask);
-		*(uint16_t *)(row + 2) = (*(uint16_t *)(row + 2) & nm) | (fill1 & mask);
-	}
+	WaitFlip();
+	PlanarGlyph(draw_page + RowOffset(y * 8) + (x >> 1) * 8 + (x & 1),
+	            font_data + ch * 8, color, y * 8, SCR_HGHT);
 }
 
 /* Fast horizontal line for status bar border (full-width lines) */
@@ -1118,7 +1409,8 @@ void Vid_HLine(int y, int color)
 	if (y < 0 || y >= SCR_HGHT)
 		return;
 
-	row = draw_page + (SCR_HGHT - 1 - y) * SCREEN_STRIDE;
+	WaitFlip();
+	row = draw_page + RowOffset(SCR_HGHT - 1 - y);
 	fill0 = (color & 1) ? 0xFFFF : 0;
 	fill1 = (color & 2) ? 0xFFFF : 0;
 	fill2 = (color & 4) ? 0xFFFF : 0;
@@ -1139,13 +1431,15 @@ void Vid_ColorScreen(int color)
 {
 	int y;
 	uint16_t fill0, fill1;
+	uint8_t *row;
 
+	WaitFlip();
 	fill0 = (color & 1) ? 0xFFFF : 0;
 	fill1 = (color & 2) ? 0xFFFF : 0;
 
-	for (y = SBAR_HGHT; y < SCR_HGHT; ++y)
+	row = draw_page;
+	for (y = SBAR_HGHT; y < SCR_HGHT; ++y, row += SCREEN_STRIDE)
 	{
-		uint8_t *row = draw_page + (SCR_HGHT - 1 - y) * SCREEN_STRIDE;
 		int i;
 
 		for (i = 0; i < 20; ++i)

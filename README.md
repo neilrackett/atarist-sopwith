@@ -20,7 +20,8 @@ it was finally time get this port done.
 
 Features:
 
-- Native ST C and ASM to match original performance
+- Native ST C and ASM to match original performance: the game's full
+  ten moves a second on a stock 8MHz 520ST
 - Support for loading custom levels
 - PC speaker style music and sound
 - Multiple palettes that emulate a selection of old monitors
@@ -57,10 +58,11 @@ animals, big explosions and starting level). Press Ctrl-C to stop
 waiting for the other player, or to quit during a game; either way,
 you're returned to the title screen.
 
-A stock ST takes longer to draw a frame than a PC does, so in a network
-game it skips drawing the odd frame to keep both players at the game's
-full speed. Over the internet, the listening player's router needs to
-forward TCP port 3847 to them (see the [FAQ](FAQ.md)).
+A stock ST runs the game at its full speed, ten moves a second, but
+should a busy moment ever put it behind, a network game skips drawing
+the odd frame rather than hold the other player back. Over the
+internet, the listening player's router needs to forward TCP port 3847
+to them (see the [FAQ](FAQ.md)).
 
 ## Build
 

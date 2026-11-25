@@ -70,7 +70,13 @@ static inline void drawchar(int x, int y, int c)
 void swputc(char c)
 {
 	if (isprint(c) || (c >= 0x10 && c < 0x20)) {
+#ifdef PLATFORM_ATARI_TOS
+		// Cells straight through, rather than pixels to be divided
+		// by 8 again: the help text is hundreds of these a frame.
+		Vid_DrawChar(cur_x, cur_y, c, cur_color);
+#else
 		drawchar(cur_x * 8, cur_y * 8, c);
+#endif
 	}
 	++cur_x;
 	if (c == '\n') {

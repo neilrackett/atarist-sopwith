@@ -35,6 +35,7 @@
 
 #include "atari_keys.h"
 #include "font.h"
+#include "planar.h"
 #include "sw.h"
 #include "swinit.h"
 #include "swmain.h"
@@ -264,7 +265,6 @@ int keybindings[NUM_KEYS] = {
 bool vid_fullscreen = false;
 
 static STDL_Surface *screen;
-static STDL_Font game_font;
 
 static struct input_event input_buffer[INPUT_BUFFER_LEN];
 static int input_head;
@@ -686,7 +686,11 @@ void Vid_Init(void)
 		ErrorExit("STDL_Init failed: %s", STDL_GetError());
 	}
 
-	screen = STDL_SetVideoMode(SCR_WDTH, SCR_HGHT, 4, STDL_DOUBLEBUF);
+	/* Three pages rather than two: STDL_Flip then hands over a frame
+	   without waiting for the vertical blank, and the next one starts
+	   at once. Without the memory STDL settles for two. */
+	screen = STDL_SetVideoMode(SCR_WDTH, SCR_HGHT, 4,
+	                           STDL_DOUBLEBUF | STDL_TRIPLEBUF);
 	if (screen == NULL)
 	{
 		ErrorExit("STDL_SetVideoMode failed: %s", STDL_GetError());
@@ -712,14 +716,6 @@ void Vid_Init(void)
 	   tracking, so STDL's auto-repeat would double up presses. */
 	STDL_EnableUNICODE(1);
 	STDL_EnableKeyRepeat(0, 0);
-
-	/* the game's 8x8 CGA font, used directly as an STDL font */
-	game_font.cw = 8;
-	game_font.ch = 8;
-	game_font.first = 0;
-	game_font.last = 255;
-	game_font.bytes_per_row = 1;
-	game_font.bits = font_data;
 
 	active_palette = 0;
 	ApplyPalette();
@@ -1000,9 +996,34 @@ void Vid_DispGround_Solid(GRNDTYPE *gptr)
 	}
 }
 
+#define RowOffset(row) PlanarRowOffset(row)
+
+/*
+ * Single pixels (the gauges, some 40 a frame) and characters (the
+ * score, and the help text, hundreds a frame) are written straight
+ * into the page, as the separator line and the minimap are: one at a
+ * time through STDL they cost far more in calls than in pixels - a
+ * character about half a millisecond on a plain ST. Both write the
+ * native backend's way, planes 0 and 1 with planes 2 and 3 only ever
+ * ORed, which is what the plane budget expects of the play area.
+ */
 void Vid_PlotPixel(int x, int y, int clr)
 {
-	STDL_PutPixel(screen, x, SY(y), (uint8_t)clr);
+	uint16_t *words;
+	uint16_t mask;
+
+	if ((unsigned)x >= SCR_WDTH || (unsigned)y >= SCR_HGHT)
+	{
+		return;
+	}
+
+	words = (uint16_t *)(vid_vram + RowOffset(SY(y)) + (x >> 4) * 8);
+	mask = (uint16_t)(0x8000U >> (x & 15));
+
+	if (clr & 1) words[0] |= mask; else words[0] &= (uint16_t)~mask;
+	if (clr & 2) words[1] |= mask; else words[1] &= (uint16_t)~mask;
+	if (clr & 4) words[2] |= mask;
+	if (clr & 8) words[3] |= mask;
 }
 
 void Vid_XorPixel(int x, int y, int clr)
@@ -1076,19 +1097,17 @@ void Vid_ClearBuf(void)
 	STDL_FillRect(screen, NULL, 0);
 }
 
+/* x and y are text cells, top-down (not game coordinates). A character
+   is a byte of each plane word: the high byte in an even column, the
+   low byte in an odd one. */
 void Vid_DrawChar(int x, int y, int ch, int color)
 {
-	char buf[2];
-
 	if (ch < 0 || ch > 255)
 	{
 		return;
 	}
-	buf[0] = (char)ch;
-	buf[1] = '\0';
-	/* x and y are text cells, top-down (not game coordinates) */
-	STDL_DrawText(screen, &game_font, x * 8, y * 8, buf,
-	              (uint8_t)color);
+	PlanarGlyph(vid_vram + RowOffset(y * 8) + (x >> 1) * 8 + (x & 1),
+	            font_data + ch * 8, color, y * 8, SCR_HGHT);
 }
 
 /*

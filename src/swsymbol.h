@@ -37,6 +37,14 @@ struct symset_s {
 
 extern symset_t *all_symsets;
 
+#ifdef PLATFORM_ATARI_TOS
+// Where RenderCacheAlloc may take memory from (see swsymbol.c)
+#define RENDER_CACHE_ARENA   0   // the arena's spare, else plentiful heap
+#define RENDER_CACHE_HEAP    1   // plentiful heap only
+#define RENDER_CACHE_RESERVE 2   // the arena's spare to the last byte
+extern void *RenderCacheAlloc(size_t n, int from);
+#endif
+
 extern symset_t symbol_bomb[2];                 // swbmbsym
 extern symset_t symbol_targets[NUM_TARGET_TYPES];    // swtrgsym
 extern symset_t symbol_target_hit[NUM_TARGET_TYPES]; // swhtrsym

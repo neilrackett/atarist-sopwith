@@ -592,8 +592,12 @@ void swsndupdate(void)
 		lastclock = thisclock;
 	}
 
-	if (thisclock > lastclock + 1000 / 18.2) {
-		lastclock += 1000 / 18.2;
+	// The PC timer's 18.2Hz in whole milliseconds: lastclock is an int,
+	// so "lastclock + 1000 / 18.2" was always compared and stored as
+	// lastclock + 54, but in double arithmetic, which a 68000 does in
+	// software - several times a frame, from the VBL on the ST.
+	if (thisclock > lastclock + 54) {
+		lastclock += 54;
 		soundadj();
 	}
 }

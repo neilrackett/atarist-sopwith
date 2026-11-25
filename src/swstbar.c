@@ -17,19 +17,29 @@
 // Status bar code
 //
 
+#include <string.h>
+
 #include "video.h"
 
 #include "swinit.h"
 #include "swmain.h"
+#include "swsymbol.h"
 #include "swtext.h"
 
 #ifdef PLATFORM_ATARI_TOS
 /* Division by 13 via multiply-shift: floor(x / 13) = (x * 5042) >> 16
-   Exact for 0 <= x <= 200 (our max ground height). */
+   Exact for 0 <= x <= 200 (our max ground height). A 16-bit x takes the
+   68000's own mulu.w; a 32-bit multiply is a call to libgcc. */
 static inline int div13(int x)
 {
+	if ((unsigned int)x <= 0xFFFFU) {
+		return (int)(((uint32_t)(uint16_t)x * 5042U) >> 16);
+	}
 	return (int)(((unsigned int)x * 5042U) >> 16);
 }
+
+/* Byte offset of 'rows' screen rows: rows * 160 without a multiply. */
+#define MAP_ROWS(rows) (((unsigned int)(rows) << 7) + ((unsigned int)(rows) << 5))
 #endif
 
 /* --- Cached minimap heights ------------------------------------------ */
@@ -42,6 +52,13 @@ static uint8_t minimap_cache[MINIMAP_MAX_COLS];
 static bool minimap_dirty = true;
 static int minimap_num_cols;   /* actual number of columns (= max_x/wrld_rsx) */
 static int minimap_wrld_rsx;   /* wrld_rsx when cache was built */
+#ifdef PLATFORM_ATARI_TOS
+/* x / wrld_rsx as (x * recip) >> 16, for 0 <= x < recip_limit, where it
+   is exact (the multiply's rounding error stays under one 1/wrld_rsx). */
+static uint16_t minimap_recip;
+static unsigned int minimap_recip_limit;
+static bool minimap_image_valid;   /* see BuildMapImage */
+#endif
 
 void minimap_invalidate(void)
 {
@@ -76,6 +93,26 @@ static void minimap_rebuild(void)
 	minimap_num_cols = num_cols;
 	minimap_wrld_rsx = wrld_rsx;
 	minimap_dirty = false;
+#ifdef PLATFORM_ATARI_TOS
+	minimap_image_valid = false;
+#endif
+
+#ifdef PLATFORM_ATARI_TOS
+	/* recip = ceil(65536 / d) overshoots by e = recip * d - 65536, so
+	   (x * recip) >> 16 is floor(x / d) while x * e < 65536. */
+	minimap_recip = 0;
+	minimap_recip_limit = 0;
+	if (wrld_rsx >= 2) {
+		unsigned long recip = (65536UL + wrld_rsx - 1) / wrld_rsx;
+		unsigned long e = recip * wrld_rsx - 65536UL;
+
+		minimap_recip = (uint16_t)recip;
+		minimap_recip_limit = e == 0 ? 65536U : (unsigned int)(65535UL / e);
+		if (minimap_recip_limit > 65536U) {
+			minimap_recip_limit = 65536U;
+		}
+	}
+#endif
 }
 
 #ifdef PLATFORM_ATARI_TOS
@@ -97,8 +134,7 @@ static inline void map_plot(uint8_t *screen_base, int x, int y, int clr)
 	uint16_t *words;
 	uint16_t mask;
 
-	words = (uint16_t *)(screen_base + (199 - y) * MAP_SCREEN_STRIDE
-	                     + (x >> 4) * 8);
+	words = (uint16_t *)(screen_base + MAP_ROWS(199 - y) + (x >> 4) * 8);
 	mask = 0x8000U >> (x & 15);
 
 	if (clr & 1) words[0] |= mask; else words[0] &= ~mask;
@@ -281,10 +317,16 @@ static void dispmapobjects(int wrld_rsx
 		} else {
 			mapy = ob->ob_y - (ob->ob_symbol->h / 2);
 		}
-		x = SCR_CENTR + mapx / wrld_rsx;
 #ifdef PLATFORM_ATARI_TOS
+		if ((unsigned int)mapx < minimap_recip_limit) {
+			x = SCR_CENTR + (int)(((uint32_t)(uint16_t)mapx
+			                      * minimap_recip) >> 16);
+		} else {
+			x = SCR_CENTR + mapx / wrld_rsx;
+		}
 		y = div13(mapy);
 #else
+		x = SCR_CENTR + mapx / wrld_rsx;
 		y = mapy / wrld_rsy;
 #endif
 
@@ -299,65 +341,65 @@ static void dispmapobjects(int wrld_rsx
 	}
 }
 
-static void dispmap(void)
-{
-	int x, y, dx, maxh, sx;
-	const int wrld_rsx = WRLD_RSX;
-	const int wrld_rsy = WRLD_RSY;
-	const int max_x = currgame->gm_max_x;
-
-	/* Rebuild minimap cache if dirty or parameters changed */
-	if (minimap_dirty || minimap_wrld_rsx != wrld_rsx) {
-		minimap_rebuild();
-	}
-
 #ifdef PLATFORM_ATARI_TOS
-	/* Fast Atari path: iterate cached heights, inline pixel plotting */
-	extern uint8_t *vid_vram;
-	uint8_t *scr = vid_vram;
+/*
+ * The minimap's ground, its sky line and border, and the separator
+ * above the bar change only with the ground (a crater) or the level,
+ * but drawing them was a good part of the bar's time every frame. So
+ * they are drawn once into an image of the bar's rows - screen rows
+ * 181 to 199, game y 18 down to 0 - which each frame copies into the
+ * page in place of drawing them, after the clear and before anything
+ * else touches those rows.
+ */
+#define MAP_IMAGE_ROWS (SCR_MNSH + 3)
+#define MAP_IMAGE_BYTES (MAP_IMAGE_ROWS * MAP_SCREEN_STRIDE)
+static uint8_t *minimap_image;        /* NULL: no room; drawn each frame */
+static bool minimap_image_failed;
+
+/* The ground trace, sky line and border, ORed in upwards from 'bottom',
+   the start of game row 0. */
+static void DrawMapBackground(uint8_t *bottom)
+{
 	uint16_t *col_words;
 	uint16_t col_mask;
 	int num_cols = minimap_num_cols;
-
-	(void)dx; (void)max_x; (void)wrld_rsx; (void)wrld_rsy;
+	int x, y, maxh, sx;
 
 	sx = SCR_CENTR;
-	col_words = (uint16_t *)(scr + 199 * MAP_SCREEN_STRIDE
-	                         + (sx >> 4) * 8);
+	col_words = (uint16_t *)(bottom + (sx >> 4) * 8);
 	col_mask = 0x8000U >> (sx & 15);
 	y = 0;
 
 	for (x = 0; x < num_cols; ++x) {
 		maxh = minimap_cache[x];
 
-		/* Draw ground trace - only the pixels that changed */
+		/* Draw ground trace - only the pixels that changed, a row
+		   at a time from the one beside the last height */
 		if (maxh != y) {
 			uint16_t *w;
+			int yy;
 			if (maxh > y) {
-				int yy;
+				w = (uint16_t *)((uint8_t *)col_words - MAP_ROWS(y + 1));
 				for (yy = y + 1; yy <= maxh; ++yy) {
-					w = (uint16_t *)((uint8_t *)col_words
-					    - yy * MAP_SCREEN_STRIDE);
 					w[0] |= col_mask;
 					w[1] |= col_mask;
 					w[2] |= col_mask;
+					w = (uint16_t *)((uint8_t *)w - MAP_SCREEN_STRIDE);
 				}
 			} else {
-				int yy;
+				w = (uint16_t *)((uint8_t *)col_words - MAP_ROWS(y - 1));
 				for (yy = y - 1; yy >= maxh; --yy) {
-					w = (uint16_t *)((uint8_t *)col_words
-					    - yy * MAP_SCREEN_STRIDE);
 					w[0] |= col_mask;
 					w[1] |= col_mask;
 					w[2] |= col_mask;
+					w = (uint16_t *)((uint8_t *)w + MAP_SCREEN_STRIDE);
 				}
 			}
 			y = maxh;
 		}
 		/* Single pixel at current height */
 		{
-			uint16_t *w = (uint16_t *)((uint8_t *)col_words
-			              - y * MAP_SCREEN_STRIDE);
+			uint16_t *w = (uint16_t *)((uint8_t *)col_words - MAP_ROWS(y));
 			w[0] |= col_mask;
 			w[1] |= col_mask;
 			w[2] |= col_mask;
@@ -380,30 +422,89 @@ static void dispmap(void)
 	/* Map border - color 11 */
 	{
 		int border_h = div13(MAX_Y);
-		uint16_t *left_words = (uint16_t *)(scr + 199 * MAP_SCREEN_STRIDE
-		                       + (SCR_CENTR >> 4) * 8);
+		uint16_t *left_words = (uint16_t *)(bottom + (SCR_CENTR >> 4) * 8);
 		uint16_t left_mask = 0x8000U >> (SCR_CENTR & 15);
-		uint16_t *right_words = (uint16_t *)(scr + 199 * MAP_SCREEN_STRIDE
-		                        + (sx >> 4) * 8);
+		uint16_t *right_words = (uint16_t *)(bottom + (sx >> 4) * 8);
 		uint16_t right_mask = 0x8000U >> (sx & 15);
 
+		uint16_t *lw = left_words, *rw = right_words;
+
 		for (y = 0; y <= border_h; ++y) {
-			uint16_t *lw = (uint16_t *)((uint8_t *)left_words
-			               - y * MAP_SCREEN_STRIDE);
-			uint16_t *rw = (uint16_t *)((uint8_t *)right_words
-			               - y * MAP_SCREEN_STRIDE);
 			lw[0] |= left_mask;
 			lw[1] |= left_mask;
 			lw[3] |= left_mask;
 			rw[0] |= right_mask;
 			rw[1] |= right_mask;
 			rw[3] |= right_mask;
+			lw = (uint16_t *)((uint8_t *)lw - MAP_SCREEN_STRIDE);
+			rw = (uint16_t *)((uint8_t *)rw - MAP_SCREEN_STRIDE);
+		}
+	}
+
+}
+
+static bool BuildMapImage(void)
+{
+	uint16_t *w;
+	int g;
+
+	if (minimap_image == NULL) {
+		if (minimap_image_failed) {
+			return false;
+		}
+		minimap_image = RenderCacheAlloc(MAP_IMAGE_BYTES, RENDER_CACHE_ARENA);
+		if (minimap_image == NULL) {
+			minimap_image_failed = true;
+			return false;
+		}
+	}
+
+	memset(minimap_image, 0, MAP_IMAGE_BYTES);
+	DrawMapBackground(minimap_image
+	                  + (MAP_IMAGE_ROWS - 1) * MAP_SCREEN_STRIDE);
+
+	/* The separator, game row SCR_MNSH + 2, the image's first row:
+	   colour 7, planes 0 to 2. */
+	w = (uint16_t *)minimap_image;
+	for (g = 0; g < SCR_WDTH / 16; ++g, w += 4) {
+		w[0] = w[1] = w[2] = 0xFFFFU;
+		w[3] = 0;
+	}
+	minimap_image_valid = true;
+	return true;
+}
+#endif
+
+static void dispmap(void)
+{
+	int x, y, dx, maxh, sx;
+	const int wrld_rsx = WRLD_RSX;
+	const int wrld_rsy = WRLD_RSY;
+	const int max_x = currgame->gm_max_x;
+
+	/* Rebuild minimap cache if dirty or parameters changed */
+	if (minimap_dirty || minimap_wrld_rsx != wrld_rsx) {
+		minimap_rebuild();
+	}
+
+#ifdef PLATFORM_ATARI_TOS
+	{
+		extern uint8_t *vid_vram;
+
+		(void)x; (void)y; (void)dx; (void)maxh; (void)sx; (void)max_x;
+		if (minimap_image_valid || BuildMapImage()) {
+			memcpy(vid_vram + (SCR_HGHT - MAP_IMAGE_ROWS)
+			                  * MAP_SCREEN_STRIDE,
+			       minimap_image, MAP_IMAGE_BYTES);
+		} else {
+			/* No room for the image: drawn into the page itself */
+			DrawMapBackground(vid_vram + (SCR_HGHT - 1)
+			                             * MAP_SCREEN_STRIDE);
+			Vid_HLine(SCR_MNSH + 2, 7);
 		}
 	}
 
 	dispmapobjects(wrld_rsx, wrld_rsy);
-
-	Vid_HLine(SCR_MNSH + 2, 7);
 
 #else
 	/* Generic path using cached heights */

@@ -173,14 +173,14 @@ static void DumpCmds(void)
 
 #ifdef PLATFORM_ATARI_TOS
 
-// A stock ST takes longer to draw a frame than the game allows for a
-// move (a tenth of a second). Alone, that only slows the game down, but
-// a network game moves in step: the other player is held to the ST's
-// pace while their moves keep coming at the full rate, and they pile up
-// waiting to be played, until each takes over a second to happen. So in
-// a network game the ST keeps time by not drawing the moves it is late
-// for - drawing has no effect on the game, so both sides still agree -
-// though never more than MAX_SKIPPED in a row.
+// A busy scene can take an ST longer to draw than the game allows for a
+// move (a tenth of a second). Alone, that only slows the game down for a
+// moment, but a network game moves in step: the other player is held to
+// the ST's pace while their moves keep coming at the full rate, and they
+// pile up waiting to be played. So in a network game the ST keeps time
+// by not drawing the moves it is late for - drawing has no effect on the
+// game, so both sides still agree - though never more than MAX_SKIPPED
+// in a row.
 #define MAX_SKIPPED 3
 
 static bool SkipFrame(int nexttic)

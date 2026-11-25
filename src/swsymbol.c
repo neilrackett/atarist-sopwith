@@ -50,6 +50,40 @@ static uint8_t *ArenaAlloc(size_t n)
 	return p;
 }
 
+#ifdef PLATFORM_ATARI_TOS
+#include <mint/osbind.h>
+
+// Memory for the Atari renderers' caches (the planar symbols, the minimap
+// and help images). The arena is sized for the biggest custom level, so a
+// standard one leaves some 25KB of it unused - memory the game holds
+// anyway, which on a 512KB machine is more than the heap has left. Once
+// the symbols are made (at start-up, before anything is drawn), that tail
+// is handed out here, long-aligned, and its last 8KB is kept back for
+// objects should the heap run out (swobject.c). Where GEMDOS still has
+// plenty free (a 1MB machine or more), malloc serves past it - and, with
+// RENDER_CACHE_HEAP, serves alone: for a cache that must not crowd out
+// the others.
+void *RenderCacheAlloc(size_t n, int from)
+{
+	if (from != RENDER_CACHE_HEAP && sym_arena != NULL) {
+		size_t start = (sym_arena_used + 3) & ~(size_t)3;
+		size_t keep = from == RENDER_CACHE_RESERVE ? 0 : 8192;
+
+		if (start + n + keep <= SYM_ARENA_SIZE) {
+			sym_arena_used = start + n;
+			return sym_arena + start;
+		}
+	}
+	if (from == RENDER_CACHE_RESERVE) {
+		return NULL;
+	}
+	if (Malloc(-1L) >= 65536L + (long)n) {
+		return malloc(n);
+	}
+	return NULL;
+}
+#endif
+
 // Cache the last symset generated from each source text pointer so that
 // duplicate source strings (e.g. destroyed_custom used 10 times) share
 // pixel data rather than allocating identical copies.

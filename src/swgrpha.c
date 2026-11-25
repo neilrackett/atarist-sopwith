@@ -19,6 +19,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "timer.h"
 #include "video.h"
@@ -31,6 +32,7 @@
 #include "swmove.h"
 #include "swsplat.h"
 #include "swstbar.h"
+#include "swsymbol.h"
 #include "swtext.h"
 
 #define NOTIFICATION_BUF_SIZE ((SCR_WDTH / 8) + 1)
@@ -83,6 +85,70 @@ void swputsym(int x, int y, OBJECTS *ob)
 	Vid_DispSymbol(x, y, ob->ob_symbol, ob_color(ob));
 }
 
+#ifdef PLATFORM_ATARI_TOS
+/*
+ * The beginner's help is some 330 characters, which an ST takes most of
+ * a frame's time to draw; and while it shows it is the same every frame.
+ * It is drawn just after the clear, onto rows nothing else has touched
+ * yet (the status bar is below them, splats and the end message are off,
+ * and everything else comes after), so those rows are then the help on
+ * black, and are kept: later frames copy them back in place of drawing
+ * it. Its text depends only on the key bindings and whether there is a
+ * controller, which are checked each time.
+ */
+#define HELP_FIRST_ROW  (2 * 8)     /* text rows 2 to 12 */
+#define HELP_ROWS       (11 * 8)
+#define HELP_BYTES      (HELP_ROWS * 160)
+
+static uint8_t *help_image;          /* NULL until help is first shown */
+static bool help_valid;
+static int help_keys[NUM_KEYS];
+static bool help_pad;
+
+static bool HelpCanCopy(void)
+{
+	return !conf_hudsplats && consoleplayer->ob_endsts == PLAYING;
+}
+
+static bool HelpUnchanged(void)
+{
+	return help_valid && help_pad == Vid_HaveController()
+	    && memcmp(help_keys, keybindings, sizeof(help_keys)) == 0;
+}
+
+static bool HelpFromImage(void)
+{
+	extern uint8_t *vid_vram;
+
+	if (!HelpCanCopy() || !HelpUnchanged()) {
+		return false;
+	}
+	memcpy(vid_vram + HELP_FIRST_ROW * 160, help_image, HELP_BYTES);
+	return true;
+}
+
+static void HelpToImage(void)
+{
+	extern uint8_t *vid_vram;
+
+	if (!HelpCanCopy()) {
+		return;
+	}
+	if (help_image == NULL) {
+		/* Not from the symbols' spare memory, which a 512KB machine
+		   needs for them: only where there is plenty to spare. */
+		help_image = RenderCacheAlloc(HELP_BYTES, RENDER_CACHE_HEAP);
+		if (help_image == NULL) {
+			return;    /* drawn every frame, as before */
+		}
+	}
+	memcpy(help_image, vid_vram + HELP_FIRST_ROW * 160, HELP_BYTES);
+	memcpy(help_keys, keybindings, sizeof(help_keys));
+	help_pad = Vid_HaveController();
+	help_valid = true;
+}
+#endif
+
 static void PrintHelp(void)
 {
 	const char *name;
@@ -120,6 +186,12 @@ static void PrintHelp(void)
 	default:
 		return;
 	}
+
+#ifdef PLATFORM_ATARI_TOS
+	if (HelpFromImage()) {
+		return;
+	}
+#endif
 
 	swcolor(2);
 	swposcur(1, 2);
@@ -163,6 +235,10 @@ static void PrintHelp(void)
 #endif
 	swposcur(1, i + 3);
 	swputs(buf);
+
+#ifdef PLATFORM_ATARI_TOS
+	HelpToImage();
+#endif
 }
 
 void swdisp(void)
