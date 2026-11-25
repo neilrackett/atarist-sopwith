@@ -79,15 +79,48 @@ PACKAGE_STRING "\n"
 #endif
 ;
 
+#ifdef PLATFORM_ATARI_TOS
+// Puts every object on the free list, zeroed as calloc leaves a new one.
+// The sound code's VBL handler may still be reading the last object heard
+// for its tone, so ob_sound goes to NULL in one write before the rest:
+// memset could clear the pointer a word at a time.
+static void FreeObjects(OBJECTS *ob)
+{
+	while (ob != NULL) {
+		OBJECTS *next = ob->ob_next;
+
+		*(TONETAB * volatile *)&ob->ob_sound = NULL;
+		memset(ob, 0, sizeof(*ob));
+		ob->ob_next = objfree;
+		objfree = ob;
+		ob = next;
+	}
+}
+#endif
+
 static void initobjs(void)
 {
+#ifdef PLATFORM_ATARI_TOS
+	// The last level's objects are kept for this one: dropping the lists,
+	// as below, leaked them, several KB a level, more than a 512KB ST has
+	// to spare. Zeroed, they are what new ones would be, so a network
+	// game still plays exactly as a PC's does.
+	OBJECTS *was_free = objfree;
+
+	objfree = NULL;
+	FreeObjects(objtop);
+	FreeObjects(deltop);
+	FreeObjects(was_free);
+#endif
 	topobj.ob_xnext = topobj.ob_next = &botobj;
 	botobj.ob_xprev = botobj.ob_prev = &topobj;
 	topobj.ob_x = -32767;
 	botobj.ob_x = 32767;
 
 	objbot = objtop = deltop = delbot = NULL;
+#ifndef PLATFORM_ATARI_TOS
 	objfree = NULL;
+#endif
 }
 
 void initgrnd(void)

@@ -14,9 +14,12 @@
 
 #include <assert.h>
 
+#include <string.h>
+
 #include "sw.h"
 #include "swmain.h"
 #include "swobject.h"
+#include "swsymbol.h"
 
 bool PlaneIsKilled(obstate_t state)
 {
@@ -121,6 +124,16 @@ OBJECTS *allocobj(void)
 		objfree = ob->ob_next;
 	} else {
 		ob = calloc(1, sizeof(OBJECTS));
+#ifdef PLATFORM_ATARI_TOS
+		// A 512KB ST's heap can run out in a busy scene: the reserve
+		// kept in the symbols' spare memory is for this.
+		if (ob == NULL) {
+			ob = RenderCacheAlloc(sizeof(OBJECTS), RENDER_CACHE_RESERVE);
+			if (ob != NULL) {
+				memset(ob, 0, sizeof(OBJECTS));
+			}
+		}
+#endif
 		assert(ob != NULL);
 	}
 
