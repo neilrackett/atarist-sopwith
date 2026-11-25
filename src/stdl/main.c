@@ -17,8 +17,17 @@ extern void JoystickInit(void);
 extern void Vid_ReportSpriteCache(void);
 #endif
 
+/* libcmini: the size of the blocks malloc takes from GEMDOS (no header
+   declares it). */
+extern void __mallocChunkSize(long size);
+
 int main(int argc, char *argv[])
 {
+	/* libcmini's malloc asks GEMDOS for blocks that grow from 8KB to
+	   32KB, so the last 32KB or less of a small machine would never
+	   reach the heap. 8KB blocks reach most of it. */
+	__mallocChunkSize(8192);
+
 	/* On a line of its own: STDL_Init writes its own after it. */
 	printf("Loading ST Sopwith (STDL backend)...\r\n");
 	fflush(stdout);

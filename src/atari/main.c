@@ -14,8 +14,19 @@ long _stksize = 32768L;
 extern void JoystickInit(void);
 extern void JoystickExit(void);
 
+/* libcmini: the size of the blocks malloc takes from GEMDOS (no header
+   declares it). */
+extern void __mallocChunkSize(long size);
+
 int main(int argc, char *argv[])
 {
+	/* libcmini's malloc asks GEMDOS for blocks that grow from 8KB to
+	   32KB. Once the game has loaded, a 512KB ST has only 17-23KB of
+	   GEMDOS memory left, too little for a 32KB block, so the heap
+	   would stop short and leave it unused. 8KB blocks reach most of
+	   it: room for up to sixty more objects in a busy scene. */
+	__mallocChunkSize(8192);
+
 	printf("Loading ST Sopwith...");
 
 	/* Enter supervisor mode for the lifetime of the program.
