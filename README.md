@@ -88,6 +88,10 @@ The STDL build needs an ST with 1MB or more to play at full speed. On a
 512KB machine it runs at about a third of the speed, so a 520ST wants the
 default build, which plays at full speed there.
 
+`stcmd make floppy` builds the default game and puts it on
+`build/SOPWITH.ST`, a single-sided floppy image that starts it when an ST is
+switched on with the disk in the drive.
+
 ## More Info
 
 More information about ST Sopwith is available in some of the files

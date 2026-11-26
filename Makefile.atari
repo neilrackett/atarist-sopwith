@@ -109,12 +109,23 @@ endif
 SOURCES = $(COMMON_SOURCES) $(BACKEND_SOURCES)
 OBJECTS = $(patsubst %.c,$(OBJDIR)/%.o,$(SOURCES))
 
-.PHONY: all clean run-st run-st512 run-ste run-megaste
+.PHONY: all clean floppy run-st run-st512 run-ste run-megaste
 
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS) $(BACKEND_LIB) | $(BUILDDIR)
 	$(CC) $(LDFLAGS) -o $@ $(LIBCMINI)/crt0.o $(OBJECTS) $(BACKEND_LIB) $(LDLIBS)
+
+# The floppy image: the game in AUTO, so that switching on with the
+# disk in is all it takes to play. Single-sided 360K, which the first
+# 520STs' drives read as well as every later one.
+PYTHON ?= python3
+FLOPPY ?= $(BUILDDIR)/SOPWITH.ST
+
+floppy: $(FLOPPY)
+
+$(FLOPPY): $(TARGET) tools/mkfloppy.py | $(BUILDDIR)
+	$(PYTHON) tools/mkfloppy.py -o $@ -s 360 $(TARGET)=AUTO/SOPWITH.PRG
 
 # Build the library from the submodule when its archive is missing,
 # so a fresh clone needs one command. An existing archive is left
