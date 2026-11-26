@@ -736,6 +736,8 @@ void Vid_Reset(void)
 
 void Vid_Update(void)
 {
+	const void *shown;
+
 	if (!initted)
 	{
 		Vid_Init();
@@ -746,10 +748,30 @@ void Vid_Update(void)
 	   the latency between a keypress and the game acting on it. */
 	PollInput();
 
+	/* swgets() draws only the text being typed, over a prompt drawn
+	   once before it, so the screen is carried over to the page drawn
+	   next (below), or the prompt shows on one frame in two (or three)
+	   and the screen flashes. (Everything else redraws the whole
+	   screen.) That copy takes all but a whole VBL, so the flip that
+	   follows it would creep round the frame and, sooner or later,
+	   ask for the new page just as the video base is latched: a frame
+	   of some other memory. Asking just after a VBL keeps clear. */
+	if (text_input_mode)
+	{
+		STDL_WaitVBL();
+	}
+
 	/* VBL-synced page flip; the back buffer moves, so republish it
 	   for swstbar.c's direct minimap writes. */
+	shown = screen->pixels;
 	STDL_Flip();
 	vid_vram = screen->pixels;
+
+	/* STDL_Flip has taken the new page off the screen. */
+	if (text_input_mode)
+	{
+		memcpy(screen->pixels, shown, (size_t) screen->pitch * screen->h);
+	}
 }
 
 bool Vid_GetCtrlBreak(void)

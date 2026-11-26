@@ -685,6 +685,23 @@ void Vid_Update(void)
 	   the latency between a keypress and the game acting on it. */
 	PollInput();
 
+	/* swgets() draws only the text being typed, over a prompt drawn
+	   once before it, so the screen is carried over to the page drawn
+	   next (below), or the prompt shows on every other frame and the
+	   screen flashes. (Everything else redraws the whole screen.)
+	   That copy takes all but a whole VBL, so the flip that follows
+	   it would creep round the frame and, sooner or later, ask for
+	   the new page just as the video base is latched: a frame of
+	   some other memory. Asking just after a VBL keeps clear. */
+	if (text_input_mode)
+	{
+		uint32_t vbl = VBCLOCK;
+
+		while (VBCLOCK == vbl)
+		{
+		}
+	}
+
 	/* Page flip: set the hardware to display the page we just drew,
 	   then switch to drawing on the other page. Setscreen with -1
 	   means "don't change that parameter"; the new page is shown from
@@ -697,6 +714,12 @@ void Vid_Update(void)
 	draw_page_idx ^= 1;
 	draw_page = page[draw_page_idx];
 	vid_vram = draw_page;
+
+	if (text_input_mode)
+	{
+		WaitFlip();
+		memcpy(draw_page, page[draw_page_idx ^ 1], SCREEN_BYTES);
+	}
 }
 
 bool Vid_GetCtrlBreak(void)
