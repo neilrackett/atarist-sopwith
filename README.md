@@ -26,8 +26,9 @@ Features:
 - PC speaker style music and sound
 - Multiple palettes that emulate a selection of old monitors
 - Medals feature
-- Network multiplayer over TCP/IP with STinG: ST against ST, or against
-  SDL Sopwith on a PC
+- ~~Magilink serial network multiplayer~~ Network multiplayer via STinG - _You can even play against [SDL Sopwith](https://fragglet.github.io/sdl-sopwith/)!_ 
+
+Not got your ST online yet? Connect it to your WiFi using [MD/Net](https://neilrackett.com/atarist/md-net)!
 
 ## Download
 
